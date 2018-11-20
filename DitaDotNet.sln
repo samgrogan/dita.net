@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.106
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DitaDotNetLib", "..\DitaDotNetLib\DitaDotNetLib.csproj", "{CC5685A9-A330-43C6-A4C2-6FAD66BE5B9E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DitaDotNetLib", "DitaDotNetLib\DitaDotNetLib.csproj", "{CC5685A9-A330-43C6-A4C2-6FAD66BE5B9E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DitaDotNetConsole", "DitaDotNetConsole\DitaDotNetConsole.csproj", "{51F48732-E330-47B5-84EF-BFEF54729F5A}"
 EndProject
