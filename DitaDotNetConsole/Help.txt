@@ -1,0 +1,3 @@
+﻿Processes DITA files and generates different kinds of output
+
+DitaDotNetConsole <command> i(nput)=<input file or folder> o(utput)<output file or folder (optional)>
