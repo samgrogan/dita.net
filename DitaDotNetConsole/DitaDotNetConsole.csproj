@@ -56,5 +56,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\DitaDotNetLib\DitaDotNetLib.csproj">
+      <Project>{cc5685a9-a330-43c6-a4c2-6fad66be5b9e}</Project>
+      <Name>DitaDotNetLib</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

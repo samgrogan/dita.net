@@ -20,10 +20,17 @@ namespace Dita.Net.Console
                 switch (config[Parameters.ARG_COMMAND]) {
                     case Parameters.CMD_VERIFY:
                         System.Console.WriteLine($"Verifying {config[Parameters.ARG_INPUT]}...");
-                        return 0;
+
+                        DitaVerifier verifier = new DitaVerifier();
+                        if (verifier.VerifyFileOrDirectory(config[Parameters.ARG_INPUT])) {
+                            return 0;
+                        }
+                        return -1;
+
                     case Parameters.CMD_CONVERT:
                         System.Console.WriteLine($"Converting {config[Parameters.ARG_INPUT]}...");
                         return 0;
+
                     default:
                         break;
                 }
