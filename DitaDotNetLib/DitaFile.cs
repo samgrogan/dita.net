@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -9,20 +10,28 @@ namespace Dita.Net
         // Valid types of DITA Files
         public enum DitaFileType {
             Unknown = 0,
+
+            [Description("DITA Map")]
             Map = 100,
-            Topic = 200,
-            Svg = 300
+
+            [Description("DITA Book Map")]
+            BookMap = 101,
+
+            [Description("DITA Topic")]
+            Topic = 200
         }
-
-
+       
         // The Xml Document that holds the raw DITA content
-        private readonly XmlDocument _xmlDocument;
+        protected readonly XmlDocument _xmlDocument;
 
 
         // Default constructor - initialize from a file
-        public DitaFile(string strPath) {
-            // Try to load the file as an Xml document
+        public DitaFile() {
             _xmlDocument = new XmlDocument();
+        }
+
+        public void Load(string strPath) {
+            // Try to load the file as an Xml document
             _xmlDocument.Load(strPath);
         }
 
@@ -33,14 +42,26 @@ namespace Dita.Net
 
             if (!string.IsNullOrWhiteSpace(docType))
             {
+                // Is this a dita book map?
+                if (DitaBookMap.IsMatchingDocType(docType)) {
+                    return DitaFileType.BookMap;
+                }
                 // Is this a dita map?
-
-
-
-
+                if (DitaMap.IsMatchingDocType(docType)) {
+                    return DitaFileType.Map;
+                }
+                // Is this a dita topic
+                if (DitaTopic.IsMatchingDocType(docType)) {
+                    return DitaFileType.Topic;
+                }
             }
 
             return DitaFileType.Unknown;
         }
+
+        public static bool IsMatchingDocType(string docType) {
+            throw new NotImplementedException();
+        }
+
     }
 }

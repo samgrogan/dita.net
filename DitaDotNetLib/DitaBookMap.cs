@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace Dita.Net
 {
-    public class DitaMap : DitaFile
+    class DitaBookMap : DitaMap
     {
         // Default constructor
-        public DitaMap(DitaFile ditaFile) : base() {
-
+        public DitaBookMap(DitaFile ditaFile) : base(ditaFile)
+        {
+            
         }
 
         // Does the given DOCTYPE match this object?
@@ -18,7 +19,7 @@ namespace Dita.Net
         {
             if (!string.IsNullOrWhiteSpace(docType))
             {
-                return (docType.Contains("map") && docType.Contains("map.dtd") && docType.Contains("-//OASIS//DTD DITA Map//"));
+                return (docType.Contains("bookmap") && docType.Contains("bookmap.dtd") && docType.Contains("-//OASIS//DTD DITA BookMap//"));
             }
             return false;
         }

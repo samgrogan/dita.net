@@ -13,7 +13,6 @@ namespace Dita.Net.Console
             Parameters parameters = new Parameters();
             Dictionary<string, string> config = parameters.ParseArgs(args, out bool isValid);
 
-
             // Did we get any arguments?
             if (isValid) {
                 // What command were we asked to perform

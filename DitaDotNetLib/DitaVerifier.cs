@@ -51,12 +51,31 @@ namespace Dita.Net
         public bool VerifyFile(string strPath, bool recursive = false) {
             try {
                 // Try to load the given file
-                DitaFile file = new DitaFile(strPath);
+                DitaFile ditaFile = new DitaFile();
+                ditaFile.Load(strPath);
 
                 // Try to determine the type of the file
-                file.InspectFileType();
+                DitaFile.DitaFileType fileType = ditaFile.InspectFileType();
 
-                return true;
+                switch (fileType) {
+                    case DitaFile.DitaFileType.BookMap:
+                        DitaBookMap ditaBookMap = new DitaBookMap(ditaFile);
+
+                        Console.WriteLine($"{Path.GetFileName(strPath)} is a {DitaFile.DitaFileType.BookMap}");
+                        return true;
+
+                    case DitaFile.DitaFileType.Map:
+                        DitaMap ditaMap = new DitaMap(ditaFile);
+
+                        Console.WriteLine($"{Path.GetFileName(strPath)} is a {DitaFile.DitaFileType.Map}");
+                        return true;
+
+                    case DitaFile.DitaFileType.Topic:
+                        DitaTopic ditaTopic = new DitaTopic(ditaFile);
+
+                        Console.WriteLine($"{Path.GetFileName(strPath)} is a {DitaFile.DitaFileType.Topic}");
+                        return true;
+                }
             }
             catch {
                 Console.WriteLine($"Unable to parse {strPath}.");
