@@ -55,26 +55,28 @@ namespace Dita.Net
                 ditaFile.Load(strPath);
 
                 // Try to determine the type of the file
-                DitaFile.DitaFileType fileType = ditaFile.InspectFileType();
+                DitaFileType fileType = ditaFile.InspectFileType();
 
                 switch (fileType) {
-                    case DitaFile.DitaFileType.BookMap:
+                    case DitaFileType.BookMap:
                         DitaBookMap ditaBookMap = new DitaBookMap(ditaFile);
 
-                        Console.WriteLine($"{Path.GetFileName(strPath)} is a {DitaFile.DitaFileType.BookMap}");
+                        Console.WriteLine($"{Path.GetFileName(strPath)} is a {DitaFileType.BookMap}");
                         return true;
 
-                    case DitaFile.DitaFileType.Map:
+                    case DitaFileType.Map:
                         DitaMap ditaMap = new DitaMap(ditaFile);
 
-                        Console.WriteLine($"{Path.GetFileName(strPath)} is a {DitaFile.DitaFileType.Map}");
+                        Console.WriteLine($"{Path.GetFileName(strPath)} is a {DitaFileType.Map}");
                         return true;
 
-                    case DitaFile.DitaFileType.Topic:
+                    case DitaFileType.Topic:
                         DitaTopic ditaTopic = new DitaTopic(ditaFile);
-
-                        Console.WriteLine($"{Path.GetFileName(strPath)} is a {DitaFile.DitaFileType.Topic}");
-                        return true;
+                        if (ditaTopic.Parse()) {
+                            Console.WriteLine($"{Path.GetFileName(strPath)} is a {DitaFileType.Topic}");
+                            return true;
+                        }
+                        break;
                 }
             }
             catch {

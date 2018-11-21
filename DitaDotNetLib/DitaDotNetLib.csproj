@@ -47,6 +47,7 @@
     <Compile Include="DitaBookMap.cs" />
     <Compile Include="DitaCollection.cs" />
     <Compile Include="DitaConverter.cs" />
+    <Compile Include="DitaElement.cs" />
     <Compile Include="DitaFile.cs" />
     <Compile Include="DitaMap.cs" />
     <Compile Include="DitaTopic.cs" />
