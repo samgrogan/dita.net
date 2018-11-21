@@ -1,2 +1,2 @@
 # dita.net
-C#/.NET Classes for working with DITA content
+C#/.NET Classes and a sample app for validating DITA content and converting to HTML and JSON.
