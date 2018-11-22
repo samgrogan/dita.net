@@ -53,6 +53,7 @@
     <Compile Include="DitaTopic.cs" />
     <Compile Include="DitaVerifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="XmlNodeToDitaElementConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

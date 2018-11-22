@@ -5,10 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace Dita.Net.Console
-{
-    class Help
-    {
+namespace Dita.Net.Console {
+    class Help {
         // Writes out the command line help
         public void WriteHelpToConsole() {
             try {
@@ -17,7 +15,6 @@ namespace Dita.Net.Console
             }
             catch (Exception ex) {
                 System.Console.WriteLine("Error trying to read help file help.txt");
-                System.Console.WriteLine(ex);
             }
         }
     }

@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Xml;
 
-namespace Dita.Net
-{
-    public class DitaVerifier
-    {
+namespace Dita.Net {
+    public class DitaVerifier {
         // Try to verify the given file or directory
         public bool VerifyFileOrDirectory(string strPath) {
             // Is this a directory
@@ -48,39 +47,31 @@ namespace Dita.Net
         }
 
         // Verify a single DITA file
-        public bool VerifyFile(string strPath, bool recursive = false) {
+        public bool VerifyFile(string filePath, bool recursive = false) {
             try {
                 // Try to load the given file
-                DitaFile ditaFile = new DitaFile();
-                ditaFile.Load(strPath);
-
-                // Try to determine the type of the file
-                DitaFileType fileType = ditaFile.InspectFileType();
+                XmlDocument xmlDocument = DitaFile.LoadAndCheckType(filePath, out DitaFileType fileType);
 
                 switch (fileType) {
                     case DitaFileType.BookMap:
-                        DitaBookMap ditaBookMap = new DitaBookMap(ditaFile);
-
-                        Console.WriteLine($"{Path.GetFileName(strPath)} is a {DitaFileType.BookMap}");
+                        DitaBookMap ditaBookMap = new DitaBookMap(xmlDocument, filePath);
+                        Console.WriteLine($"{Path.GetFileName(filePath)} is a {DitaFileType.BookMap}");
                         return true;
 
-                    case DitaFileType.Map:
-                        DitaMap ditaMap = new DitaMap(ditaFile);
 
-                        Console.WriteLine($"{Path.GetFileName(strPath)} is a {DitaFileType.Map}");
+                    case DitaFileType.Map:
+                        DitaMap ditaMap = new DitaMap(xmlDocument, filePath);
+                        Console.WriteLine($"{Path.GetFileName(filePath)} is a {DitaFileType.Map}");
                         return true;
 
                     case DitaFileType.Topic:
-                        DitaTopic ditaTopic = new DitaTopic(ditaFile);
-                        if (ditaTopic.Parse()) {
-                            Console.WriteLine($"{Path.GetFileName(strPath)} is a {DitaFileType.Topic}");
-                            return true;
-                        }
-                        break;
+                        DitaTopic ditaTopic = new DitaTopic(xmlDocument, filePath);
+                        Console.WriteLine($"{Path.GetFileName(filePath)} is a {DitaFileType.Topic}");
+                        return true;
                 }
             }
-            catch {
-                Console.WriteLine($"Unable to parse {strPath}.");
+            catch (Exception ex) {
+                Console.WriteLine($"Unable to parse {System.IO.Path.GetFileName(filePath)}.");
             }
 
             return false;

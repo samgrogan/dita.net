@@ -4,10 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dita.Net
-{
-    public class DitaElement
-    {
+namespace Dita.Net {
+    public class DitaElement {
         #region Properties
 
         // What type of element is this

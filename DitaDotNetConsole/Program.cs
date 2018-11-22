@@ -1,11 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Dita.Net.Console
-{
-    class Program
-    {
-        static int Main(string[] args)
-        {
+namespace Dita.Net.Console {
+    class Program {
+        static int Main(string[] args) {
             // Help object, for displaying help to the users
             Help help = new Help();
 
@@ -24,6 +21,7 @@ namespace Dita.Net.Console
                         if (verifier.VerifyFileOrDirectory(config[Parameters.ARG_INPUT])) {
                             return 0;
                         }
+
                         return -1;
 
                     case Parameters.CMD_CONVERT:

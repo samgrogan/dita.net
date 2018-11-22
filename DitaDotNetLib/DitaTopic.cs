@@ -6,44 +6,23 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace Dita.Net
-{
-    public class DitaTopic : DitaFile 
-    {
-        #region Members
-
-        // The Dita File we were created from
-        private readonly DitaFile _ditaFile;
-
-        #endregion Members
+namespace Dita.Net {
+    public class DitaTopic : DitaFile {
 
         #region Class Methods
 
         // Default constructor
-        public DitaTopic(DitaFile ditaFile) : base() {
-            _ditaFile = ditaFile;
+        public DitaTopic(XmlDocument xmlDocument, string filePath) : base(xmlDocument, filePath) {
+            // Try to parse the file as a <type>
+            if (!Parse()) {
+                throw new Exception($"{FileName} is not parseable as a {this.GetType()}");
+            }
         }
 
         public new bool Parse() {
-
-            try {
-                // Try to find the topic node in the document
-                XmlNodeList queryNodes = _xmlDocument?.DocumentElement?.SelectNodes("//topic");
-                if (queryNodes != null) {
-                    throw new Exception("Topic node not found.");
-                }
-
-                // Create and populate the root node
-
-                // Populate the child nodes
-
+            if (Parse("//topic", "Topic")) {
                 return true;
             }
-            catch (Exception ex) {
-                Console.WriteLine(ex);
-                Console.WriteLine($"Error parsing topic in {System.IO.Path.GetFileName(_ditaFile?.Path)}");
-            }
-
             return false;
         }
 
@@ -56,10 +35,10 @@ namespace Dita.Net
             if (!string.IsNullOrWhiteSpace(docType)) {
                 return (docType.Contains("topic") && docType.Contains("topic.dtd") && docType.Contains("-//OASIS//DTD DITA Topic//"));
             }
+
             return false;
         }
 
         #endregion Static Methods
-
     }
 }

@@ -4,9 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dita.Net
-{
-    public class DitaCollection
-    {
-    }
+namespace Dita.Net {
+    public class DitaCollection { }
 }

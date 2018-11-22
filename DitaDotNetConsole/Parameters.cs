@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Dita.Net.Console
-{
+namespace Dita.Net.Console {
     public class Parameters {
         public const string ARG_COMMAND = "command";
         public const string ARG_INPUT = "input";
