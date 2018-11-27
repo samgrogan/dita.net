@@ -13,7 +13,7 @@ namespace Dita.Net.Console {
                 string helpText = File.ReadAllText("Help.txt");
                 System.Console.WriteLine(helpText);
             }
-            catch (Exception ex) {
+            catch {
                 System.Console.WriteLine("Error trying to read help file help.txt");
             }
         }

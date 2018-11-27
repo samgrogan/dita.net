@@ -70,7 +70,7 @@ namespace Dita.Net {
                         return true;
                 }
             }
-            catch (Exception ex) {
+            catch {
                 Console.WriteLine($"Unable to parse {System.IO.Path.GetFileName(filePath)}.");
             }
 

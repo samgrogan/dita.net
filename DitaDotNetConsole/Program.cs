@@ -6,27 +6,39 @@ namespace Dita.Net.Console {
             // Help object, for displaying help to the users
             Help help = new Help();
 
-            // Parse the input and see if it is valid
-            Parameters parameters = new Parameters();
-            Dictionary<string, string> config = parameters.ParseArgs(args, out bool isValid);
+            // Try to read the input 
+            if (args.Length >= 1) {
+                Configuration config = Configuration.CreateFromJson(args[0]);
 
-            // Did we get any arguments?
-            if (isValid) {
                 // What command were we asked to perform
-                switch (config[Parameters.ARG_COMMAND]) {
-                    case Parameters.CMD_VERIFY:
-                        System.Console.WriteLine($"Verifying {config[Parameters.ARG_INPUT]}...");
+                switch (config.Command) {
+                    case Parameters.CommandVerify:
+                        System.Console.WriteLine($"Verifying {config.Input}...");
 
                         DitaVerifier verifier = new DitaVerifier();
-                        if (verifier.VerifyFileOrDirectory(config[Parameters.ARG_INPUT])) {
+                        if (verifier.VerifyFileOrDirectory(config.Input)) {
                             return 0;
                         }
 
                         return -1;
 
-                    case Parameters.CMD_CONVERT:
-                        System.Console.WriteLine($"Converting {config[Parameters.ARG_INPUT]}...");
-                        return 0;
+                    case Parameters.CommandConvert:
+                        System.Console.WriteLine($"Converting {config.Input}...");
+
+                        switch (config.Format) {
+                            case Parameters.FormatJson: // Convert to JSON
+                                DitaToJsonConverter converter = new DitaToJsonConverter();
+                                if (converter.Convert(config.Input, config.Output, config.Rename)) {
+                                    return 0;
+                                }
+                                break;
+
+                            default:
+                                System.Console.WriteLine($"Unknown output format {config.Format}");
+                                break;
+                        }
+
+                        return -1;
 
                     default:
                         break;

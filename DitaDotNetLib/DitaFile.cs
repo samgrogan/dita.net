@@ -9,10 +9,9 @@ namespace Dita.Net {
         Unknown = 0,
 
         [Description("DITA Map")] Map = 100,
-
         [Description("DITA Book Map")] BookMap = 101,
-
-        [Description("DITA Topic")] Topic = 200
+        [Description("DITA Topic")] Topic = 200,
+        [Description("SVG")] Svg = 300
     }
 
     public class DitaFile {
@@ -48,7 +47,7 @@ namespace Dita.Net {
             XmlDocument = xmlDocument;
             FilePath = filePath;
             FileName = System.IO.Path.GetFileName(filePath);
-        } 
+        }
 
         // Try to parse the properties and data from this document 
         // Implemented by subclasses
@@ -75,7 +74,7 @@ namespace Dita.Net {
 
                 return true;
             }
-            catch (Exception ex) {
+            catch {
                 Console.WriteLine($"Error parsing {rootNodeType} in {FileName}");
             }
 
