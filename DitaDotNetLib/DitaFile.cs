@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml;
 using System.Xml.Linq;
@@ -11,6 +12,7 @@ namespace Dita.Net {
         [Description("DITA Map")] Map = 100,
         [Description("DITA Book Map")] BookMap = 101,
         [Description("DITA Topic")] Topic = 200,
+        [Description("DITA Concept")] Concept = 201,
         [Description("SVG")] Svg = 300
     }
 
@@ -21,10 +23,13 @@ namespace Dita.Net {
         protected XmlDocument XmlDocument { get; set; }
 
         // The path to the file the XML was read from
-        protected string FilePath { get; set; }
+        public string FilePath { get; protected set; }
 
         // Just the file name of the file
-        protected string FileName { get; set; }
+        public string FileName { get; protected set; }
+
+        // New name for this file, if renamed
+        public string NewFileName { get; set; }
 
         // The root DITA element that contains all of the markup for this item
         public DitaElement RootElement { get; protected set; }
@@ -38,6 +43,7 @@ namespace Dita.Net {
             XmlDocument = new XmlDocument();
             FilePath = null;
             FileName = null;
+            NewFileName = null;
             RootElement = null;
         }
 
@@ -81,6 +87,22 @@ namespace Dita.Net {
             return false;
         }
 
+        // Try to determine the title of the contents in this file by finding the title element
+        public string GetTitle() {
+            // Try to find the title node
+            try {
+                List<DitaElement> titleElements = RootElement?.FindChildren("title");
+                if (titleElements?.Count == 1) {
+                    return titleElements[0].InnerText;
+                }
+            }
+            catch {
+                //
+            }
+
+            return null;
+        } 
+
         #endregion Class Methods
 
         #region Static Methods
@@ -114,6 +136,11 @@ namespace Dita.Net {
                 // Is this a dita topic
                 if (DitaTopic.IsMatchingDocType(docType)) {
                     return DitaFileType.Topic;
+                }
+
+                // Is this a dita concept
+                if (DitaConcept.IsMatchingDocType(docType)) {
+                    return DitaFileType.Concept;
                 }
             }
 

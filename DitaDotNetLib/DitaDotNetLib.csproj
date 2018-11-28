@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="DitaBookMap.cs" />
     <Compile Include="DitaCollection.cs" />
+    <Compile Include="DitaConcept.cs" />
     <Compile Include="DitaConverter.cs" />
     <Compile Include="DitaElement.cs" />
     <Compile Include="DitaFile.cs" />

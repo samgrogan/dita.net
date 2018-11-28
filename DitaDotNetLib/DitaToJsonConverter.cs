@@ -17,6 +17,17 @@ namespace Dita.Net {
                 DitaCollection collection = new DitaCollection();
                 collection.LoadDirectory(input);
 
+                // Is there a bookmap?
+                List<DitaBookMap> bookMaps = collection.GetBookMaps();
+                if (bookMaps.Count != 1) {
+                    throw new Exception($"Expecting exactly 1 bookmap, but found {bookMaps.Count}");
+                }
+
+                // Try renaming the files in the collection, if requested
+                if (rename) {
+                    collection.RenameFiles();
+                }
+
                 return true;
             }
             catch {

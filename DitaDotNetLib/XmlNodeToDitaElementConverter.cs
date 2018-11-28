@@ -18,18 +18,19 @@ namespace Dita.Net {
             string type = "";
 
             // Does this node/element have children
-            bool isContainer = false;
+            bool isContainer = inputNode.HasChildNodes;
 
             // What is the text in this node/element
-            string innerText = null;
+            string innerText = isContainer ? null : inputNode.InnerText;
             
-
             // Create the new DITA element
             DitaElement outputElement = new DitaElement(type, isContainer, innerText);
 
             // Add the children of this node/element, if any
             if (isContainer) {
-
+                foreach (XmlNode childNode in inputNode.ChildNodes) {
+                    outputElement.Children.Add(Convert(childNode));
+                }
             }
 
             return outputElement;

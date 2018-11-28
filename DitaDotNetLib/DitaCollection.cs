@@ -58,24 +58,34 @@ namespace Dita.Net {
         public DitaFile LoadFile(string filePath) {
             // Try to load as an XML document
             // Try to load the given file
-            XmlDocument xmlDocument = DitaFile.LoadAndCheckType(filePath, out DitaFileType fileType);
 
-            switch (fileType)
-            {
-                case DitaFileType.BookMap:
-                    DitaBookMap ditaBookMap = new DitaBookMap(xmlDocument, filePath);
-                    Console.WriteLine($"{Path.GetFileName(filePath)} is a {DitaFileType.BookMap}");
-                    return ditaBookMap;
+            try {
+                XmlDocument xmlDocument = DitaFile.LoadAndCheckType(filePath, out DitaFileType fileType);
 
-                case DitaFileType.Map:
-                    DitaMap ditaMap = new DitaMap(xmlDocument, filePath);
-                    Console.WriteLine($"{Path.GetFileName(filePath)} is a {DitaFileType.Map}");
-                    return ditaMap;
+                switch (fileType) {
+                    case DitaFileType.BookMap:
+                        DitaBookMap ditaBookMap = new DitaBookMap(xmlDocument, filePath);
+                        Console.WriteLine($"{Path.GetFileName(filePath)} is a {DitaFileType.BookMap}");
+                        return ditaBookMap;
 
-                case DitaFileType.Topic:
-                    DitaTopic ditaTopic = new DitaTopic(xmlDocument, filePath);
-                    Console.WriteLine($"{Path.GetFileName(filePath)} is a {DitaFileType.Topic}");
-                    return ditaTopic;
+                    case DitaFileType.Map:
+                        DitaMap ditaMap = new DitaMap(xmlDocument, filePath);
+                        Console.WriteLine($"{Path.GetFileName(filePath)} is a {DitaFileType.Map}");
+                        return ditaMap;
+
+                    case DitaFileType.Topic:
+                        DitaTopic ditaTopic = new DitaTopic(xmlDocument, filePath);
+                        Console.WriteLine($"{Path.GetFileName(filePath)} is a {DitaFileType.Topic}");
+                        return ditaTopic;
+
+                    case DitaFileType.Concept:
+                        DitaConcept ditaConcept = new DitaConcept(xmlDocument, filePath);
+                        Console.WriteLine($"{Path.GetFileName(filePath)} is a {DitaFileType.Concept}");
+                        return ditaConcept;
+                }
+            }
+            catch {
+                Console.WriteLine($"Unable to load {filePath} as XML.");
             }
 
             // if it is not an xml document, is it an image?
@@ -94,11 +104,31 @@ namespace Dita.Net {
             throw new Exception($"{filePath} is an unknown file type.");
         }
 
+        // Returns the list of Dita Book Maps in the collection
+        public List<DitaBookMap> GetBookMaps() {
+            List<DitaBookMap> result = new List<DitaBookMap>();
+
+            foreach (DitaFile file in Files) {
+                if (file is DitaBookMap ditaBookMap) {
+                    result.Add(ditaBookMap);
+                }
+            }
+            return result;
+        }
+
+        // Rename the files in the collection to match their title (instead of their given file names)
+        public void RenameFiles() {
+            foreach (DitaFile file in Files) {
+                string title = file.GetTitle();
+                if (!string.IsNullOrWhiteSpace(title)) {
+                    Console.WriteLine($"Renaming {file.FileName} to {title}.{Path.GetExtension(file.FileName)}");
+                }
+            }
+        }
+
         #endregion Public Methods
 
         #region Internal Methods
-
-
 
         #endregion
     }

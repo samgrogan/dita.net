@@ -29,6 +29,7 @@ namespace Dita.Net {
 
         #region Class Methods 
 
+        // Default constructor
         public DitaElement(string type, bool isContainer = false, string innerText = null) {
             Type = type;
             IsContainer = isContainer;
@@ -38,6 +39,32 @@ namespace Dita.Net {
             else {
                 InnerText = innerText;
             }
+        }
+
+        // Returns a list of all the elements of a given type. Only returns elements on the same level
+        public List<DitaElement> FindChildren(string type) {
+            return FindChildren(type, this);
+        }
+
+        protected List<DitaElement> FindChildren(string type, DitaElement parentElement) {
+            List<DitaElement> result = null;
+
+            if (IsContainer) {
+                // Are any of our direct children of this type?
+                result = parentElement.Children.Where(e => e.Type == type).ToList();
+
+                if (result.Count == 0) {
+                    // Try finding children of children
+                    foreach (DitaElement childElement in parentElement.Children) {
+                        result = FindChildren(type, childElement);
+                        if (result.Count != 0) {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
 
         #endregion Class Methods
