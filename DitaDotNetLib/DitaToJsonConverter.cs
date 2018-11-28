@@ -30,7 +30,9 @@ namespace Dita.Net {
 
                 return true;
             }
-            catch {
+            catch (Exception exception) {
+                Console.WriteLine(exception.ToString());
+
                 return false;
             }
         }

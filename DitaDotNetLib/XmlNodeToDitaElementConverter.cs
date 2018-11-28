@@ -15,13 +15,13 @@ namespace Dita.Net {
         public DitaElement Convert(XmlNode inputNode) {
 
             // What type of element are we creating
-            string type = "";
+            string type = inputNode?.Name;
 
             // Does this node/element have children
-            bool isContainer = inputNode.HasChildNodes;
+            bool isContainer = inputNode?.HasChildNodes ?? false;
 
             // What is the text in this node/element
-            string innerText = isContainer ? null : inputNode.InnerText;
+            string innerText = isContainer ? null : inputNode?.InnerText;
             
             // Create the new DITA element
             DitaElement outputElement = new DitaElement(type, isContainer, innerText);

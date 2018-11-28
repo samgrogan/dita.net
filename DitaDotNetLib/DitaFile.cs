@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -93,7 +95,7 @@ namespace Dita.Net {
             try {
                 List<DitaElement> titleElements = RootElement?.FindChildren("title");
                 if (titleElements?.Count == 1) {
-                    return titleElements[0].InnerText;
+                    return titleElements[0]?.Children[0]?.InnerText;
                 }
             }
             catch {
@@ -149,6 +151,35 @@ namespace Dita.Net {
 
         public static bool IsMatchingDocType(string docType) {
             throw new NotImplementedException();
+        }
+
+        // Converts a title to a file name
+        public static string TitleToFileName(string title, string extension) {
+            string fileName = null;
+            char[] illegalCharacters = {'/', '\\', '?', '%', '*', ':', '|', '\"', '<', '>', ' ', ',', '_', '\n', '\r', '\t'};
+
+            try {
+                if (!string.IsNullOrWhiteSpace(title)) {
+                    fileName = title.ToLower().Trim();
+                    // Replace special characters and spaces with _
+                    foreach (char illegalChar in illegalCharacters) {
+                        fileName = fileName.Replace(illegalChar, '-');
+                    }
+
+                    // Replace multiple _ characters with a single _
+                    fileName = Regex.Replace(fileName, "-+", "-");
+
+                    // Add the extension, if needed
+                    if (!string.IsNullOrWhiteSpace(extension)) {
+                        fileName = Path.ChangeExtension(fileName, extension);
+                    }
+                }
+            }
+            catch (Exception ex) {
+                Console.WriteLine($"Error generating file name for {title}");
+            }
+
+            return fileName;
         }
 
         #endregion Class Methods
