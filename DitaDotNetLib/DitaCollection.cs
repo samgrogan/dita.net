@@ -169,7 +169,7 @@ namespace Dita.Net {
         protected void UpdateReferences() {
             // Loop through each file and update references if the file has changed
             Parallel.ForEach(Files, (fileRenamed) => {
-                if (fileRenamed.FileName != fileRenamed.NewFileName) {
+                if (fileRenamed.FileName != fileRenamed.NewFileName && !string.IsNullOrWhiteSpace(fileRenamed.NewFileName)) {
                     // Change the references in this file from old to new
                     Parallel.ForEach(Files, (file) => { file.RootElement?.UpdateReferences(fileRenamed.FileName, fileRenamed.NewFileName); });
                 }

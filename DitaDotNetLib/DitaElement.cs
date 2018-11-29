@@ -71,19 +71,22 @@ namespace Dita.Net {
         // Update references
         // Find and hrefs that point to an old file name and replace them with a new reference
         public void UpdateReferences(string oldFileName, string newFileName) {
-            // Are there any href attributes?
-            if (Attributes.ContainsKey("href")) {
-                string href = Attributes["href"];
-                if (href == oldFileName) {
-                    Attributes["href"] = newFileName;
-                    Console.WriteLine($"Updated reference from {href} to {newFileName} in {Type}");
-                }
-            }
+            if (oldFileName != newFileName && !string.IsNullOrWhiteSpace(newFileName)) {
 
-            // Update our children
-            if (IsContainer) {
-                foreach (DitaElement element in Children) {
-                    element.UpdateReferences(oldFileName, newFileName);
+                // Are there any href attributes?
+                if (Attributes.ContainsKey("href")) {
+                    string href = Attributes["href"];
+                    if (href == oldFileName) {
+                        Attributes["href"] = newFileName;
+                        Console.WriteLine($"Updated reference from {href} to {newFileName} in {Type}");
+                    }
+                }
+
+                // Update our children
+                if (IsContainer) {
+                    foreach (DitaElement element in Children) {
+                        element.UpdateReferences(oldFileName, newFileName);
+                    }
                 }
             }
         }
