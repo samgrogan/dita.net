@@ -26,6 +26,13 @@ namespace Dita.Net {
             // Create the new DITA element
             DitaElement outputElement = new DitaElement(type, isContainer, innerText);
 
+            // Add the attributes
+            if (inputNode?.Attributes != null) {
+                foreach (XmlAttribute attribute in inputNode?.Attributes) {
+                    outputElement.Attributes.Add(attribute.Name, attribute.InnerText);
+                }
+            }
+
             // Add the children of this node/element, if any
             if (isContainer) {
                 foreach (XmlNode childNode in inputNode.ChildNodes) {

@@ -9,8 +9,7 @@ namespace Dita.Net {
 
         public static readonly string[] Extensions = new[] {".svg"};
 
-        public DitaSvg(string filePath) : base() {
-            FilePath = filePath;
+        public DitaSvg(string filePath) : base(filePath) {
         }
 
     }

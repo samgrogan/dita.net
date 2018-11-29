@@ -49,6 +49,12 @@ namespace Dita.Net {
             RootElement = null;
         }
 
+        // Constructor for just a path
+        public DitaFile(string filePath) {
+            FilePath = filePath;
+            FileName = System.IO.Path.GetFileName(filePath);
+        }
+
         // Constructor with an XmlDocument and its path
         public DitaFile(XmlDocument xmlDocument, string filePath) {
             // Store the raw xml and path
@@ -175,7 +181,7 @@ namespace Dita.Net {
                     }
                 }
             }
-            catch (Exception ex) {
+            catch {
                 Console.WriteLine($"Error generating file name for {title}");
             }
 

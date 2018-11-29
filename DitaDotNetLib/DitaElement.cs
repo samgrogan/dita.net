@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Odbc;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -65,6 +66,26 @@ namespace Dita.Net {
             }
 
             return result;
+        }
+
+        // Update references
+        // Find and hrefs that point to an old file name and replace them with a new reference
+        public void UpdateReferences(string oldFileName, string newFileName) {
+            // Are there any href attributes?
+            if (Attributes.ContainsKey("href")) {
+                string href = Attributes["href"];
+                if (href == oldFileName) {
+                    Attributes["href"] = newFileName;
+                    Console.WriteLine($"Updated reference from {href} to {newFileName} in {Type}");
+                }
+            }
+
+            // Update our children
+            if (IsContainer) {
+                foreach (DitaElement element in Children) {
+                    element.UpdateReferences(oldFileName, newFileName);
+                }
+            }
         }
 
         #endregion Class Methods

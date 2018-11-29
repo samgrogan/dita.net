@@ -127,14 +127,14 @@ namespace Dita.Net {
                     Console.WriteLine($"Renaming {file.FileName} to {newFileName}");
                 }
             }
-            
+
             // Ensure that all filenames are unique
             if (!AreFileNamesUnique()) {
                 throw new Exception("File names (titles) are not unique.");
             }
 
             // Update references from old to new file names
-
+            UpdateReferences();
         }
 
         #endregion Public Methods
@@ -142,7 +142,7 @@ namespace Dita.Net {
         #region Internal Methods
 
         // Are all of the files in the collection uniquely named?
-        public bool AreFileNamesUnique() {
+        protected bool AreFileNamesUnique() {
             bool result = true;
 
             List<string> fileNames = new List<string>();
@@ -163,6 +163,17 @@ namespace Dita.Net {
             }
 
             return result;
+        }
+
+        // Update all references in the collection from old file name to new file name
+        protected void UpdateReferences() {
+            // Loop through each file and update references if the file has changed
+            Parallel.ForEach(Files, (fileRenamed) => {
+                if (fileRenamed.FileName != fileRenamed.NewFileName) {
+                    // Change the references in this file from old to new
+                    Parallel.ForEach(Files, (file) => { file.RootElement?.UpdateReferences(fileRenamed.FileName, fileRenamed.NewFileName); });
+                }
+            });
         }
 
         #endregion
