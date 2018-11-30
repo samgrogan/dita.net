@@ -18,10 +18,7 @@ namespace Dita.Net {
             string type = inputNode?.Name;
 
             // Does this node/element have children
-            bool isContainer = inputNode?.HasChildNodes ?? false;
-
-            // What is the text in this node/element
-            string innerText = isContainer ? null : inputNode?.InnerText;
+            bool isContainer = !IsNodeOnlyText(inputNode, out string innerText);
             
             // Create the new DITA element
             DitaElement outputElement = new DitaElement(type, isContainer, innerText);
@@ -34,13 +31,34 @@ namespace Dita.Net {
             }
 
             // Add the children of this node/element, if any
-            if (isContainer) {
+            // ReSharper disable once InvertIf
+            if (isContainer && inputNode?.ChildNodes != null) {
                 foreach (XmlNode childNode in inputNode.ChildNodes) {
                     outputElement.Children.Add(Convert(childNode));
                 }
             }
 
             return outputElement;
+        }
+
+        private bool IsNodeOnlyText(XmlNode inputNode, out string innerText) {
+            if (!inputNode.HasChildNodes) {
+                innerText = inputNode.InnerText;
+                return true;
+            }
+
+            if (inputNode.ChildNodes.Count > 1) {
+                innerText = null;
+                return false;
+            }
+
+            if (inputNode.ChildNodes[0].HasChildNodes) {
+                innerText = null;
+                return false;
+            }
+
+            innerText = inputNode.ChildNodes[0].InnerText;
+            return true;
         }
 
         #endregion

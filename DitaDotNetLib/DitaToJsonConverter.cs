@@ -6,12 +6,12 @@ using Newtonsoft.Json;
 namespace Dita.Net {
 
     internal class DitaCollectionJson {
-        public Dictionary<string, DitaPropertyJson> Properties { get; set; }
+        public Dictionary<string, string> Properties { get; set; }
         public List<DitaTocLinkJson> Chapters { get; set; }
     }
 
     internal class DitaPropertyJson {
-        public Dictionary<string, string> Properties { get; set; }
+        public Dictionary<string, object> Properties { get; set; }
         public List<DitaPropertyJson> Children { get; set; }
     }
 
@@ -62,14 +62,13 @@ namespace Dita.Net {
         // Create a collection from a bookmap
         internal DitaCollectionJson CreateCollectionJson(DitaBookMap bookMap) {
             DitaCollectionJson collectionJson = new DitaCollectionJson {
-                Properties = new Dictionary<string, DitaPropertyJson>(),
+                Properties = new Dictionary<string, string>(),
                 Chapters = new List<DitaTocLinkJson>()
             };
 
-            // Loop through all the top level elements that aren't chapters
-            foreach (DitaElement ditaElement in bookMap.RootElement.Children) {
-                collectionJson.Properties.Add(ditaElement.Type, CreatePropertyJson(ditaElement));
-            }
+            // Write out the book metadata
+
+
 
             return collectionJson;
         }
@@ -77,6 +76,9 @@ namespace Dita.Net {
         // Write the json collection to a file
         internal void SerializeCollectionJsonToFile(DitaCollectionJson collectionJson, string output, string fileName) {
             using (StreamWriter file = File.CreateText(Path.Combine(output, fileName))) {
+
+
+                JsonSerializerSettings settings = new JsonSerializerSettings();
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Serialize(file, collectionJson);
             }
@@ -85,7 +87,7 @@ namespace Dita.Net {
         // Converts a DitaElement to DitaPropertyJson for output
         internal DitaPropertyJson CreatePropertyJson(DitaElement ditaElement) {
             DitaPropertyJson propertyJson = new DitaPropertyJson {
-                Properties = new Dictionary<string, string>()
+                Properties = new Dictionary<string, object>()
             };
 
             if (ditaElement.IsContainer) {

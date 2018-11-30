@@ -101,11 +101,11 @@ namespace Dita.Net {
             try {
                 List<DitaElement> titleElements = RootElement?.FindChildren("title");
                 if (titleElements?.Count == 1) {
-                    return titleElements[0]?.Children[0]?.InnerText;
+                    return titleElements[0].InnerText;
                 }
             }
             catch {
-                //
+                Console.WriteLine($"Couldn't find title in {FileName}");
             }
 
             return null;
