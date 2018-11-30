@@ -5,36 +5,53 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Dita.Net {
+
+    internal class DitaCollectionJson {
+        private List<Dictionary<string, string>> BookTitle { get; set; }
+
+
+        public List<DitaTocLinkJson> Chapters;
+    }
+
+    internal class DitaTocLinkJson {
+        public string Title { get; set; }
+        public string Link { get; set; }
+        public  List<DitaTocLinkJson> Children { get; set; }
+    }
+
+
     public class DitaToJsonConverter : DitaConverter {
 
         public new bool Convert(string input, string output, bool rename = false) {
+            if (base.Convert(input, output, rename)) {
 
-            try {
-                // Make sure the output path exists
-                VerifyOutputPath(output);
+                // Write out the json table of contents
 
-                // Try to load all of the input files
-                DitaCollection collection = new DitaCollection();
-                collection.LoadDirectory(input);
-
-                // Is there a bookmap?
-                List<DitaBookMap> bookMaps = collection.GetBookMaps();
-                if (bookMaps.Count != 1) {
-                    throw new Exception($"Expecting exactly 1 bookmap, but found {bookMaps.Count}");
-                }
-
-                // Try renaming the files in the collection, if requested
-                if (rename) {
-                    collection.RenameFiles();
-                }
 
                 return true;
             }
-            catch (Exception exception) {
-                Console.WriteLine(exception.ToString());
 
-                return false;
-            }
+            return false;
         }
+
+        protected DitaCollectionJson CreateCollectionOutput(string output) {
+            DitaCollectionJson collectionOutput = new DitaCollectionJson();
+
+            // Find the bookmap
+            List<DitaBookMap> bookMaps = Collection?.GetBookMaps();
+            if (bookMaps?.Count == 1) {
+
+                // 
+
+
+            }
+            else {
+                Console.WriteLine($"Found {bookMaps?.Count} bookmaps instead of 1.");
+            }
+            return false;
+        }
+
+        // Collapse a series of dita bookmaps / maps to a list of titles and links
+
     }
 }
