@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Dita.Net {
 
     internal class DitaCollectionJson {
-        private List<Dictionary<string, string>> BookTitle { get; set; }
+        public List<Dictionary<string, string>> BookTitle { get; set; }
 
 
         public List<DitaTocLinkJson> Chapters;
