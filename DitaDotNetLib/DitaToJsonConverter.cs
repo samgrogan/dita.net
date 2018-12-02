@@ -5,34 +5,24 @@ using Newtonsoft.Json;
 
 namespace Dita.Net {
 
-    internal class DitaCollectionJson {
-        public Dictionary<string, string> Properties { get; set; }
-        public List<DitaTocLinkJson> Chapters { get; set; }
-    }
-
-    internal class DitaPropertyJson {
-        public Dictionary<string, object> Properties { get; set; }
-        public List<DitaPropertyJson> Children { get; set; }
-    }
-
-    internal class DitaTocLinkJson {
-        public string Title { get; set; }
-        public string Link { get; set; }
-        public  List<DitaTocLinkJson> Children { get; set; }
+    public enum PageMapping {
+        Unknown = 0,
+        TopicToPage = 1,
+        MapToPage = 2
     }
 
     public class DitaToJsonConverter : DitaConverter {
 
-        public new bool Convert(string input, string output, bool rename = false) {
+        public new bool Convert(string input, string output, bool rename = false, PageMapping pageMapping = PageMapping.TopicToPage) {
             if (base.Convert(input, output, rename)) {
 
-                // Write out the json table of contents
                 try {
-                    DitaCollectionJson collectionJson = CreateCollectionJson();
+                    // Write out the json table of contents
+                    DitaContentsJson collectionJson = WriteContentsJson(output);
 
-                    // Try to serialize the collection
-                    SerializeCollectionJsonToFile(collectionJson, output, "contents.json");
-                    Console.WriteLine($"Wrote contents.json");
+                    // Write out the pages json
+                    switch ()
+
                 }
                 catch {
                     Console.WriteLine($"Error converting {input} to JSON.");
@@ -44,13 +34,19 @@ namespace Dita.Net {
             return false;
         }
 
-        internal DitaCollectionJson CreateCollectionJson() {
-            DitaCollectionJson collectionJson;
+        internal DitaContentsJson WriteContentsJson(string output) {
+            DitaContentsJson collectionJson;
 
             // Find the bookmap
             List<DitaBookMap> bookMaps = Collection?.GetBookMaps();
             if (bookMaps?.Count == 1) {
-                collectionJson = CreateCollectionJson(bookMaps[0]);
+
+                // Create the output object
+                collectionJson = ConvertBookMapToContentsJson(bookMaps[0]);
+
+                // Try to serialize the collection
+                SerializeCollectionJsonToFile(collectionJson, output, "contents.json");
+                Console.WriteLine($"Wrote contents.json");
             }
             else {
                 throw new Exception($"Found {bookMaps?.Count} bookmaps instead of 1.");
@@ -59,25 +55,23 @@ namespace Dita.Net {
             return collectionJson;
         }
 
-        // Create a collection from a bookmap
-        internal DitaCollectionJson CreateCollectionJson(DitaBookMap bookMap) {
-            DitaCollectionJson collectionJson = new DitaCollectionJson {
+        // Create a contents object from a bookmap
+        internal DitaContentsJson ConvertBookMapToContentsJson(DitaBookMap bookMap) {
+            DitaContentsJson contentsJson = new DitaContentsJson {
                 Properties = new Dictionary<string, string>(),
-                Chapters = new List<DitaTocLinkJson>()
+                Chapters = new List<DitaContentsLinkJson>()
             };
 
             // Write out the book metadata
 
 
 
-            return collectionJson;
+            return contentsJson;
         }
 
         // Write the json collection to a file
-        internal void SerializeCollectionJsonToFile(DitaCollectionJson collectionJson, string output, string fileName) {
+        internal void SerializeContentsJsonToFile(DitaContentsJson collectionJson, string output, string fileName) {
             using (StreamWriter file = File.CreateText(Path.Combine(output, fileName))) {
-
-
                 JsonSerializerSettings settings = new JsonSerializerSettings();
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Serialize(file, collectionJson);
