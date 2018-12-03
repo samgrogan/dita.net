@@ -23,6 +23,9 @@ namespace Dita.Net {
         public Dictionary<string, string> BookMeta { get; set; }
         public List<DitaCollectionLinkJson> Chapters { get; set; }
 
+        [JsonIgnore]
+        public List<DitaPageJson> Pages { get; set; }
+
         #endregion Properties
 
         #region Public Methods
@@ -45,6 +48,8 @@ namespace Dita.Net {
             Console.WriteLine($"Wrote {CollectionFileName}");
         }
 
+        // Returns a list of 
+
         #endregion Public Methods
 
         #region Private Methods
@@ -56,13 +61,13 @@ namespace Dita.Net {
         }
 
         // Parse the title from the book map
-        private void ParseTitle(DitaElement titleElement) {
+        private void ParseBookMapTitle(DitaElement titleElement) {
             BookTitle = new Dictionary<string, string>();
 
         }
 
         // Parse the book mata data from the book map
-        private void ParseBookMeta(DitaElement bookMetaElement) {
+        private void ParseBookMapBookMeta(DitaElement bookMetaElement) {
 
         }
 
