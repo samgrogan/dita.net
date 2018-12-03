@@ -5,9 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Dita.Net {
-    internal class DitaSearchJson {
+    internal class DitaTopicJson {
 
-        public DitaSearchJson(List<DitaPageJson> pages) {
+        // Construct from a Dita Topic
+        public DitaTopicJson(DitaTopic topic) {
 
         }
     }

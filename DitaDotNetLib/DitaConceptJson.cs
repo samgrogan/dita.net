@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Dita.Net {
-    internal class DitaSearchJson {
+    internal class DitaConceptJson : DitaTopicJson {
 
-        public DitaSearchJson(List<DitaPageJson> pages) {
+        public DitaConceptJson(DitaConcept concept) : base(concept) {
 
         }
     }

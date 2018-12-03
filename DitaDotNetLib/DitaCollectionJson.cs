@@ -1,0 +1,77 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+
+namespace Dita.Net {
+    internal class DitaCollectionLinkJson {
+        public string Title { get; set; }
+        public string FileName { get; set; }
+        public List<DitaCollectionLinkJson> Children { get; set; }
+    }
+
+    internal class DitaCollectionJson {
+
+        private const string CollectionFileName = "collection.json";
+
+        #region Properties
+
+        public Dictionary<string, string> BookTitle { get; set; }
+        public Dictionary<string, string> BookMeta { get; set; }
+        public List<DitaCollectionLinkJson> Chapters { get; set; }
+
+        #endregion Properties
+
+        #region Public Methods
+
+        // Construct a collection from a Dita bookmap in a Dita collection
+        public DitaCollectionJson(DitaCollection collection, PageMapping pageMapping) {
+
+            // Find the bookmap
+            List<DitaBookMap> bookMaps = collection.GetBookMaps();
+            if (bookMaps?.Count == 1) {
+                // Create the output object
+                ParseBookMap(bookMaps[0], pageMapping);
+            }
+            else {
+                throw new Exception($"Found {bookMaps?.Count} bookmaps instead of 1.");
+            }
+        }
+
+        // Write this collection to a given folder
+        public void SerializeToFile(string output) {
+            using (StreamWriter file = File.CreateText(Path.Combine(output, CollectionFileName))) {
+                JsonSerializerSettings settings = new JsonSerializerSettings();
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Serialize(file, this);
+            }
+            Console.WriteLine($"Wrote {CollectionFileName}");
+        }
+
+        #endregion Public Methods
+
+        #region Private Methods
+
+        // 
+        private void ParseBookMap(DitaBookMap bookMap, PageMapping pageMapping) {
+
+
+        }
+
+        // Parse the title from the book map
+        private void ParseTitle(DitaElement titleElement) {
+            BookTitle = new Dictionary<string, string>();
+
+        }
+
+        // Parse the book mata data from the book map
+        private void ParseBookMeta(DitaElement bookMetaElement) {
+
+        }
+
+        #endregion
+    }
+}

@@ -13,7 +13,16 @@ namespace Dita.Net {
         public string Title { get; set; }
 
         // The collection of topics
-        public List<>
+        public List<DitaTopicJson> Topics { get; set; }
 
+        // Construct from a single topic
+        public DitaPageJson(DitaTopic topic) {
+
+        }
+
+        // Construct from a dita map (collapse all topics)
+        public DitaPageJson(DitaMap map) {
+
+        }
     }
 }

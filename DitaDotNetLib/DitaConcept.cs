@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 
 namespace Dita.Net {
-    public class DitaConcept : DitaFile {
+    public class DitaConcept : DitaTopic {
         #region Class Methods
 
         // Default constructor
