@@ -5,12 +5,6 @@ using Newtonsoft.Json;
 
 namespace Dita.Net {
 
-    public enum PageMapping {
-        Unknown = 0,
-        TopicToPage = 1,
-        MapToPage = 2
-    }
-
     public class DitaToJsonConverter : DitaConverter {
 
         private const string SearchFileName = "search.json";
@@ -20,7 +14,7 @@ namespace Dita.Net {
 
                 try {
                     // Write out the json table of contents
-                    DitaCollectionJson collectionJson = new DitaCollectionJson(Collection);
+                    DitaCollectionJson collectionJson = new DitaCollectionJson(Collection, BookMap, pageMapping);
                     collectionJson.SerializeToFile(output);
 
                     // Write out the pages json

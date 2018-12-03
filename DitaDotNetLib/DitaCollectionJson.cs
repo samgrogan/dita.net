@@ -28,17 +28,11 @@ namespace Dita.Net {
         #region Public Methods
 
         // Construct a collection from a Dita bookmap in a Dita collection
-        public DitaCollectionJson(DitaCollection collection, PageMapping pageMapping) {
+        public DitaCollectionJson(DitaCollection collection, DitaBookMap bookMap, PageMapping pageMapping) {
 
-            // Find the bookmap
-            List<DitaBookMap> bookMaps = collection.GetBookMaps();
-            if (bookMaps?.Count == 1) {
-                // Create the output object
-                ParseBookMap(bookMaps[0], pageMapping);
-            }
-            else {
-                throw new Exception($"Found {bookMaps?.Count} bookmaps instead of 1.");
-            }
+            // Create the output object
+            ParseBookMap(bookMap, pageMapping);
+
         }
 
         // Write this collection to a given folder
