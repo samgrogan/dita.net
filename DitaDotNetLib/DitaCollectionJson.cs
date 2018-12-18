@@ -48,13 +48,12 @@ namespace Dita.Net {
         public void SerializeToFile(string output) {
             using (StreamWriter file = File.CreateText(Path.Combine(output, CollectionFileName))) {
                 JsonSerializerSettings settings = new JsonSerializerSettings();
-                JsonSerializer serializer = new JsonSerializer();
+                settings.Formatting = Formatting.Indented;
+                JsonSerializer serializer = JsonSerializer.Create(settings);
                 serializer.Serialize(file, this);
             }
             Console.WriteLine($"Wrote {CollectionFileName}");
         }
-
-        // Returns a list of 
 
         #endregion Public Methods
 
@@ -92,7 +91,21 @@ namespace Dita.Net {
 
         // Parse the book meta date from the book map
         private void ParseBookMapBookMeta(DitaElement bookMetaElement) {
+            // Version
+            DitaElement prodinfoElement = bookMetaElement?.FindOnlyChild("prodinfo");
+            DitaElement vrmlistElement = prodinfoElement?.FindOnlyChild("vrmlist");
+            DitaElement vrmElement = vrmlistElement?.FindChildren("vrm")?[0];
+            BookMeta.Add("version", vrmElement?.Attributes?["version"]);
 
+            // Everything in category
+            List<DitaElement> categoryData = bookMetaElement?.FindOnlyChild("category").Children;
+            if (categoryData != null) {
+                foreach (DitaElement data in categoryData) {
+                    if (data?.Attributes["name"] != null) {
+                        BookMeta.Add(data?.Attributes["name"], data?.Attributes["value"]);
+                    }
+                }
+            }
         }
 
         // Parse the chapters in the document, recursively
@@ -103,22 +116,40 @@ namespace Dita.Net {
 
                 // Try to find this file
                 DitaFile linkedFile = collection.GetFileByName(chapterHref);
-
-                switch (linkedFile) {
-                    case DitaBookMap bookMap:
-                        // This should never happen
-                        throw new Exception($"Found bookmap {linkedFile} nested in bookmap.");
-                    case DitaMap map:
-                        Console.WriteLine($"Found link to map {linkedFile}.");
-                        break;
-                    case DitaConcept concept:
-                        Console.WriteLine($"Found link to concept {linkedFile}.");
-                        break;
-                    case DitaTopic topic:
-                        Console.WriteLine($"Found link to topic {linkedFile}.");
-                        break;
-                }
+                Chapters.AddRange(ParseChaptersFromFile(linkedFile));
             }
+        }
+
+        // Parse chapter structure from a dita file
+        private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaFile linkedFile) {
+            List<DitaCollectionLinkJson> chapters = new List<DitaCollectionLinkJson>();
+
+            // What type of file is this?
+            switch (linkedFile) {
+                case DitaBookMap bookMap:
+                    // This should never happen
+                    throw new Exception($"Found bookmap {linkedFile} nested in bookmap.");
+                case DitaMap map:
+                    Console.WriteLine($"Found link to map {linkedFile}.");
+                    break;
+                case DitaTopic topic:
+                    Console.WriteLine($"Found link to topic {linkedFile}.");
+                    break;
+            }
+
+            return chapters;
+        }
+
+        private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaMap map) {
+            List<DitaCollectionLinkJson> chapters = new List<DitaCollectionLinkJson>();
+
+            return chapters;
+        }
+
+        private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaTopic topic) {
+            List<DitaCollectionLinkJson> chapters = new List<DitaCollectionLinkJson>();
+
+            return chapters;
         }
 
         // Tries to add the text of the given element to the dictionary

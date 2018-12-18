@@ -7,19 +7,16 @@ using System.Xml;
 
 namespace Dita.Net {
     class XmlNodeToDitaElementConverter {
-
-
         #region Class Methods
 
         // Ingest an XmlNode and recursively parse it to create a group of DitaElements
         public DitaElement Convert(XmlNode inputNode) {
-
             // What type of element are we creating
             string type = inputNode?.Name;
 
             // Does this node/element have children
             bool isContainer = !IsNodeOnlyText(inputNode, out string innerText);
-            
+
             // Create the new DITA element
             DitaElement outputElement = new DitaElement(type, isContainer, innerText);
 
@@ -62,11 +59,15 @@ namespace Dita.Net {
                 return false;
             }
 
+            if (!string.IsNullOrWhiteSpace(inputNode.InnerXml) && inputNode.InnerXml != inputNode.InnerText) {
+                innerText = null;
+                return false;
+            }
+
             innerText = inputNode.ChildNodes[0].InnerText;
             return true;
         }
 
         #endregion
-
     }
 }
