@@ -68,6 +68,18 @@ namespace Dita.Net {
             return result;
         }
 
+        // Returns a list of the one and only child of the given type
+        // If more than 1 is found, throws an exception
+        public DitaElement FindOnlyChild(string type) {
+            List<DitaElement> children = FindChildren(type);
+
+            if (children?.Count > 1) {
+                throw new Exception($"Expected at most one child of type {type} but found {children.Count}");
+            }
+
+            return children?[0];
+        }
+
         // Update references
         // Find and hrefs that point to an old file name and replace them with a new reference
         public void UpdateReferences(string oldFileName, string newFileName) {

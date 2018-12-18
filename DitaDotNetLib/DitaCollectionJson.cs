@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -56,20 +57,30 @@ namespace Dita.Net {
 
         // 
         private void ParseBookMap(DitaBookMap bookMap, PageMapping pageMapping) {
-
-
+            // Find the booktitle element
+            try {
+                DitaElement titleElement = bookMap.RootElement.FindOnlyChild("booktitle");
+                ParseBookMapTitle(titleElement);
+            }
+            catch (Exception ex) {
+                Console.WriteLine(ex);
+            }
         }
 
         // Parse the title from the book map
         private void ParseBookMapTitle(DitaElement titleElement) {
             BookTitle = new Dictionary<string, string>();
 
+            // 
         }
 
-        // Parse the book mata data from the book map
+        // Parse the book meta date from the book map
         private void ParseBookMapBookMeta(DitaElement bookMetaElement) {
 
         }
+
+        // Tries to add the text of the given element to the dictionary
+
 
         #endregion
     }
