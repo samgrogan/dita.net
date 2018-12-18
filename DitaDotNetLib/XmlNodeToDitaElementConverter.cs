@@ -57,6 +57,11 @@ namespace Dita.Net {
                 return false;
             }
 
+            if (inputNode.InnerXml.StartsWith("<?")) {
+                innerText = null;
+                return false;
+            }
+
             innerText = inputNode.ChildNodes[0].InnerText;
             return true;
         }

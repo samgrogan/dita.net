@@ -109,7 +109,11 @@ namespace Dita.Net {
             }
 
             return null;
-        } 
+        }
+
+        public override string ToString() {
+            return NewFileName ?? FileName;
+        }
 
         #endregion Class Methods
 

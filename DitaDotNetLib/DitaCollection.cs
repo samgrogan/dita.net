@@ -137,6 +137,11 @@ namespace Dita.Net {
             UpdateReferences();
         }
 
+        // Gets a file in the collection with the given name
+        public DitaFile GetFileByName(string fileName) {
+            return Files.FirstOrDefault((file) => (file.NewFileName ?? file.FileName) == fileName);
+        }
+
         #endregion Public Methods
 
         #region Internal Methods
