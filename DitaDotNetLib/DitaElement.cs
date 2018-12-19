@@ -52,13 +52,13 @@ namespace Dita.Net {
 
             if (IsContainer) {
                 // Are any of our direct children of this type?
-                result = parentElement?.Children.Where(e => e.Type == type).ToList();
+                result = parentElement?.Children?.Where(e => e.Type == type).ToList();
 
                 if (result?.Count == 0) {
                     // Try finding children of children
                     foreach (DitaElement childElement in parentElement.Children) {
                         result = FindChildren(type, childElement);
-                        if (result.Count != 0) {
+                        if (result?.Count != 0) {
                             break;
                         }
                     }

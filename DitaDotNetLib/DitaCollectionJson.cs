@@ -137,6 +137,9 @@ namespace Dita.Net {
 
         // Parse chapter structure from a dita file
         private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaFile linkedFile) {
+
+            Console.WriteLine($"Converting {linkedFile}");
+
             // What type of file is this?
             switch (linkedFile) {
                 case DitaBookMap bookMap:
@@ -146,30 +149,44 @@ namespace Dita.Net {
                     return ParseChaptersFromFile(map);
                 case DitaTopic topic:
                     return ParseChaptersFromFile(topic);
+                case DitaConcept concept:
+                    return ParseChaptersFromFile(concept);
             }
 
             return null;
         }
 
+        // Parse chapter structure from a .ditamap file
         private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaMap map) {
-            List<DitaCollectionLinkJson> chapters = new List<DitaCollectionLinkJson>();
 
             Console.WriteLine($"Found link to map {map.NewFileName ?? map.FileName}.");
 
             // Find all the topic references
-            List<DitaElement> topicRefElements = map.RootElement.FindChildren("topicref");
-
-            foreach (DitaElement topicRefElement in topicRefElements) {
-                // Try to find the linked file
-                string topicRefHref = topicRefElement.Attributes["href"];
-
-                DitaFile linkedFile = Collection.GetFileByName(topicRefHref);
-                chapters.AddRange(ParseChaptersFromFile(linkedFile));
-            }
+            List<DitaCollectionLinkJson> chapters = ParseTopicRefs(map.RootElement.FindChildren("topicref"));
 
             return chapters;
         }
 
+        private List<DitaCollectionLinkJson> ParseTopicRefs(List<DitaElement> topicRefElements) {
+            List<DitaCollectionLinkJson> chapters = new List<DitaCollectionLinkJson>();
+            if (topicRefElements?.Count > 0) {
+                foreach (DitaElement topicRefElement in topicRefElements) {
+                    // Try to find the linked file
+                    string topicRefHref = topicRefElement.Attributes["href"];
+
+                    // Add references from the linked files
+                    DitaFile linkedFile = Collection.GetFileByName(topicRefHref);
+                    chapters.AddRange(ParseChaptersFromFile(linkedFile));
+
+                    // Add any children as well
+                    chapters.AddRange(ParseTopicRefs(topicRefElement.FindChildren("topicref")));
+                }
+            }
+            return chapters;
+        }
+
+
+        // Parse chapter structure from a dita topic (leaf node)
         private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaTopic topic) {
             List<DitaCollectionLinkJson> chapters = new List<DitaCollectionLinkJson>();
 
@@ -185,6 +202,27 @@ namespace Dita.Net {
             chapters.Add(chapter);
 
             Console.WriteLine($"Found link to topic {chapter.FileName}.");
+
+            return chapters;
+        }
+
+        // Parse chapter structure from a dita concept (leaf node)
+        private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaConcept concept) {
+            List<DitaCollectionLinkJson> chapters = new List<DitaCollectionLinkJson>();
+
+            // Build a page for this topic
+            DitaPageJson topicPage = new DitaPageJson(concept);
+            Pages.Add(topicPage);
+
+            // Add this chapter to the toc for this page
+            DitaCollectionLinkJson chapter = new DitaCollectionLinkJson
+            {
+                FileName = topicPage.FileName,
+                Title = topicPage.Title
+            };
+            chapters.Add(chapter);
+
+            Console.WriteLine($"Found link to concept {chapter.FileName}.");
 
             return chapters;
         }

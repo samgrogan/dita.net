@@ -9,8 +9,10 @@ namespace Dita.Net {
         public bool Convert(DitaElement bodyElement, out string body) {
             StringBuilder bodyStringBuilder = new StringBuilder();
 
-            foreach (DitaElement childElement in bodyElement.Children) {
-                bodyStringBuilder.Append(Convert(childElement));
+            if (bodyElement != null) {
+                foreach (DitaElement childElement in bodyElement.Children) {
+                    bodyStringBuilder.Append(Convert(childElement));
+                }
             }
 
             body = bodyStringBuilder.ToString();
