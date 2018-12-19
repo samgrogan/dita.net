@@ -11,8 +11,5 @@ namespace Dita.Net.Console {
         public const string CommandConvert = "convert";
 
         public const string FormatJson = "json";
-
-        public const string PageMappingTopic = "topic";
-        public const string PageMappingMap = "map";
     }
 }

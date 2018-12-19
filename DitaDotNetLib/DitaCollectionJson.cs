@@ -16,7 +16,6 @@ namespace Dita.Net {
     }
 
     internal class DitaCollectionJson {
-
         private const string CollectionFileName = "collection.json";
 
         #region Properties
@@ -34,28 +33,24 @@ namespace Dita.Net {
         [JsonIgnore]
         private DitaBookMap BookMap { get; set; }
 
-        [JsonIgnore]
-
-
         #endregion Properties
 
         #region Public Methods
 
         // Construct a collection from a Dita bookmap in a Dita collection
-        public DitaCollectionJson(DitaCollection collection, DitaBookMap bookMap, PageMapping pageMapping) {
+        public DitaCollectionJson(DitaCollection collection, DitaBookMap bookMap) {
             // Store the construction properties
             Collection = collection;
             BookMap = bookMap;
-
 
             // Initialize the properties
             BookTitle = new Dictionary<string, string>();
             BookMeta = new Dictionary<string, string>();
             Chapters = new List<DitaCollectionLinkJson>();
+            Pages = new List<DitaPageJson>();
 
             // Create the output object
-            ParseBookMap(bookMap, pageMapping);
-
+            ParseBookMap();
         }
 
         // Write this collection to a given folder
@@ -66,6 +61,7 @@ namespace Dita.Net {
                 JsonSerializer serializer = JsonSerializer.Create(settings);
                 serializer.Serialize(file, this);
             }
+
             Console.WriteLine($"Wrote {CollectionFileName}");
         }
 
@@ -74,20 +70,20 @@ namespace Dita.Net {
         #region Private Methods
 
         // 
-        private void ParseBookMap(DitaCollection collection, DitaBookMap bookMap, PageMapping pageMapping) {
+        private void ParseBookMap() {
             // Find the booktitle element
             try {
                 // Read the title
-                ParseBookMapTitle(bookMap.RootElement.FindOnlyChild("booktitle"));
+                ParseBookMapTitle();
 
                 // Read the metadata
-                ParseBookMapBookMeta(bookMap.RootElement.FindOnlyChild("bookmeta"));
+                ParseBookMapBookMeta();
 
                 // Read the front matter
 
 
                 // Read the chapters
-                ParseBookMapChapters(collection, bookMap.RootElement.FindChildren("chapter"));
+                ParseBookMapChapters();
 
                 // Read the back matter
             }
@@ -97,14 +93,17 @@ namespace Dita.Net {
         }
 
         // Parse the title from the book map
-        private void ParseBookMapTitle(DitaElement titleElement) {
+        private void ParseBookMapTitle() {
+            DitaElement titleElement = BookMap.RootElement.FindOnlyChild("booktitle");
 
             AddChildDitaElementTextToDictionary(titleElement, "mainbooktitle", BookTitle);
             AddChildDitaElementTextToDictionary(titleElement, "booktitlealt", BookTitle);
         }
 
         // Parse the book meta date from the book map
-        private void ParseBookMapBookMeta(DitaElement bookMetaElement) {
+        private void ParseBookMapBookMeta() {
+            DitaElement bookMetaElement = BookMap.RootElement.FindOnlyChild("bookmeta");
+
             // Version
             DitaElement prodinfoElement = bookMetaElement?.FindOnlyChild("prodinfo");
             DitaElement vrmlistElement = prodinfoElement?.FindOnlyChild("vrmlist");
@@ -123,19 +122,21 @@ namespace Dita.Net {
         }
 
         // Parse the chapters in the document, recursively
-        private void ParseBookMapChapters(DitaCollection collection, List<DitaElement> chapters) {
+        private void ParseBookMapChapters() {
+            List<DitaElement> chapters = BookMap.RootElement.FindChildren("chapter");
+
             foreach (DitaElement chapter in chapters) {
                 // What is the href to the chapter?
                 string chapterHref = chapter.Attributes?["href"];
 
                 // Try to find this file
-                DitaFile linkedFile = collection.GetFileByName(chapterHref);
+                DitaFile linkedFile = Collection.GetFileByName(chapterHref);
                 Chapters.AddRange(ParseChaptersFromFile(linkedFile));
             }
         }
 
         // Parse chapter structure from a dita file
-        private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaCollection collection, DitaFile linkedFile) {
+        private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaFile linkedFile) {
             // What type of file is this?
             switch (linkedFile) {
                 case DitaBookMap bookMap:
@@ -144,7 +145,6 @@ namespace Dita.Net {
                 case DitaMap map:
                     return ParseChaptersFromFile(map);
                 case DitaTopic topic:
-                    Console.WriteLine($"Found link to topic {linkedFile}.");
                     return ParseChaptersFromFile(topic);
             }
 
@@ -163,11 +163,9 @@ namespace Dita.Net {
                 // Try to find the linked file
                 string topicRefHref = topicRefElement.Attributes["href"];
 
-                DitaFile linkedFile = collection.GetFileByName(chapterHref);
-                Chapters.AddRange(ParseChaptersFromFile(linkedFile));
-
+                DitaFile linkedFile = Collection.GetFileByName(topicRefHref);
+                chapters.AddRange(ParseChaptersFromFile(linkedFile));
             }
-
 
             return chapters;
         }
@@ -175,8 +173,18 @@ namespace Dita.Net {
         private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaTopic topic) {
             List<DitaCollectionLinkJson> chapters = new List<DitaCollectionLinkJson>();
 
-            Console.WriteLine($"Found link to topic {topic.NewFileName ?? topic.FileName}.");
+            // Build a page for this topic
+            DitaPageJson topicPage = new DitaPageJson(topic);
+            Pages.Add(topicPage);
 
+            // Add this chapter to the toc for this page
+            DitaCollectionLinkJson chapter = new DitaCollectionLinkJson {
+                FileName = topicPage.FileName,
+                Title = topicPage.Title
+            };
+            chapters.Add(chapter);
+
+            Console.WriteLine($"Found link to topic {chapter.FileName}.");
 
             return chapters;
         }
@@ -190,8 +198,10 @@ namespace Dita.Net {
                 foreach (DitaElement childElement in childElements) {
                     dictionary.Add(type, childElement.InnerText);
                 }
+
                 return true;
             }
+
             return false;
         }
 

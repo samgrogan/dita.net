@@ -7,11 +7,6 @@ using System.Threading.Tasks;
 
 namespace Dita.Net {
 
-    public enum PageMapping {
-        Unknown = 0,
-        TopicToPage = 1,
-        MapToPage = 2
-    }
     public class DitaConverter {
 
         // The collection of DITA content to convert
@@ -21,7 +16,7 @@ namespace Dita.Net {
         protected DitaBookMap BookMap { get; set; }
 
         // The main conversion action
-        public bool Convert(string input, string output, bool rename = false, PageMapping pageMapping = PageMapping.TopicToPage) {
+        public bool Convert(string input, string output, bool rename = false) {
             try {
                 // Make sure the output path exists
                 VerifyOutputPath(output);

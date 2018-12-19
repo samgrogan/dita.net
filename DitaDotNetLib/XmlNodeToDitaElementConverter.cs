@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 
@@ -16,6 +17,9 @@ namespace Dita.Net {
 
             // Does this node/element have children
             bool isContainer = !IsNodeOnlyText(inputNode, out string innerText);
+            if (!isContainer) {
+                innerText = CleanInnerText(innerText);
+            }
 
             // Create the new DITA element
             DitaElement outputElement = new DitaElement(type, isContainer, innerText);
@@ -66,6 +70,18 @@ namespace Dita.Net {
 
             innerText = inputNode.ChildNodes[0].InnerText;
             return true;
+        }
+
+        // Cleans up text to remove extra formatting characters and spaces
+        private string CleanInnerText(string innerText) {
+            char[] replaceChars = {'\t', '\n', '\r'};
+
+            foreach (char replaceChar in replaceChars) {
+                innerText = innerText.Replace(replaceChar, ' ');
+            }
+
+            innerText = Regex.Replace(innerText, @" +", " ");
+            return innerText.Trim();
         }
 
         #endregion

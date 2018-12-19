@@ -7,24 +7,17 @@ namespace Dita.Net {
 
     public class DitaToJsonConverter : DitaConverter {
 
-        private const string SearchFileName = "search.json";
-
-        public new bool Convert(string input, string output, bool rename = false, PageMapping pageMapping = PageMapping.TopicToPage) {
+        public new bool Convert(string input, string output, bool rename = false) {
             if (base.Convert(input, output, rename)) {
 
                 try {
                     // Write out the json table of contents
-                    DitaCollectionJson collectionJson = new DitaCollectionJson(Collection, BookMap, pageMapping);
+                    DitaCollectionJson collectionJson = new DitaCollectionJson(Collection, BookMap);
                     collectionJson.SerializeToFile(output);
 
                     // Write out the pages json
-                    List<DitaPageJson> pages = null;
-                    switch (pageMapping) {
-                        case PageMapping.MapToPage:
-                            break;
-                        case PageMapping.TopicToPage:
-                        default:
-                            break;
+                    foreach (DitaPageJson page in collectionJson.Pages) {
+                        page.SerializeToFile(output);
                     }
 
                     // Write out the search json

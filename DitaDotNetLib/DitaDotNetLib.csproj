@@ -48,7 +48,6 @@
     <Compile Include="DitaCollection.cs" />
     <Compile Include="DitaConcept.cs" />
     <Compile Include="DitaCollectionJson.cs" />
-    <Compile Include="DitaConceptJson.cs" />
     <Compile Include="DitaConverter.cs" />
     <Compile Include="DitaElement.cs" />
     <Compile Include="DitaFile.cs" />
@@ -56,9 +55,9 @@
     <Compile Include="DitaPageJson.cs" />
     <Compile Include="DitaSearchJson.cs" />
     <Compile Include="DitaSvg.cs" />
+    <Compile Include="DitaToHtmlConverter.cs" />
     <Compile Include="DitaToJsonConverter.cs" />
     <Compile Include="DitaTopic.cs" />
-    <Compile Include="DitaTopicJson.cs" />
     <Compile Include="DitaVerifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XmlNodeToDitaElementConverter.cs" />

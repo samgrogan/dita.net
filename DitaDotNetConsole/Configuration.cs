@@ -24,9 +24,6 @@ namespace Dita.Net.Console {
         // Should we rename files during conversion?
         public bool Rename { get; set; }
 
-        // Should output be 1 page per topic or 1 page per map
-        public string PageMapping { get; set; }
-
         // What is the path to the input file or folder?
         public string Input { get; set; }
 
@@ -44,7 +41,6 @@ namespace Dita.Net.Console {
             Command = Parameters.CommandVerify;
             Format = Parameters.FormatJson;
             Rename = false;
-            PageMapping = Parameters.PageMappingTopic;
         }
 
         #endregion Public Methods

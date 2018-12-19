@@ -88,8 +88,10 @@ namespace Dita.Net {
 
                 return true;
             }
-            catch {
+            catch (Exception ex) {
+
                 Console.WriteLine($"Error parsing {rootNodeType} in {FileName}");
+                Console.WriteLine(ex);
             }
 
             return false;
