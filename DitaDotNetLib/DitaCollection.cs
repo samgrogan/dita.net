@@ -119,19 +119,25 @@ namespace Dita.Net {
 
         // Rename the files in the collection to match their title (instead of their given file names)
         public void RenameFiles() {
+            List<string> fileNames = new List<string>();
+
             // Generate a new name for each file, based on it's title
             foreach (DitaFile file in Files) {
                 string newFileName = DitaFile.TitleToFileName(file.GetTitle(), Path.GetExtension(file.FileName));
                 if (!string.IsNullOrWhiteSpace(newFileName)) {
+                    while (fileNames.Contains(newFileName)) {
+                        newFileName = Path.ChangeExtension($"{Path.GetFileNameWithoutExtension(newFileName)}0", Path.GetExtension(newFileName));
+                    }
+                    fileNames.Add(newFileName);
                     file.NewFileName = newFileName;
                     Console.WriteLine($"Renaming {file.FileName} to {newFileName}");
                 }
             }
 
             // Ensure that all filenames are unique
-            if (!AreFileNamesUnique()) {
-                throw new Exception("File names (titles) are not unique.");
-            }
+            //if (!AreFileNamesUnique()) {
+            //    throw new Exception("File names (titles) are not unique.");
+            //}
 
             // Update references from old to new file names
             UpdateReferences();
@@ -147,28 +153,29 @@ namespace Dita.Net {
         #region Internal Methods
 
         // Are all of the files in the collection uniquely named?
-        protected bool AreFileNamesUnique() {
-            bool result = true;
+        //protected bool AreFileNamesUnique() {
+        //    bool result = true;
 
-            List<string> fileNames = new List<string>();
+        //    List<string> fileNames = new List<string>();
 
-            foreach (DitaFile file in Files) {
-                string fileName = file.NewFileName ?? file.FileName;
+        //    foreach (DitaFile file in Files) {
+        //        string fileName = file.NewFileName ?? file.FileName;
 
-                if (fileName == null) {
-                    throw new Exception("Null file names are not allowed.");
-                }
+        //        if (fileName == null) {
+        //            throw new Exception("Null file names are not allowed.");
+        //        }
 
-                if (fileNames.Contains(fileName)) {
-                    result = false;
-                }
-                else {
-                    fileNames.Add(fileName);
-                }
-            }
+        //        if (fileNames.Contains(fileName)) {
+        //            Console.WriteLine($"Found duplicate file name {fileName}.");
+        //            result = false;
+        //        }
+        //        else {
+        //            fileNames.Add(fileName);
+        //        }
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
         // Update all references in the collection from old file name to new file name
         protected void UpdateReferences() {

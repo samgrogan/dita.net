@@ -21,7 +21,8 @@ namespace Dita.Net {
                     }
 
                     // Write out the search json
-
+                    DitaSearchJson searchJson = new DitaSearchJson(collectionJson.Pages);
+                    searchJson.SerializeToFile(output);
                 }
                 catch {
                     Console.WriteLine($"Error converting {input} to JSON.");

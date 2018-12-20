@@ -21,7 +21,7 @@ namespace Dita.Net {
         // The body of the page
         public string Body { get; set; }
 
-        #endregion
+        #endregion Properties
 
         #region Public Methods
 

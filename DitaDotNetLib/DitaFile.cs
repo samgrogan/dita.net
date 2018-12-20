@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
@@ -52,7 +53,7 @@ namespace Dita.Net {
         // Constructor for just a path
         public DitaFile(string filePath) {
             FilePath = filePath;
-            FileName = System.IO.Path.GetFileName(filePath);
+            FileName = Path.GetFileName(filePath);
         }
 
         // Constructor with an XmlDocument and its path
@@ -60,7 +61,7 @@ namespace Dita.Net {
             // Store the raw xml and path
             XmlDocument = xmlDocument;
             FilePath = filePath;
-            FileName = System.IO.Path.GetFileName(filePath);
+            FileName = Path.GetFileName(filePath);
         }
 
         // Try to parse the properties and data from this document 
@@ -168,11 +169,12 @@ namespace Dita.Net {
         // Converts a title to a file name
         public static string TitleToFileName(string title, string extension) {
             string fileName = null;
-            char[] illegalCharacters = {'/', '\\', '?', '%', '*', ':', '|', '\"', '<', '>', ' ', ',', '_', '\n', '\r', '\t'};
+            char[] illegalCharacters = {'/', '\\', '?', '%', '*', ':', '|', '\"', '<', '>', ' ', ',', '_', '\n', '\r', '\t', '#'};
 
             try {
                 if (!string.IsNullOrWhiteSpace(title)) {
-                    fileName = title.ToLower().Trim();
+                    fileName = Encoding.ASCII.GetString(Encoding.ASCII.GetBytes(title.ToLower().Trim()));
+
                     // Replace special characters and spaces with _
                     foreach (char illegalChar in illegalCharacters) {
                         fileName = fileName.Replace(illegalChar, '-');
@@ -184,6 +186,11 @@ namespace Dita.Net {
                     // Add the extension, if needed
                     if (!string.IsNullOrWhiteSpace(extension)) {
                         fileName = Path.ChangeExtension(fileName, extension);
+                    }
+
+                    // Make sure the filename isn't too long
+                    if (Path.GetFileNameWithoutExtension(fileName).Length > 255) {
+                        fileName = Path.ChangeExtension(Path.GetFileNameWithoutExtension(fileName).Substring(0, 255), Path.GetExtension(fileName));
                     }
                 }
             }

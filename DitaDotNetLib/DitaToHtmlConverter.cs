@@ -10,8 +10,13 @@ namespace Dita.Net {
             StringBuilder bodyStringBuilder = new StringBuilder();
 
             if (bodyElement != null) {
-                foreach (DitaElement childElement in bodyElement.Children) {
-                    bodyStringBuilder.Append(Convert(childElement));
+                if (bodyElement.IsContainer) {
+                    foreach (DitaElement childElement in bodyElement?.Children) {
+                        bodyStringBuilder.Append(Convert(childElement));
+                    }
+                }
+                else {
+                    bodyStringBuilder.Append(bodyElement.InnerText);
                 }
             }
 

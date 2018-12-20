@@ -176,10 +176,20 @@ namespace Dita.Net {
 
                     // Add references from the linked files
                     DitaFile linkedFile = Collection.GetFileByName(topicRefHref);
-                    chapters.AddRange(ParseChaptersFromFile(linkedFile));
 
-                    // Add any children as well
-                    chapters.AddRange(ParseTopicRefs(topicRefElement.FindChildren("topicref")));
+                    List<DitaCollectionLinkJson> newChapters = ParseChaptersFromFile(linkedFile);
+
+                    // Are there child chapters?
+                    List<DitaCollectionLinkJson> childChapters = ParseTopicRefs(topicRefElement.FindChildren("topicref"));
+
+                    if (newChapters.Count > 1 && childChapters.Count > 0) {
+                        // This should never happen
+                        throw new Exception("Found multiple children in a map and topic refs.");
+                    }
+
+                    newChapters[0].Children = childChapters;
+                    chapters.AddRange(newChapters);
+
                 }
             }
             return chapters;
