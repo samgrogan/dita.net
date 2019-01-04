@@ -58,6 +58,7 @@
     <Compile Include="DitaToHtmlConverter.cs" />
     <Compile Include="DitaToJsonConverter.cs" />
     <Compile Include="DitaTopic.cs" />
+    <Compile Include="DitaToTextConverter.cs" />
     <Compile Include="DitaVerifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XmlNodeToDitaElementConverter.cs" />

@@ -19,7 +19,10 @@ namespace Dita.Net {
         public string FileName { get; set; }
 
         // The body of the page
-        public string Body { get; set; }
+        public string BodyHtml { get; set; }
+
+        // The text of the page (without markup)
+        public string BodyText { get; set; }
 
         #endregion Properties
 
@@ -36,9 +39,15 @@ namespace Dita.Net {
             FileName = Path.ChangeExtension(FileName, ".json");
 
             // Convert the body to html
-            DitaToHtmlConverter converter = new DitaToHtmlConverter();
-            converter.Convert(file.RootElement.FindOnlyChild("body"), out string body);
-            Body = body;
+            DitaToHtmlConverter htmlConverter = new DitaToHtmlConverter();
+            htmlConverter.Convert(file.RootElement.FindOnlyChild("body"), out string bodyHtml);
+            BodyHtml = bodyHtml;
+
+            // Convert the body to text
+            DitaToTextConverter textConverter = new DitaToTextConverter();
+            textConverter.Convert(file.RootElement.FindOnlyChild("body"), out string bodyText);
+            BodyText = bodyText;
+
         }
 
         // Write this collection to a given folder
