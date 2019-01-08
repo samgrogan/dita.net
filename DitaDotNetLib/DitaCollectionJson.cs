@@ -111,7 +111,7 @@ namespace Dita.Net {
             BookMeta.Add("version", vrmElement?.Attributes?["version"]);
 
             // Everything in category
-            List<DitaElement> categoryData = bookMetaElement?.FindOnlyChild("category").Children;
+            List<DitaElement> categoryData = bookMetaElement?.FindOnlyChild("category")?.Children;
             if (categoryData != null) {
                 foreach (DitaElement data in categoryData) {
                     if (data?.Attributes["name"] != null) {
