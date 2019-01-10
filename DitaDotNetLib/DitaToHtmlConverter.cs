@@ -26,11 +26,12 @@ namespace Dita.Net {
         }
 
         private string Convert(DitaElement element) {
-            string htmlTag = ConvertDitaTagToHtmlTag(element.Type);
+            string htmlTag = ConvertDitaTagToHtmlTag(element);
+            Dictionary<string, string> htmlAttributes = ConvertDitaTagAttributesToHtmlTagAttributes(element);
 
             if (element.IsContainer) {
                 StringBuilder elementStringBuilder = new StringBuilder();
-                elementStringBuilder.Append(HtmlOpeningTag(htmlTag));
+                elementStringBuilder.Append(HtmlOpeningTag(htmlTag, htmlAttributes));
 
                 foreach (DitaElement childElement in element.Children) {
                     elementStringBuilder.Append(Convert(childElement));
@@ -41,25 +42,74 @@ namespace Dita.Net {
                 return elementStringBuilder.ToString();
             }
             else {
-                return $"{HtmlOpeningTag(htmlTag)}{element.InnerText}{HtmlClosingTag(htmlTag)}";
+                return $"{HtmlOpeningTag(htmlTag, htmlAttributes)}{element.InnerText}{HtmlClosingTag(htmlTag)}";
             }
         }
 
         // Takes a DITA "tag" and returns the corresponding HTML tag
-        private string ConvertDitaTagToHtmlTag(string ditaTag) {
-            switch (ditaTag) {
-                case "#text":
-                    return "";
+        private string ConvertDitaTagToHtmlTag(DitaElement element) {
+            switch (element.Type) {
+                // Suppress these tags
+                case "colspec": return "";
+                case "entry":
+                    if (element.Parent?.Parent?.Type == "thead") {
+                        return "th";
+                    }
+                    return "td";
+                case "image": return "img";
+                case "row": return "tr";
+                case "title":
+                    if (element.Parent?.Type == "fig") {
+                        return "h4";
+                    }
+                    return "h3";
+                case "#text": return "";
             }
 
-            return ditaTag;
+            return element.Type;
+        }
+
+        // Converts DITA tag attributes to html tag attributes
+        private Dictionary<string, string> ConvertDitaTagAttributesToHtmlTagAttributes(DitaElement element) {
+            Dictionary<string, string> htmlAttributes = new Dictionary<string, string>();
+
+            foreach (string ditaAttributeKey in element.Attributes.Keys) {
+                (string newKey, string newValue) = ConvertDitaTagAttributeToHtmlTagAttribute(ditaAttributeKey, element.Attributes[ditaAttributeKey], element);
+                if (!string.IsNullOrWhiteSpace(newKey)) {
+                    htmlAttributes.Add(newKey, newValue);
+                }
+            }
+
+            return htmlAttributes;
+        }
+
+        // Converts a single dita tag attribute to an html attribute
+        private (string newKey, string newValue) ConvertDitaTagAttributeToHtmlTagAttribute(string key, string value, DitaElement element) {
+            switch (element.Type) {
+                case "image":
+                    if (key == "href") {
+                        return ("src", $"%IMG_ROOT%/{value}");
+                    }
+
+                    break;
+            }
+
+            return ("", "");
         }
 
         // Writes an open tag
-        private string HtmlOpeningTag(string htmlTag) {
-            if (!string.IsNullOrWhiteSpace(htmlTag)) {
-                return $"<{htmlTag}>";
+        private string HtmlOpeningTag(string htmlTag, Dictionary<string, string> htmlAttributes = null) {
+            StringBuilder attributes = new StringBuilder();
+            if (htmlAttributes?.Count > 0) {
+                foreach (string attributeKey in htmlAttributes.Keys) {
+                    attributes.AppendFormat($" {attributeKey}={htmlAttributes[attributeKey]}");
+                }
             }
+
+            if (!string.IsNullOrWhiteSpace(htmlTag)) {
+                return $"<{htmlTag}{attributes}>";
+            }
+
             return "";
         }
 
@@ -68,6 +118,7 @@ namespace Dita.Net {
             if (!string.IsNullOrWhiteSpace(htmlTag)) {
                 return $"</{htmlTag}>";
             }
+
             return "";
         }
     }

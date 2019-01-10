@@ -11,7 +11,7 @@ namespace Dita.Net {
         #region Class Methods
 
         // Ingest an XmlNode and recursively parse it to create a group of DitaElements
-        public DitaElement Convert(XmlNode inputNode) {
+        public DitaElement Convert(XmlNode inputNode, DitaElement parentElement = null) {
             // What type of element are we creating
             string type = inputNode?.Name;
 
@@ -22,7 +22,7 @@ namespace Dita.Net {
             }
 
             // Create the new DITA element
-            DitaElement outputElement = new DitaElement(type, isContainer, innerText);
+            DitaElement outputElement = new DitaElement(type, isContainer, innerText, parentElement);
 
             // Add the attributes
             if (inputNode?.Attributes != null) {
@@ -35,7 +35,7 @@ namespace Dita.Net {
             // ReSharper disable once InvertIf
             if (isContainer && inputNode?.ChildNodes != null) {
                 foreach (XmlNode childNode in inputNode.ChildNodes) {
-                    outputElement.Children.Add(Convert(childNode));
+                    outputElement.Children.Add(Convert(childNode, outputElement));
                 }
             }
 

@@ -22,6 +22,9 @@ namespace Dita.Net {
         // Only available if this is a container
         public List<DitaElement> Children { get; } = null;
 
+        // The parent of this element
+        public DitaElement Parent { get; set; }
+
         // The inner text of the element
         // Only available if this is *not* a container
         public string InnerText { get; } = null;
@@ -31,9 +34,10 @@ namespace Dita.Net {
         #region Class Methods 
 
         // Default constructor
-        public DitaElement(string type, bool isContainer = false, string innerText = null) {
+        public DitaElement(string type, bool isContainer = false, string innerText = null, DitaElement parent = null) {
             Type = type;
             IsContainer = isContainer;
+            Parent = parent;
             if (IsContainer) {
                 Children = new List<DitaElement>();
             }
