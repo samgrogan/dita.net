@@ -25,6 +25,9 @@ namespace Dita.Net {
         // The parent of this element
         public DitaElement Parent { get; set; }
 
+        // The previous sibling of this element
+        public DitaElement PreviousSibling { get; set; }
+
         // The inner text of the element
         // Only available if this is *not* a container
         public string InnerText { get; } = null;
@@ -34,10 +37,11 @@ namespace Dita.Net {
         #region Class Methods 
 
         // Default constructor
-        public DitaElement(string type, bool isContainer = false, string innerText = null, DitaElement parent = null) {
+        public DitaElement(string type, bool isContainer = false, string innerText = null, DitaElement parent = null, DitaElement previousSibling = null) {
             Type = type;
             IsContainer = isContainer;
             Parent = parent;
+            PreviousSibling = previousSibling;
             if (IsContainer) {
                 Children = new List<DitaElement>();
             }

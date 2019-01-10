@@ -58,16 +58,18 @@ namespace Dita.Net {
                     if (element.Parent?.Parent?.Type == "thead") {
                         return "th";
                     }
-
                     return "td";
                 case "image": return "img";
                 case "row": return "tr";
+                case "tgroup": return "";
                 case "title":
-                    if (element.Parent?.Type == "fig") {
-                        return "h4";
+                    //if (element.Parent?.Type == "fig") {
+                    //    return "h4";
+                    //}
+                    if (element.Parent?.Type == "section") {
+                        return "h3";
                     }
-
-                    return "h3";
+                    return "h4";
                 case "#text": return "";
             }
 
