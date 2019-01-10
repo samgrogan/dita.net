@@ -106,15 +106,28 @@ namespace Dita.Net {
 
         // Returns the list of Dita Book Maps in the collection
         public List<DitaBookMap> GetBookMaps() {
-            List<DitaBookMap> result = new List<DitaBookMap>();
+            List<DitaBookMap> results = new List<DitaBookMap>();
 
             foreach (DitaFile file in Files) {
                 if (file is DitaBookMap ditaBookMap) {
-                    result.Add(ditaBookMap);
+                    results.Add(ditaBookMap);
                 }
             }
 
-            return result;
+            return results;
+        }
+
+        // Returns a list of the images in the collection
+        public List<DitaSvg> GetImages() {
+            List<DitaSvg> results = new List<DitaSvg>();
+
+            foreach (DitaFile file in Files) {
+                if (file is DitaSvg ditaSvg) {
+                    results.Add(ditaSvg);
+                }
+            }
+
+            return results;
         }
 
         // Rename the files in the collection to match their title (instead of their given file names)
@@ -128,16 +141,12 @@ namespace Dita.Net {
                     while (fileNames.Contains(newFileName)) {
                         newFileName = Path.ChangeExtension($"{Path.GetFileNameWithoutExtension(newFileName)}0", Path.GetExtension(newFileName));
                     }
+
                     fileNames.Add(newFileName);
                     file.NewFileName = newFileName;
                     Console.WriteLine($"Renaming {file.FileName} to {newFileName}");
                 }
             }
-
-            // Ensure that all filenames are unique
-            //if (!AreFileNamesUnique()) {
-            //    throw new Exception("File names (titles) are not unique.");
-            //}
 
             // Update references from old to new file names
             UpdateReferences();
@@ -150,35 +159,10 @@ namespace Dita.Net {
 
         #endregion Public Methods
 
-        #region Internal Methods
-
-        // Are all of the files in the collection uniquely named?
-        //protected bool AreFileNamesUnique() {
-        //    bool result = true;
-
-        //    List<string> fileNames = new List<string>();
-
-        //    foreach (DitaFile file in Files) {
-        //        string fileName = file.NewFileName ?? file.FileName;
-
-        //        if (fileName == null) {
-        //            throw new Exception("Null file names are not allowed.");
-        //        }
-
-        //        if (fileNames.Contains(fileName)) {
-        //            Console.WriteLine($"Found duplicate file name {fileName}.");
-        //            result = false;
-        //        }
-        //        else {
-        //            fileNames.Add(fileName);
-        //        }
-        //    }
-
-        //    return result;
-        //}
+        #region Private Methods
 
         // Update all references in the collection from old file name to new file name
-        protected void UpdateReferences() {
+        private void UpdateReferences() {
             // Loop through each file and update references if the file has changed
             Parallel.ForEach(Files, (fileRenamed) => {
                 if (fileRenamed.FileName != fileRenamed.NewFileName && !string.IsNullOrWhiteSpace(fileRenamed.NewFileName)) {

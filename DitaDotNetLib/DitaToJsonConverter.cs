@@ -23,6 +23,9 @@ namespace Dita.Net {
                     // Write out the search json
                     DitaSearchJson searchJson = new DitaSearchJson(collectionJson.Pages);
                     searchJson.SerializeToFile(output);
+
+                    // Copy the images
+                    CopyImages(input, output, collectionJson);
                 }
                 catch {
                     Console.WriteLine($"Error converting {input} to JSON.");
@@ -32,6 +35,18 @@ namespace Dita.Net {
             }
 
             return false;
+        }
+
+        // Copies all of the images input to the output folder
+        private void CopyImages(string input, string output, DitaCollectionJson collectionJson) {
+            List<DitaSvg> images = collectionJson.Images;
+
+            foreach (DitaSvg image in images) {
+                string imageOutputPath = Path.Combine(output, image.FileName);
+
+                File.Copy(image.FilePath, imageOutputPath, true);
+                Console.WriteLine($"Copied {image.FilePath} to {imageOutputPath}");
+            }
         }
     }
 }

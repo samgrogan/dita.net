@@ -26,9 +26,12 @@ namespace Dita.Net {
         }
 
         private string Convert(DitaElement element) {
+            // Determine the new html tag and attributes
             string htmlTag = ConvertDitaTagToHtmlTag(element);
             Dictionary<string, string> htmlAttributes = ConvertDitaTagAttributesToHtmlTagAttributes(element);
+            AddHtmlTagAttributes(htmlAttributes, element);
 
+            // If this is a parent, then add the children
             if (element.IsContainer) {
                 StringBuilder elementStringBuilder = new StringBuilder();
                 elementStringBuilder.Append(HtmlOpeningTag(htmlTag, htmlAttributes));
@@ -55,6 +58,7 @@ namespace Dita.Net {
                     if (element.Parent?.Parent?.Type == "thead") {
                         return "th";
                     }
+
                     return "td";
                 case "image": return "img";
                 case "row": return "tr";
@@ -62,6 +66,7 @@ namespace Dita.Net {
                     if (element.Parent?.Type == "fig") {
                         return "h4";
                     }
+
                     return "h3";
                 case "#text": return "";
             }
@@ -96,6 +101,18 @@ namespace Dita.Net {
 
             return ("", "");
         }
+
+        // Add additional attributes to specific html tags
+        private void AddHtmlTagAttributes(Dictionary<string, string> htmlAttributes, DitaElement element) {
+            switch (element.Type) {
+                case "image":
+                    if (!htmlAttributes.ContainsKey("width")) {
+                        htmlAttributes.Add("width", "100%");
+                    }
+                    break;
+            }
+        }
+
 
         // Writes an open tag
         private string HtmlOpeningTag(string htmlTag, Dictionary<string, string> htmlAttributes = null) {
