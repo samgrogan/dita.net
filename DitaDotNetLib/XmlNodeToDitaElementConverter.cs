@@ -84,7 +84,7 @@ namespace Dita.Net {
             }
 
             innerText = Regex.Replace(innerText, @" +", " ");
-            return innerText.Trim();
+            return innerText;
         }
 
         #endregion

@@ -18,6 +18,9 @@ namespace Dita.Net {
         // The filename of this page
         public string FileName { get; set; }
 
+        // The original file name (if changed)
+        public string OriginalFileName { get; set; }
+
         // The body of the page
         public string BodyHtml { get; set; }
 
@@ -37,6 +40,8 @@ namespace Dita.Net {
             // Create the file name
             FileName = file.NewFileName ?? file.FileName;
             FileName = Path.ChangeExtension(FileName, ".json");
+
+            OriginalFileName = file.FileName;
 
             // Convert the body to html
             DitaToHtmlConverter htmlConverter = new DitaToHtmlConverter();

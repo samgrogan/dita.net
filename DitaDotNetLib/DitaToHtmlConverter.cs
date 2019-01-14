@@ -52,13 +52,14 @@ namespace Dita.Net {
         // Takes a DITA "tag" and returns the corresponding HTML tag
         private string ConvertDitaTagToHtmlTag(DitaElement element) {
             switch (element.Type) {
-                // Suppress these tags
+                case "b": return "strong";
                 case "colspec": return "";
                 case "entry":
                     if (element.Parent?.Parent?.Type == "thead") {
                         return "th";
                     }
                     return "td";
+                case "fig": return "figure";
                 case "image": return "img";
                 case "row": return "tr";
                 case "tgroup": return "";
