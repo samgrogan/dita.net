@@ -97,7 +97,6 @@ namespace Dita.Net {
                     if (key == "href") {
                         return ("src", $"%IMG_ROOT%/{value}");
                     }
-
                     break;
             }
 
@@ -112,6 +111,11 @@ namespace Dita.Net {
                         htmlAttributes.Add("width", "100%");
                     }
                     break;
+                case "table":
+                    if (!htmlAttributes.ContainsKey("class")) {
+                        htmlAttributes.Add("class", "table");
+                    }
+                    break;
             }
         }
 
@@ -121,7 +125,7 @@ namespace Dita.Net {
             StringBuilder attributes = new StringBuilder();
             if (htmlAttributes?.Count > 0) {
                 foreach (string attributeKey in htmlAttributes.Keys) {
-                    attributes.AppendFormat($" {attributeKey}={htmlAttributes[attributeKey]}");
+                    attributes.AppendFormat($" {attributeKey}=\"{htmlAttributes[attributeKey]}\"");
                 }
             }
 
