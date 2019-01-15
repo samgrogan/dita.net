@@ -55,8 +55,9 @@ namespace Dita.Net {
         // Write this collection to a given folder
         public void SerializeToFile(string output) {
             using (StreamWriter file = File.CreateText(Path.Combine(output, CollectionFileName))) {
-                JsonSerializerSettings settings = new JsonSerializerSettings();
-                settings.Formatting = Formatting.Indented;
+                JsonSerializerSettings settings = new JsonSerializerSettings {
+                    Formatting = Formatting.Indented
+                };
                 JsonSerializer serializer = JsonSerializer.Create(settings);
                 serializer.Serialize(file, this);
             }
@@ -85,6 +86,9 @@ namespace Dita.Net {
                 ParseBookMapChapters();
 
                 // Read the back matter
+
+                // Removes any blank topics and replaces them with links to their first populate child
+                RemoveBlankPages();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex);
@@ -260,6 +264,19 @@ namespace Dita.Net {
             return false;
         }
 
-        #endregion
+        // Removes blank pages from the output
+        private void RemoveBlankPages(List<DitaCollectionLinkJson> chapters) {
+            List<DitaCollectionLinkJson> removeLinks = new List<DitaCollectionLinkJson>();
+            List<DitaPageJson> removePages = new List<DitaPageJson>();
+
+            foreach (DitaCollectionLinkJson link in chapters) {
+                // Get the page for this link
+                DitaPageJson pageJson = Pages.FirstOrDefault(o => o.FileName == link.FileName);
+                
+            }
+
+        }
+
+        #endregion Private Methods
     }
 }

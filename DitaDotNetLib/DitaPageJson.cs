@@ -27,6 +27,9 @@ namespace Dita.Net {
         // The text of the page (without markup)
         public string BodyText { get; set; }
 
+        // Is the body empty?
+        public bool IsBodyEmpty { get; set; }
+
         #endregion Properties
 
         #region Public Methods
@@ -53,6 +56,7 @@ namespace Dita.Net {
             textConverter.Convert(file.RootElement.FindOnlyChild("body"), out string bodyText);
             BodyText = bodyText;
 
+            IsBodyEmpty = string.IsNullOrEmpty(BodyText);
         }
 
         // Write this collection to a given folder
