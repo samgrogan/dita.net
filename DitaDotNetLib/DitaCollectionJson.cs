@@ -287,7 +287,7 @@ namespace Dita.Net {
 
             foreach (DitaCollectionLinkJson link in chapters) {
                 // Is the page empty?
-                if (IsLinkToEmptyPage(link, out DitaPageJson pageJson)) {
+                if (IsLinkToEmptyPage(link, out DitaPageJson _)) {
                     // Does the chapter have a non empty child?
                     DitaCollectionLinkJson nonEmptyChild = FindFirstNonBlankChild(link);
                     // If there is one, then replace the link
@@ -315,8 +315,8 @@ namespace Dita.Net {
             if (link?.Children?.Count > 0) {
                 foreach (DitaCollectionLinkJson child in link.Children) {
                     // Is the page empty?
-                    if (!IsLinkToEmptyPage(link, out _)) {
-                        return link;
+                    if (!IsLinkToEmptyPage(child, out _)) {
+                        return child;
                     }
                 }
             }
