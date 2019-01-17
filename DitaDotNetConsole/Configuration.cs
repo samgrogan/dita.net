@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 
 // Encapsulates the settings for a single run of the console application
 // Typically loaded from a JSON configuration
 
-namespace Dita.Net.Console {
+namespace DitaDotNet.Console {
     public class Configuration {
 
         #region Properties
@@ -29,6 +25,9 @@ namespace Dita.Net.Console {
 
         // What is the path to the output file or folder?
         public string Output { get; set; }
+
+        // What level of tracing should we produce?
+        public TraceLevel TraceLevel { get; set; }
 
         #endregion Properties
 

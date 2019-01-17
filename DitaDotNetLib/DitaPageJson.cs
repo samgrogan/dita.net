@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace Dita.Net {
+namespace DitaDotNet {
     // Encapsulates a single "page" for display that consists of 1 or more dita topics
     internal class DitaPageJson {
 
@@ -69,7 +65,7 @@ namespace Dita.Net {
                 serializer.Serialize(file, this);
             }
 
-            Console.WriteLine($"Wrote {FileName}");
+            Trace.TraceInformation($"Wrote {FileName}");
         }
 
         #endregion

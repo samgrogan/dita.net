@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Trace = DitaDotNet.Trace;
 
-namespace Dita.Net {
+namespace DitaDotNet {
     internal class DitaCollectionLinkJson {
         public string Title { get; set; }
         public string FileName { get; set; }
@@ -62,7 +59,7 @@ namespace Dita.Net {
                 serializer.Serialize(file, this);
             }
 
-            Console.WriteLine($"Wrote {CollectionFileName}");
+            Trace.TraceInformation($"Wrote {CollectionFileName}");
         }
 
         #endregion Public Methods
@@ -91,7 +88,7 @@ namespace Dita.Net {
                 RemoveBlankPages();
             }
             catch (Exception ex) {
-                Console.WriteLine(ex);
+                Trace.TraceError(ex);
             }
         }
 
@@ -149,7 +146,7 @@ namespace Dita.Net {
 
         // Parse chapter structure from a dita file
         private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaFile linkedFile) {
-            Console.WriteLine($"Converting {linkedFile}");
+            Trace.TraceInformation($"Converting {linkedFile}");
 
             // What type of file is this?
             switch (linkedFile) {
@@ -169,7 +166,7 @@ namespace Dita.Net {
 
         // Parse chapter structure from a .ditamap file
         private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaMap map) {
-            Console.WriteLine($"Found link to map {map.NewFileName ?? map.FileName}.");
+            Trace.TraceInformation($"Found link to map {map.NewFileName ?? map.FileName}.");
 
             // Find all the topic references
             List<DitaCollectionLinkJson> chapters = ParseTopicRefs(map.RootElement.FindChildren("topicref"));
@@ -222,7 +219,7 @@ namespace Dita.Net {
             };
             chapters.Add(chapter);
 
-            Console.WriteLine($"Found link to topic {chapter.FileName}.");
+            Trace.TraceInformation($"Found link to topic {chapter.FileName}.");
 
             return chapters;
         }
@@ -242,7 +239,7 @@ namespace Dita.Net {
             };
             chapters.Add(chapter);
 
-            Console.WriteLine($"Found link to concept {chapter.FileName}.");
+            Trace.TraceInformation($"Found link to concept {chapter.FileName}.");
 
             return chapters;
         }
@@ -273,7 +270,7 @@ namespace Dita.Net {
             List<DitaPageJson> removePages = new List<DitaPageJson>();
             foreach (DitaPageJson page in Pages) {
                 if (page.IsEmpty) {
-                    Console.WriteLine($"Removing chapter link to {page.FileName}");
+                    Trace.TraceInformation($"Removing chapter link to {page.FileName}");
                     removePages.Add(page);
                 }
             }
@@ -287,7 +284,7 @@ namespace Dita.Net {
 
             foreach (DitaCollectionLinkJson link in chapters) {
                 // Is the page empty?
-                if (IsLinkToEmptyPage(link, out DitaPageJson pageJson)) {
+                if (IsLinkToEmptyPage(link, out DitaPageJson _)) {
                     // Does the chapter have a non empty child?
                     DitaCollectionLinkJson nonEmptyChild = FindFirstNonBlankChild(link);
                     // If there is one, then replace the link
@@ -295,7 +292,7 @@ namespace Dita.Net {
                         link.FileName = nonEmptyChild.FileName;
                     }
                     else {
-                        Console.WriteLine($"Removing chapter link to {link.FileName}");
+                        Trace.TraceInformation($"Removing chapter link to {link.FileName}");
                         removeLinks.Add(link);
                     }
                 }
@@ -315,8 +312,8 @@ namespace Dita.Net {
             if (link?.Children?.Count > 0) {
                 foreach (DitaCollectionLinkJson child in link.Children) {
                     // Is the page empty?
-                    if (!IsLinkToEmptyPage(link, out _)) {
-                        return link;
+                    if (!IsLinkToEmptyPage(child, out _)) {
+                        return child;
                     }
                 }
             }

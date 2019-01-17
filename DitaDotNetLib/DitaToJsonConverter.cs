@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json;
 
-namespace Dita.Net {
+namespace DitaDotNet {
 
     public class DitaToJsonConverter : DitaConverter {
 
@@ -28,7 +27,7 @@ namespace Dita.Net {
                     CopyImages(input, output, collectionJson);
                 }
                 catch {
-                    Console.WriteLine($"Error converting {input} to JSON.");
+                    Trace.TraceError($"Error converting {input} to JSON.");
                     return false;
                 }
                 return true;
@@ -45,7 +44,7 @@ namespace Dita.Net {
                 string imageOutputPath = Path.Combine(output, image.FileName);
 
                 File.Copy(image.FilePath, imageOutputPath, true);
-                Console.WriteLine($"Copied {image.FilePath} to {imageOutputPath}");
+                Trace.TraceInformation($"Copied {image.FilePath} to {imageOutputPath}");
             }
         }
     }

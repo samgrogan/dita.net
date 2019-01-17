@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
 // Group together a collection of dita files
 
-namespace Dita.Net {
+namespace DitaDotNet {
     public class DitaCollection {
         #region Members
 
@@ -35,7 +34,7 @@ namespace Dita.Net {
             // Get a list of all the files in the directory
             string[] files = Directory.GetFiles(input);
             if (files.Length > 0) {
-                Console.WriteLine($"Checking {files.Length} files...");
+                Trace.TraceInformation($"Checking {files.Length} files...");
 
                 foreach (string file in files) {
                     try {
@@ -43,14 +42,14 @@ namespace Dita.Net {
                         Files.Add(ditaFile);
                     }
                     catch {
-                        Console.WriteLine($"Unable to load file {file}");
+                        Trace.TraceWarning($"Unable to load file {file}");
                     }
                 }
 
-                Console.WriteLine($"Found {FileCount} valid DITA files.");
+                Trace.TraceInformation($"Found {FileCount} valid DITA files.");
             }
             else {
-                Console.WriteLine($"No files found in directory {input}");
+                Trace.TraceWarning($"No files found in directory {input}");
             }
         }
 
@@ -65,27 +64,27 @@ namespace Dita.Net {
                 switch (fileType) {
                     case DitaFileType.BookMap:
                         DitaBookMap ditaBookMap = new DitaBookMap(xmlDocument, filePath);
-                        Console.WriteLine($"{Path.GetFileName(filePath)} is a {DitaFileType.BookMap}");
+                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.BookMap}");
                         return ditaBookMap;
 
                     case DitaFileType.Map:
                         DitaMap ditaMap = new DitaMap(xmlDocument, filePath);
-                        Console.WriteLine($"{Path.GetFileName(filePath)} is a {DitaFileType.Map}");
+                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.Map}");
                         return ditaMap;
 
                     case DitaFileType.Topic:
                         DitaTopic ditaTopic = new DitaTopic(xmlDocument, filePath);
-                        Console.WriteLine($"{Path.GetFileName(filePath)} is a {DitaFileType.Topic}");
+                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.Topic}");
                         return ditaTopic;
 
                     case DitaFileType.Concept:
                         DitaConcept ditaConcept = new DitaConcept(xmlDocument, filePath);
-                        Console.WriteLine($"{Path.GetFileName(filePath)} is a {DitaFileType.Concept}");
+                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.Concept}");
                         return ditaConcept;
                 }
             }
             catch {
-                Console.WriteLine($"Unable to load {filePath} as XML.");
+                Trace.TraceWarning($"Unable to load {filePath} as XML.");
             }
 
             // if it is not an xml document, is it an image?
@@ -95,7 +94,7 @@ namespace Dita.Net {
                 if (!string.IsNullOrWhiteSpace(extension)) {
                     if (DitaSvg.Extensions.Contains(extension)) {
                         DitaSvg ditaSvg = new DitaSvg(filePath);
-                        Console.WriteLine($"{Path.GetFileName(filePath)} is a {DitaFileType.Svg}");
+                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.Svg}");
                         return ditaSvg;
                     }
                 }
@@ -144,7 +143,7 @@ namespace Dita.Net {
 
                     fileNames.Add(newFileName);
                     file.NewFileName = newFileName;
-                    Console.WriteLine($"Renaming {file.FileName} to {newFileName}");
+                    Trace.TraceInformation($"Renaming {file.FileName} to {newFileName}");
                 }
             }
 

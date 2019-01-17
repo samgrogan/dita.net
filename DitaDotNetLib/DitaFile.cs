@@ -5,9 +5,8 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-using System.Xml.Linq;
 
-namespace Dita.Net {
+namespace DitaDotNet {
     // Valid types of DITA Files
     public enum DitaFileType {
         Unknown = 0,
@@ -91,8 +90,8 @@ namespace Dita.Net {
             }
             catch (Exception ex) {
 
-                Console.WriteLine($"Error parsing {rootNodeType} in {FileName}");
-                Console.WriteLine(ex);
+                Trace.TraceError($"Error parsing {rootNodeType} in {FileName}");
+                Trace.TraceError(ex);
             }
 
             return false;
@@ -108,7 +107,7 @@ namespace Dita.Net {
                 }
             }
             catch {
-                Console.WriteLine($"Couldn't find title in {FileName}");
+                Trace.TraceWarning($"Couldn't find title in {FileName}");
             }
 
             return null;
@@ -195,7 +194,7 @@ namespace Dita.Net {
                 }
             }
             catch {
-                Console.WriteLine($"Error generating file name for {title}");
+                Trace.TraceError($"Error generating file name for {title}");
             }
 
             return fileName;

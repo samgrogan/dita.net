@@ -7,7 +7,7 @@
     <ProjectGuid>{CC5685A9-A330-43C6-A4C2-6FAD66BE5B9E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Dita.Net</RootNamespace>
+    <RootNamespace>DitaDotNet</RootNamespace>
     <AssemblyName>DitaDotNetLib</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -61,6 +61,7 @@
     <Compile Include="DitaToTextConverter.cs" />
     <Compile Include="DitaVerifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Trace.cs" />
     <Compile Include="XmlNodeToDitaElementConverter.cs" />
   </ItemGroup>
   <ItemGroup>
