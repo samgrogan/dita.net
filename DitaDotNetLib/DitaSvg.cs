@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Dita.Net {
+﻿namespace DitaDotNet {
     public class DitaSvg : DitaFile {
 
         public static readonly string[] Extensions = new[] {".svg"};

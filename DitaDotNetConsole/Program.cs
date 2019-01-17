@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Dita.Net.Console {
+﻿namespace DitaDotNet.Console {
     class Program {
         static int Main(string[] args) {
             // Help object, for displaying help to the users
@@ -10,10 +8,13 @@ namespace Dita.Net.Console {
             if (args.Length >= 1) {
                 Configuration config = Configuration.CreateFromJson(args[0]);
 
+                // Initialize tracing
+                Trace.InitializeTrace(config.TraceLevel);
+
                 // What command were we asked to perform
                 switch (config.Command) {
                     case Parameters.CommandVerify:
-                        System.Console.WriteLine($"Verifying {config.Input}...");
+                        Trace.TraceInformation($"Verifying {config.Input}...");
 
                         DitaVerifier verifier = new DitaVerifier();
                         if (verifier.VerifyFileOrDirectory(config.Input)) {
@@ -23,7 +24,7 @@ namespace Dita.Net.Console {
                         return -1;
 
                     case Parameters.CommandConvert:
-                        System.Console.WriteLine($"Converting {config.Input}...");
+                        Trace.TraceInformation($"Converting {config.Input}...");
 
                         switch (config.Format) {
                             case Parameters.FormatJson: // Convert to JSON
@@ -34,7 +35,7 @@ namespace Dita.Net.Console {
                                 break;
 
                             default:
-                                System.Console.WriteLine($"Unknown output format {config.Format}");
+                                Trace.TraceError($"Unknown output format {config.Format}");
                                 break;
                         }
 

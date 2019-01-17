@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using System.Xml;
+﻿using System.IO;
 
-namespace Dita.Net {
+namespace DitaDotNet {
     public class DitaVerifier {
         // Try to verify the given file or directory
         public bool VerifyFileOrDirectory(string strPath) {

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Odbc;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Dita.Net {
+namespace DitaDotNet {
     public class DitaElement {
         #region Properties
 
@@ -98,7 +95,7 @@ namespace Dita.Net {
                     string href = Attributes["href"];
                     if (href == oldFileName) {
                         Attributes["href"] = newFileName;
-                        Console.WriteLine($"Updated reference from {href} to {newFileName} in {Type}");
+                        Trace.TraceInformation($"Updated reference from {href} to {newFileName} in {Type}");
                     }
                 }
 

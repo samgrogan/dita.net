@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace Dita.Net {
+namespace DitaDotNet {
     internal class DitaSearchJson {
         private const string SearchFileName = "search.json";
 
@@ -17,10 +14,8 @@ namespace Dita.Net {
         }
 
         // Write this search data to a given folder
-        public void SerializeToFile(string output)
-        {
-            using (StreamWriter file = File.CreateText(Path.Combine(output, SearchFileName)))
-            {
+        public void SerializeToFile(string output) {
+            using (StreamWriter file = File.CreateText(Path.Combine(output, SearchFileName))) {
                 JsonSerializerSettings settings = new JsonSerializerSettings {
                     Formatting = Formatting.Indented
                 };
@@ -28,7 +23,7 @@ namespace Dita.Net {
                 serializer.Serialize(file, this);
             }
 
-            Console.WriteLine($"Wrote {SearchFileName}");
+            Trace.TraceInformation($"Wrote {SearchFileName}");
         }
     }
 }

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Dita.Net {
+namespace DitaDotNet {
 
     public class DitaConverter {
 
@@ -41,8 +38,8 @@ namespace Dita.Net {
 
                 return true;
             }
-            catch (Exception exception) {
-                Console.WriteLine(exception.ToString());
+            catch (Exception ex) {
+                Trace.TraceError(ex);
 
                 return false;
             }
