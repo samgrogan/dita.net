@@ -51,8 +51,10 @@
     <Compile Include="DitaConverter.cs" />
     <Compile Include="DitaElement.cs" />
     <Compile Include="DitaFile.cs" />
+    <Compile Include="DitaImage.cs" />
     <Compile Include="DitaMap.cs" />
     <Compile Include="DitaPageJson.cs" />
+    <Compile Include="DitaPng.cs" />
     <Compile Include="DitaSearchJson.cs" />
     <Compile Include="DitaSvg.cs" />
     <Compile Include="DitaToHtmlConverter.cs" />

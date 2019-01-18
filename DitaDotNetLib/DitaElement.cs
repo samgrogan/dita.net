@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace DitaDotNet {
     public class DitaElement {
@@ -107,6 +108,21 @@ namespace DitaDotNet {
                 }
             }
         }
+
+        // Collapses the element to a string
+        public override string ToString() {
+            if (IsContainer) {
+                StringBuilder concat = new StringBuilder();
+                foreach (DitaElement childElement in Children) {
+                    concat.Append(childElement.ToString());
+                }
+                return concat.ToString();
+            }
+            else {
+                return InnerText;
+            }
+        }
+
 
         #endregion Class Methods
     }

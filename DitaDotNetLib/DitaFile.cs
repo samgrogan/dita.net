@@ -99,18 +99,23 @@ namespace DitaDotNet {
 
         // Try to determine the title of the contents in this file by finding the title element
         public string GetTitle() {
+            string title = null;
+
             // Try to find the title node
             try {
                 List<DitaElement> titleElements = RootElement?.FindChildren("title");
-                if (titleElements?.Count == 1) {
-                    return titleElements[0].InnerText;
+                if (titleElements?.Count >= 1) {
+                    title = titleElements[0].ToString();
+                }
+                else {
+                    Trace.TraceWarning($"Couldn't find title in {FileName}");
                 }
             }
             catch {
-                Trace.TraceWarning($"Couldn't find title in {FileName}");
+                Trace.TraceError($"Couldn't find title in {FileName}");
             }
 
-            return null;
+            return title;
         }
 
         public override string ToString() {
@@ -168,7 +173,7 @@ namespace DitaDotNet {
         // Converts a title to a file name
         public static string TitleToFileName(string title, string extension) {
             string fileName = null;
-            char[] illegalCharacters = {'/', '\\', '?', '%', '*', ':', '|', '\"', '<', '>', ' ', ',', '_', '\n', '\r', '\t', '#', '+'};
+            char[] illegalCharacters = {'/', '\\', '?', '%', '*', ':', '|', '\"', '<', '>', ' ', ',', '_', '\n', '\r', '\t', '#', '+', '.'};
 
             try {
                 if (!string.IsNullOrWhiteSpace(title)) {

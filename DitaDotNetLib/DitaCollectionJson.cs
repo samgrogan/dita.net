@@ -23,7 +23,7 @@ namespace DitaDotNet {
 
         [JsonIgnore] public List<DitaPageJson> Pages { get; set; }
 
-        [JsonIgnore] public List<DitaSvg> Images => Collection?.GetImages();
+        [JsonIgnore] public List<DitaImage> Images => Collection?.GetImages();
 
         [JsonIgnore] private DitaCollection Collection { get; set; }
 
@@ -77,7 +77,6 @@ namespace DitaDotNet {
                 ParseBookMapBookMeta();
 
                 // Read the front matter
-
 
                 // Read the chapters
                 ParseBookMapChapters();
@@ -186,17 +185,18 @@ namespace DitaDotNet {
 
                     List<DitaCollectionLinkJson> newChapters = ParseChaptersFromFile(linkedFile);
 
-                    // Are there child chapters?
-                    List<DitaCollectionLinkJson> childChapters =
-                        ParseTopicRefs(topicRefElement.FindChildren("topicref"));
+                    if (newChapters != null && newChapters.Count > 0) {
+                        // Are there child chapters?
+                        List<DitaCollectionLinkJson> childChapters = ParseTopicRefs(topicRefElement.FindChildren("topicref"));
 
-                    if (newChapters.Count > 1 && childChapters.Count > 0) {
-                        // This should never happen
-                        throw new Exception("Found multiple children in a map and topic refs.");
+                        if (newChapters.Count > 1 && childChapters.Count > 0) {
+                            // This should never happen
+                            throw new Exception("Found multiple children in a map and topic refs.");
+                        }
+
+                        newChapters[0].Children = childChapters;
+                        chapters.AddRange(newChapters);
                     }
-
-                    newChapters[0].Children = childChapters;
-                    chapters.AddRange(newChapters);
                 }
             }
 
@@ -208,18 +208,23 @@ namespace DitaDotNet {
         private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaTopic topic) {
             List<DitaCollectionLinkJson> chapters = new List<DitaCollectionLinkJson>();
 
-            // Build a page for this topic
-            DitaPageJson topicPage = new DitaPageJson(topic);
-            Pages.Add(topicPage);
+            try {
+                // Build a page for this topic
+                DitaPageJson topicPage = new DitaPageJson(topic);
+                Pages.Add(topicPage);
 
-            // Add this chapter to the toc for this page
-            DitaCollectionLinkJson chapter = new DitaCollectionLinkJson {
-                FileName = topicPage.FileName,
-                Title = topicPage.Title
-            };
-            chapters.Add(chapter);
+                // Add this chapter to the toc for this page
+                DitaCollectionLinkJson chapter = new DitaCollectionLinkJson {
+                    FileName = topicPage.FileName,
+                    Title = topicPage.Title
+                };
+                chapters.Add(chapter);
 
-            Trace.TraceInformation($"Found link to topic {chapter.FileName}.");
+                Trace.TraceInformation($"Found link to topic {chapter.FileName}.");
+            }
+            catch {
+                Trace.TraceError($"Error parsing topic {topic.FileName}");
+            }
 
             return chapters;
         }
@@ -228,18 +233,23 @@ namespace DitaDotNet {
         private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaConcept concept) {
             List<DitaCollectionLinkJson> chapters = new List<DitaCollectionLinkJson>();
 
-            // Build a page for this topic
-            DitaPageJson topicPage = new DitaPageJson(concept);
-            Pages.Add(topicPage);
+            try {
+                // Build a page for this topic
+                DitaPageJson topicPage = new DitaPageJson(concept);
+                Pages.Add(topicPage);
 
-            // Add this chapter to the toc for this page
-            DitaCollectionLinkJson chapter = new DitaCollectionLinkJson {
-                FileName = topicPage.FileName,
-                Title = topicPage.Title
-            };
-            chapters.Add(chapter);
+                // Add this chapter to the toc for this page
+                DitaCollectionLinkJson chapter = new DitaCollectionLinkJson {
+                    FileName = topicPage.FileName,
+                    Title = topicPage.Title
+                };
+                chapters.Add(chapter);
 
-            Trace.TraceInformation($"Found link to concept {chapter.FileName}.");
+                Trace.TraceInformation($"Found link to concept {chapter.FileName}.");
+            }
+            catch {
+                Trace.TraceError($"Error parsing concept {concept.FileName}");
+            }
 
             return chapters;
         }
@@ -270,7 +280,7 @@ namespace DitaDotNet {
             List<DitaPageJson> removePages = new List<DitaPageJson>();
             foreach (DitaPageJson page in Pages) {
                 if (page.IsEmpty) {
-                    Trace.TraceInformation($"Removing chapter link to {page.FileName}");
+                    Trace.TraceWarning($"Removing empty page {page.FileName}");
                     removePages.Add(page);
                 }
             }

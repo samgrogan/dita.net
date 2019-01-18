@@ -6,6 +6,9 @@ namespace DitaDotNet {
 
     public class DitaToJsonConverter : DitaConverter {
 
+        // Name of the images folder
+        private readonly string ImagesFolderName = "images";
+
         public new bool Convert(string input, string output, bool rename = false) {
             if (base.Convert(input, output, rename)) {
 
@@ -38,12 +41,28 @@ namespace DitaDotNet {
 
         // Copies all of the images input to the output folder
         private void CopyImages(string input, string output, DitaCollectionJson collectionJson) {
-            List<DitaSvg> images = collectionJson.Images;
+            List<DitaImage> images = collectionJson.Images;
 
-            foreach (DitaSvg image in images) {
-                string imageOutputPath = Path.Combine(output, image.FileName);
+            // Create the images folder, if needed
+            string imagesOutputFolder = Path.Combine(output, ImagesFolderName);
+            try {
+                if (!Directory.Exists(imagesOutputFolder)) {
+                    Directory.CreateDirectory(imagesOutputFolder);
+                }
+            }
+            catch {
+                Trace.TraceError($"Error trying to create images folder: {imagesOutputFolder}.");
+            }
 
-                File.Copy(image.FilePath, imageOutputPath, true);
+            foreach (DitaImage image in images) {
+                string imageOutputPath = Path.Combine(imagesOutputFolder, image.FileName);
+
+                try {
+                    File.Copy(image.FilePath, imageOutputPath, true);
+                }
+                catch {
+                    Trace.TraceError($"Error trying to copy {image.FilePath} to {imageOutputPath}");
+                }
                 Trace.TraceInformation($"Copied {image.FilePath} to {imageOutputPath}");
             }
         }

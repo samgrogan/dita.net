@@ -1,5 +1,5 @@
 ﻿namespace DitaDotNet {
-    public class DitaSvg : DitaFile {
+    public class DitaSvg : DitaImage {
 
         public static readonly string[] Extensions = new[] {".svg"};
 

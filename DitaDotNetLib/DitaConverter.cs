@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace DitaDotNet {
-
     public class DitaConverter {
-
         // The collection of DITA content to convert
         protected DitaCollection Collection { get; set; }
 
@@ -24,10 +22,10 @@ namespace DitaDotNet {
 
                 // Is there a bookmap?
                 List<DitaBookMap> bookMaps = Collection.GetBookMaps();
-                if (bookMaps.Count == 1)
-                {
+                if (bookMaps.Count == 1) {
                     BookMap = bookMaps[0];
-                } else { 
+                }
+                else {
                     throw new Exception($"Expecting exactly 1 bookmap, but found {bookMaps.Count}");
                 }
 

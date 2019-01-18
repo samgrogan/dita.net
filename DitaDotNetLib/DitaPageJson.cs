@@ -42,15 +42,31 @@ namespace DitaDotNet {
 
             OriginalFileName = file.FileName;
 
-            // Convert the body to html
-            DitaToHtmlConverter htmlConverter = new DitaToHtmlConverter();
-            htmlConverter.Convert(file.RootElement.FindOnlyChild("body"), out string bodyHtml);
-            BodyHtml = bodyHtml;
+            // Find the body element
+            DitaElement bodyElement = null;
+            switch (file) {
+                case DitaTopic ditaTopic:
+                    bodyElement = file.RootElement.FindOnlyChild("body");
+                    break;
+                case DitaConcept ditaConcept:
+                    bodyElement = file.RootElement.FindOnlyChild("conbody");
+                    break;
+            }
 
-            // Convert the body to text
-            DitaToTextConverter textConverter = new DitaToTextConverter();
-            textConverter.Convert(file.RootElement.FindOnlyChild("body"), out string bodyText);
-            BodyText = bodyText;
+            if (bodyElement != null) {
+                // Convert the body to html
+                DitaToHtmlConverter htmlConverter = new DitaToHtmlConverter();
+                htmlConverter.Convert(bodyElement, out string bodyHtml);
+                BodyHtml = bodyHtml;
+
+                // Convert the body to text
+                DitaToTextConverter textConverter = new DitaToTextConverter();
+                textConverter.Convert(bodyElement, out string bodyText);
+                BodyText = bodyText;
+            }
+            else {
+                Trace.TraceWarning($"Body element not found in {FileName}.");
+            }
 
             IsEmpty = string.IsNullOrEmpty(BodyText) || string.IsNullOrEmpty(Title);
         }
@@ -70,7 +86,9 @@ namespace DitaDotNet {
 
         #endregion
 
-        #region Internal Methods
+        #region Private Methods
+
+
 
         #endregion
     }

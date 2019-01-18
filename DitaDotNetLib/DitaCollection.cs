@@ -47,6 +47,11 @@ namespace DitaDotNet {
                 }
 
                 Trace.TraceInformation($"Found {FileCount} valid DITA files.");
+                Trace.TraceInformation($"- {GetBookMaps().Count} bookmaps.");
+                Trace.TraceInformation($"- {GetMaps().Count} maps.");
+                Trace.TraceInformation($"- {GetTopics().Count} topics.");
+                Trace.TraceInformation($"- {GetConcepts().Count} concepts.");
+                Trace.TraceInformation($"- {GetImages().Count} images.");
             }
             else {
                 Trace.TraceWarning($"No files found in directory {input}");
@@ -116,13 +121,52 @@ namespace DitaDotNet {
             return results;
         }
 
-        // Returns a list of the images in the collection
-        public List<DitaSvg> GetImages() {
-            List<DitaSvg> results = new List<DitaSvg>();
+        // Returns the list of Dita Maps in the collection
+        public List<DitaMap> GetMaps() {
+            List<DitaMap> results = new List<DitaMap>();
 
             foreach (DitaFile file in Files) {
-                if (file is DitaSvg ditaSvg) {
-                    results.Add(ditaSvg);
+                if (file is DitaMap ditaMap) {
+                    results.Add(ditaMap);
+                }
+            }
+
+            return results;
+        }
+
+        // Returns a list of the images in the collection
+        public List<DitaImage> GetImages() {
+            List<DitaImage> results = new List<DitaImage>();
+
+            foreach (DitaFile file in Files) {
+                if (file is DitaImage ditaImage) {
+                    results.Add(ditaImage);
+                }
+            }
+
+            return results;
+        }
+
+        // Returns a list of the topics in the collection
+        public List<DitaTopic> GetTopics() {
+            List<DitaTopic> results = new List<DitaTopic>();
+
+            foreach (DitaFile file in Files) {
+                if (file is DitaTopic ditaTopic) {
+                    results.Add(ditaTopic);
+                }
+            }
+
+            return results;
+        }
+
+        // Returns a list of the concepts in the collection
+        public List<DitaConcept> GetConcepts() {
+            List<DitaConcept> results = new List<DitaConcept>();
+
+            foreach (DitaFile file in Files) {
+                if (file is DitaConcept ditaConcept) {
+                    results.Add(ditaConcept);
                 }
             }
 
@@ -137,8 +181,13 @@ namespace DitaDotNet {
             foreach (DitaFile file in Files) {
                 string newFileName = DitaFile.TitleToFileName(file.GetTitle(), Path.GetExtension(file.FileName));
                 if (!string.IsNullOrWhiteSpace(newFileName)) {
-                    while (fileNames.Contains(newFileName)) {
-                        newFileName = Path.ChangeExtension($"{Path.GetFileNameWithoutExtension(newFileName)}0", Path.GetExtension(newFileName));
+                    if (fileNames.Contains(newFileName)) {
+                        string newFileNameBase = newFileName;
+                        int counter = 1;
+                        while (fileNames.Contains(newFileName)) {
+                            newFileName = Path.ChangeExtension($"{Path.GetFileNameWithoutExtension(newFileNameBase)}_{counter}", Path.GetExtension(newFileNameBase));
+                            counter++;
+                        }
                     }
 
                     fileNames.Add(newFileName);
