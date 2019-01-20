@@ -11,7 +11,7 @@ namespace DitaDotNet {
         protected DitaBookMap BookMap { get; set; }
 
         // The main conversion action
-        public bool Convert(string input, string output, bool rename = false) {
+        public bool Convert(string input, string output, bool rename = false, bool deleteExistingOutput = false) {
             try {
                 // Make sure the output path exists
                 VerifyOutputPath(output);
@@ -34,6 +34,11 @@ namespace DitaDotNet {
                     Collection.RenameFiles();
                 }
 
+                // Delete and existing output, if asked
+                if (deleteExistingOutput) {
+                    DeleteOutputFiles(output);
+                }
+
                 return true;
             }
             catch (Exception ex) {
@@ -44,9 +49,24 @@ namespace DitaDotNet {
         }
 
         // Validate that the output folder exists, and create it if it doesn't
-        public void VerifyOutputPath(string output) {
+        protected void VerifyOutputPath(string output) {
             if (!Directory.Exists(output)) {
                 Directory.CreateDirectory(output);
+            }
+        }
+
+
+        // Delete existing output files
+        protected void DeleteOutputFiles(string output) {
+            try {
+                string[] files = Directory.GetFiles(output);
+                foreach (string file in files) {
+                    File.Delete(file);
+                    Trace.TraceInformation($"Deleted output file {file}.");
+                }
+            }
+            catch {
+                Trace.TraceError($"Error deleting out files in {output}");
             }
         }
     }

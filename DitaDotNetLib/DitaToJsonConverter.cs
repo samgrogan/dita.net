@@ -9,10 +9,15 @@ namespace DitaDotNet {
         // Name of the images folder
         private readonly string ImagesFolderName = "images";
 
-        public new bool Convert(string input, string output, bool rename = false) {
+        public new bool Convert(string input, string output, bool rename = false, bool deleteExistingOutput = false) {
             if (base.Convert(input, output, rename)) {
 
                 try {
+                    // Delete and existing output, if asked
+                    if (deleteExistingOutput) {
+                        DeleteOutputFiles(Path.Combine(output, ImagesFolderName));
+                    }
+
                     // Write out the json table of contents
                     DitaCollectionJson collectionJson = new DitaCollectionJson(Collection, BookMap);
                     collectionJson.SerializeToFile(output);

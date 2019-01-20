@@ -29,7 +29,7 @@
                         switch (config.Format) {
                             case Parameters.FormatJson: // Convert to JSON
                                 DitaToJsonConverter converter = new DitaToJsonConverter();
-                                if (converter.Convert(config.Input, config.Output, config.Rename)) {
+                                if (converter.Convert(config.Input, config.Output, config.Rename, config.DeleteExistingOutput)) {
                                     return 0;
                                 }
                                 break;

@@ -29,6 +29,9 @@ namespace DitaDotNet.Console {
         // What level of tracing should we produce?
         public TraceLevel TraceLevel { get; set; }
 
+        // Should existing output files be deleted
+        public bool DeleteExistingOutput { get; set; }
+
         #endregion Properties
 
 
@@ -40,6 +43,7 @@ namespace DitaDotNet.Console {
             Command = Parameters.CommandVerify;
             Format = Parameters.FormatJson;
             Rename = false;
+            DeleteExistingOutput = false;
         }
 
         #endregion Public Methods
