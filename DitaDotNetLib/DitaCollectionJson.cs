@@ -154,10 +154,13 @@ namespace DitaDotNet {
                     throw new Exception($"Found bookmap {linkedFile} nested in bookmap.");
                 case DitaMap map:
                     return ParseChaptersFromFile(map);
-                case DitaTopic topic:
-                    return ParseChaptersFromFile(topic);
                 case DitaConcept concept:
                     return ParseChaptersFromFile(concept);
+                case DitaReference reference:
+                    return ParseChaptersFromFile(reference);
+                case DitaTopic topic:
+                    return ParseChaptersFromFile(topic);
+
             }
 
             return null;

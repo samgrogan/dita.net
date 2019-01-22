@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace DitaDotNet {
     public class DitaImage : DitaFile {
+
+        public static readonly string[] Extensions = { ".svg", ".png", ".jpg" };
+
         public DitaImage(string filePath) : base(filePath) {
         }
     }

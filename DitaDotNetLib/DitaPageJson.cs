@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 namespace DitaDotNet {
     // Encapsulates a single "page" for display that consists of 1 or more dita topics
     internal class DitaPageJson {
-
         #region Properties
 
         // The title of the page
@@ -32,7 +31,6 @@ namespace DitaDotNet {
 
         // Construct from a single topic
         public DitaPageJson(DitaFile file) {
-
             // Get the title of the page
             Title = file.GetTitle();
 
@@ -45,11 +43,14 @@ namespace DitaDotNet {
             // Find the body element
             DitaElement bodyElement = null;
             switch (file) {
-                case DitaTopic ditaTopic:
-                    bodyElement = file.RootElement.FindOnlyChild("body");
-                    break;
                 case DitaConcept ditaConcept:
                     bodyElement = file.RootElement.FindOnlyChild("conbody");
+                    break;
+                case DitaReference ditaReference:
+                    bodyElement = file.RootElement.FindOnlyChild("refbody");
+                    break;
+                case DitaTopic ditaTopic:
+                    bodyElement = file.RootElement.FindOnlyChild("body");
                     break;
             }
 
@@ -87,8 +88,6 @@ namespace DitaDotNet {
         #endregion
 
         #region Private Methods
-
-
 
         #endregion
     }

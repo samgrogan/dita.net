@@ -22,7 +22,6 @@ namespace DitaDotNet {
 
         #endregion
 
-
         #region Public Methods
 
         public DitaCollection() {
@@ -50,7 +49,6 @@ namespace DitaDotNet {
                 Trace.TraceInformation($"- {GetBookMaps().Count} bookmaps.");
                 Trace.TraceInformation($"- {GetMaps().Count} maps.");
                 Trace.TraceInformation($"- {GetTopics().Count} topics.");
-                Trace.TraceInformation($"- {GetConcepts().Count} concepts.");
                 Trace.TraceInformation($"- {GetImages().Count} images.");
             }
             else {
@@ -60,6 +58,17 @@ namespace DitaDotNet {
 
         // Load a single file
         public DitaFile LoadFile(string filePath) {
+            // Look for known extensions
+            // Is this an image?
+            if (Path.HasExtension(filePath)) {
+                string extension = Path.GetExtension(filePath)?.ToLower();
+                if (DitaImage.Extensions.Contains(extension)) {
+                    DitaImage image = new DitaImage(filePath);
+                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.Image}");
+                    return image;
+                }
+            }
+
             // Try to load as an XML document
             // Try to load the given file
 
@@ -86,23 +95,20 @@ namespace DitaDotNet {
                         DitaConcept ditaConcept = new DitaConcept(xmlDocument, filePath);
                         Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.Concept}");
                         return ditaConcept;
+
+                    case DitaFileType.Reference:
+                        DitaReference ditaReference = new DitaReference(xmlDocument, filePath);
+                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.Reference}");
+                        return ditaReference;
+
+                    case DitaFileType.Task:
+                        DitaTask ditaTask = new DitaTask(xmlDocument, filePath);
+                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.Task}");
+                        return ditaTask;
                 }
             }
             catch {
                 Trace.TraceWarning($"Unable to load {filePath} as XML.");
-            }
-
-            // if it is not an xml document, is it an image?
-            // Is this an svg?
-            if (Path.HasExtension(filePath)) {
-                string extension = Path.GetExtension(filePath)?.ToLower();
-                if (!string.IsNullOrWhiteSpace(extension)) {
-                    if (DitaSvg.Extensions.Contains(extension)) {
-                        DitaSvg ditaSvg = new DitaSvg(filePath);
-                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.Svg}");
-                        return ditaSvg;
-                    }
-                }
             }
 
             throw new Exception($"{filePath} is an unknown file type.");
@@ -148,25 +154,12 @@ namespace DitaDotNet {
         }
 
         // Returns a list of the topics in the collection
-        public List<DitaTopic> GetTopics() {
-            List<DitaTopic> results = new List<DitaTopic>();
+        public List<DitaTopicAbstract> GetTopics() {
+            List<DitaTopicAbstract> results = new List<DitaTopicAbstract>();
 
             foreach (DitaFile file in Files) {
-                if (file is DitaTopic ditaTopic) {
+                if (file is DitaTopicAbstract ditaTopic) {
                     results.Add(ditaTopic);
-                }
-            }
-
-            return results;
-        }
-
-        // Returns a list of the concepts in the collection
-        public List<DitaConcept> GetConcepts() {
-            List<DitaConcept> results = new List<DitaConcept>();
-
-            foreach (DitaFile file in Files) {
-                if (file is DitaConcept ditaConcept) {
-                    results.Add(ditaConcept);
                 }
             }
 

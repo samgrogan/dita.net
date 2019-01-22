@@ -2,7 +2,7 @@
 using System.Xml;
 
 namespace DitaDotNet {
-    public class DitaConcept : DitaFile {
+    public class DitaConcept : DitaTopicAbstract {
         #region Class Methods
 
         // Default constructor

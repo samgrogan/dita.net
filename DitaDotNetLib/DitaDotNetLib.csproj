@@ -46,6 +46,8 @@
   <ItemGroup>
     <Compile Include="DitaBookMap.cs" />
     <Compile Include="DitaCollection.cs" />
+    <Compile Include="DitaTask.cs" />
+    <Compile Include="DitaReference.cs" />
     <Compile Include="DitaConcept.cs" />
     <Compile Include="DitaCollectionJson.cs" />
     <Compile Include="DitaConverter.cs" />
@@ -54,12 +56,11 @@
     <Compile Include="DitaImage.cs" />
     <Compile Include="DitaMap.cs" />
     <Compile Include="DitaPageJson.cs" />
-    <Compile Include="DitaPng.cs" />
     <Compile Include="DitaSearchJson.cs" />
-    <Compile Include="DitaSvg.cs" />
     <Compile Include="DitaToHtmlConverter.cs" />
     <Compile Include="DitaToJsonConverter.cs" />
     <Compile Include="DitaTopic.cs" />
+    <Compile Include="DitaTopicAbstract.cs" />
     <Compile Include="DitaToTextConverter.cs" />
     <Compile Include="DitaVerifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -15,7 +15,9 @@ namespace DitaDotNet {
         [Description("DITA Book Map")] BookMap = 101,
         [Description("DITA Topic")] Topic = 200,
         [Description("DITA Concept")] Concept = 201,
-        [Description("SVG")] Svg = 300
+        [Description("DITA Reference")] Reference = 202,
+        [Description("DITA Task")] Task = 203,
+        [Description("Image")] Image = 300,
     }
 
     public class DitaFile {
@@ -89,7 +91,6 @@ namespace DitaDotNet {
                 return true;
             }
             catch (Exception ex) {
-
                 Trace.TraceError($"Error parsing {rootNodeType} in {FileName}");
                 Trace.TraceError(ex);
             }
@@ -160,6 +161,16 @@ namespace DitaDotNet {
                 // Is this a dita concept
                 if (DitaConcept.IsMatchingDocType(docType)) {
                     return DitaFileType.Concept;
+                }
+
+                // Is this a dita reference
+                if (DitaReference.IsMatchingDocType(docType)) {
+                    return DitaFileType.Reference;
+                }
+
+                // Is this a dita task
+                if (DitaTask.IsMatchingDocType(docType)) {
+                    return DitaFileType.Task;
                 }
             }
 
