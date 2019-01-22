@@ -32,7 +32,7 @@ namespace DitaDotNet {
         // Construct from a single topic
         public DitaPageJson(DitaFile file) {
             // Get the title of the page
-            Title = file.GetTitle();
+            Title = file.Title;
 
             // Create the file name
             FileName = file.NewFileName ?? file.FileName;
@@ -66,7 +66,7 @@ namespace DitaDotNet {
                 BodyText = bodyText;
             }
             else {
-                Trace.TraceWarning($"Body element not found in {FileName}.");
+                Trace.TraceWarning($"Body element not found in {FileName} ({file.FileName}.");
             }
 
             IsEmpty = string.IsNullOrEmpty(BodyText) || string.IsNullOrEmpty(Title);

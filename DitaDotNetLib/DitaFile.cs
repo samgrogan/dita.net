@@ -38,6 +38,9 @@ namespace DitaDotNet {
         // The root DITA element that contains all of the markup for this item
         public DitaElement RootElement { get; protected set; }
 
+        // The title of the file
+        public string Title { get; set; }
+
         #endregion Properties
 
         #region Class Methods
@@ -49,6 +52,7 @@ namespace DitaDotNet {
             FileName = null;
             NewFileName = null;
             RootElement = null;
+            Title = null;
         }
 
         // Constructor for just a path
@@ -63,6 +67,7 @@ namespace DitaDotNet {
             XmlDocument = xmlDocument;
             FilePath = filePath;
             FileName = Path.GetFileName(filePath);
+            Title = FileName;
         }
 
         // Try to parse the properties and data from this document 
@@ -99,14 +104,13 @@ namespace DitaDotNet {
         }
 
         // Try to determine the title of the contents in this file by finding the title element
-        public string GetTitle() {
-            string title = null;
+        public void SetTitleFromXml() {
 
             // Try to find the title node
             try {
                 List<DitaElement> titleElements = RootElement?.FindChildren("title");
                 if (titleElements?.Count >= 1) {
-                    title = titleElements[0].ToString();
+                    Title = titleElements[0].ToString();
                 }
                 else {
                     Trace.TraceWarning($"Couldn't find title in {FileName}");
@@ -115,8 +119,6 @@ namespace DitaDotNet {
             catch {
                 Trace.TraceError($"Couldn't find title in {FileName}");
             }
-
-            return title;
         }
 
         public override string ToString() {

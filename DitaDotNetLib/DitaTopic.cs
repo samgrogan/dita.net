@@ -14,11 +14,7 @@ namespace DitaDotNet {
         }
 
         public new bool Parse() {
-            if (Parse("//topic", "Topic")) {
-                return true;
-            }
-
-            return false;
+            return Parse("//topic", "Topic");
         }
 
         #endregion Class Methods

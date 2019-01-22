@@ -41,6 +41,11 @@ namespace DitaDotNet {
         }
 
         private bool IsNodeOnlyText(XmlNode inputNode, out string innerText) {
+            if (inputNode.InnerXml.StartsWith("<?") || inputNode.OuterXml.StartsWith("<?")) {
+                innerText = null;
+                return false;
+            }
+
             if (!inputNode.HasChildNodes) {
                 innerText = inputNode.InnerText;
                 return true;
@@ -52,11 +57,6 @@ namespace DitaDotNet {
             }
 
             if (inputNode.ChildNodes[0].HasChildNodes) {
-                innerText = null;
-                return false;
-            }
-
-            if (inputNode.InnerXml.StartsWith("<?")) {
                 innerText = null;
                 return false;
             }

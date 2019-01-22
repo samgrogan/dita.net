@@ -172,7 +172,7 @@ namespace DitaDotNet {
 
             // Generate a new name for each file, based on it's title
             foreach (DitaFile file in Files) {
-                string newFileName = DitaFile.TitleToFileName(file.GetTitle(), Path.GetExtension(file.FileName));
+                string newFileName = DitaFile.TitleToFileName(file.Title, Path.GetExtension(file.FileName));
                 if (!string.IsNullOrWhiteSpace(newFileName)) {
                     if (fileNames.Contains(newFileName)) {
                         string newFileNameBase = newFileName;

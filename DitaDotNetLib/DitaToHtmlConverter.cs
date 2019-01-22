@@ -14,11 +14,9 @@ namespace DitaDotNet {
                 if (Width?.Length > 1 && (Width?.Contains("*") ?? false)) {
                     return Width.Replace("*", "%");
                 }
-
                 return null;
             }
         }
-
 
         #region Properties
 
@@ -193,21 +191,18 @@ namespace DitaDotNet {
                     if (element.Attributes.ContainsKey("colname")) {
                         string colname = element.Attributes["colname"];
                         if (!htmlAttributes.ContainsKey("width")) {
-                            string widthAsPercent = TableColumnSpecs.FirstOrDefault(o => o.Name == colname)?.WidthAsPercent();
+                            string widthAsPercent = TableColumnSpecs?.FirstOrDefault(o => o?.Name == colname)?.WidthAsPercent();
                             if (!string.IsNullOrEmpty(widthAsPercent)) {
                                 htmlAttributes.Add("width", widthAsPercent);
                             }
                         }
-
-                        // See if we need to skip and columns
-
                     }
 
                     // If there is a colspan defined, add it to the entry
                     if (element.Attributes.ContainsKey("namest") && element.Attributes.ContainsKey("nameend")) {
                         // Build the colspan
-                        int startColumn = TableColumnSpecs.FirstOrDefault(o => o.Name == element.Attributes["namest"])?.Number ?? -1;
-                        int endColumn = TableColumnSpecs.FirstOrDefault(o => o.Name == element.Attributes["nameend"])?.Number ?? -1;
+                        int startColumn = TableColumnSpecs?.FirstOrDefault(o => o.Name == element.Attributes["namest"])?.Number ?? -1;
+                        int endColumn = TableColumnSpecs?.FirstOrDefault(o => o.Name == element.Attributes["nameend"])?.Number ?? -1;
 
                         if (startColumn >= 0 && endColumn >= 0) {
                             if (!htmlAttributes.ContainsKey("colspan")) {
