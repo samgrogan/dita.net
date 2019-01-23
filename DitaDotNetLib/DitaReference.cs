@@ -21,6 +21,10 @@ namespace DitaDotNet {
             return false;
         }
 
+        public override string BodyElementName() {
+            return "refbody";
+        }
+
         #endregion Class Methods
 
         #region Static Methods

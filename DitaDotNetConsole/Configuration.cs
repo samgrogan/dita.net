@@ -23,6 +23,9 @@ namespace DitaDotNet.Console {
         // What is the path to the input file or folder?
         public string Input { get; set; }
 
+        // The name of the root map file, if any
+        public string RootMapFile { get; set; }
+
         // What is the path to the output file or folder?
         public string Output { get; set; }
 
@@ -33,7 +36,6 @@ namespace DitaDotNet.Console {
         public bool DeleteExistingOutput { get; set; }
 
         #endregion Properties
-
 
         #region Public Methods
 

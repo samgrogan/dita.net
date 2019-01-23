@@ -41,18 +41,26 @@ namespace DitaDotNet {
             OriginalFileName = file.FileName;
 
             // Find the body element
-            DitaElement bodyElement = null;
+            string bodyElementName = null;
             switch (file) {
                 case DitaConcept ditaConcept:
-                    bodyElement = file.RootElement.FindOnlyChild("conbody");
+                    bodyElementName = ditaConcept.BodyElementName();
                     break;
                 case DitaReference ditaReference:
-                    bodyElement = file.RootElement.FindOnlyChild("refbody");
+                    bodyElementName = ditaReference.BodyElementName();
+                    break;
+                case DitaTask ditaTask:
+                    bodyElementName = ditaTask.BodyElementName();
                     break;
                 case DitaTopic ditaTopic:
-                    bodyElement = file.RootElement.FindOnlyChild("body");
+                    bodyElementName = ditaTopic.BodyElementName();
+                    break;
+                case DitaLanguageReference ditaLanguageRef:
+                    bodyElementName = ditaLanguageRef.BodyElementName();
                     break;
             }
+
+            DitaElement bodyElement = file.RootElement.FindOnlyChild(bodyElementName);
 
             if (bodyElement != null) {
                 // Convert the body to html

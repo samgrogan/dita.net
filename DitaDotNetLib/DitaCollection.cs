@@ -105,6 +105,16 @@ namespace DitaDotNet {
                         DitaTask ditaTask = new DitaTask(xmlDocument, filePath);
                         Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.Task}");
                         return ditaTask;
+
+                    case DitaFileType.LanguageRef:
+                        DitaLanguageReference ditaLanguageRef = new DitaLanguageReference(xmlDocument, filePath);
+                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.LanguageRef}");
+                        return ditaLanguageRef;
+
+                    case DitaFileType.OptionRef:
+                        DitaOptionReference ditaOptionRef = new DitaOptionReference(xmlDocument, filePath);
+                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.OptionRef}");
+                        return ditaOptionRef;
                 }
             }
             catch {

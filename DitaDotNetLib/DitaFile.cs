@@ -17,6 +17,12 @@ namespace DitaDotNet {
         [Description("DITA Concept")] Concept = 201,
         [Description("DITA Reference")] Reference = 202,
         [Description("DITA Task")] Task = 203,
+
+        [Description("DITA Language Refereence")]
+        LanguageRef = 204,
+
+        [Description("DITA Option Refereence")]
+        OptionRef = 205,
         [Description("Image")] Image = 300,
     }
 
@@ -105,7 +111,6 @@ namespace DitaDotNet {
 
         // Try to determine the title of the contents in this file by finding the title element
         public void SetTitleFromXml() {
-
             // Try to find the title node
             try {
                 List<DitaElement> titleElements = RootElement?.FindChildren("title");
@@ -173,6 +178,16 @@ namespace DitaDotNet {
                 // Is this a dita task
                 if (DitaTask.IsMatchingDocType(docType)) {
                     return DitaFileType.Task;
+                }
+
+                // Is this a dita language ref
+                if (DitaLanguageReference.IsMatchingDocType(docType)) {
+                    return DitaFileType.LanguageRef;
+                }
+
+                // Is this a dita option ref
+                if (DitaOptionReference.IsMatchingDocType(docType)) {
+                    return DitaFileType.OptionRef;
                 }
             }
 
