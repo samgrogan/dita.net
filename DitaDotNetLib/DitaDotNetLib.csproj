@@ -48,6 +48,7 @@
     <Compile Include="DitaCollection.cs" />
     <Compile Include="DitaOptionRef.cs" />
     <Compile Include="DitaLanguageReference.cs" />
+    <Compile Include="DitaPageSectionJson.cs" />
     <Compile Include="DitaTask.cs" />
     <Compile Include="DitaReference.cs" />
     <Compile Include="DitaConcept.cs" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 
@@ -24,6 +25,9 @@ namespace DitaDotNet {
 
         // Is this page empty?
         public bool IsEmpty { get; set; }
+
+        // What sections are included in the page
+        public List<DitaPageSectionJson> Sections { get; set; }
 
         #endregion Properties
 
@@ -66,9 +70,11 @@ namespace DitaDotNet {
             DitaElement bodyElement = file.RootElement.FindOnlyChild(bodyElementName);
 
             if (bodyElement != null) {
+                Sections = new List<DitaPageSectionJson>();
+
                 // Convert the body to html
                 DitaToHtmlConverter htmlConverter = new DitaToHtmlConverter();
-                htmlConverter.Convert(bodyElement, out string bodyHtml);
+                htmlConverter.Convert(bodyElement, Sections, out string bodyHtml);
                 BodyHtml = bodyHtml;
 
                 // Convert the body to text
