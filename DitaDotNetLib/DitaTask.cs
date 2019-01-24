@@ -22,7 +22,7 @@ namespace DitaDotNet {
         }
 
         public override string BodyElementName() {
-            return "body";
+            return "taskbody";
         }
 
         #endregion Class Methods

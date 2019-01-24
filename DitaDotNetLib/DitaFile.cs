@@ -99,6 +99,8 @@ namespace DitaDotNet {
                 XmlNodeToDitaElementConverter converter = new XmlNodeToDitaElementConverter();
                 RootElement = converter.Convert(queryNodes[0]);
 
+                SetTitleFromXml();
+
                 return true;
             }
             catch (Exception ex) {
@@ -221,8 +223,8 @@ namespace DitaDotNet {
                     }
 
                     // Make sure the filename isn't too long
-                    if (Path.GetFileNameWithoutExtension(fileName).Length > 255) {
-                        fileName = Path.ChangeExtension(Path.GetFileNameWithoutExtension(fileName).Substring(0, 255), Path.GetExtension(fileName));
+                    if (Path.GetFileNameWithoutExtension(fileName).Length > 100) {
+                        fileName = Path.ChangeExtension(Path.GetFileNameWithoutExtension(fileName).Substring(0, 100), Path.GetExtension(fileName));
                     }
                 }
             }

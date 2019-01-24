@@ -27,17 +27,17 @@ namespace DitaDotNet {
 
         [JsonIgnore] private DitaCollection Collection { get; set; }
 
-        [JsonIgnore] private DitaBookMap BookMap { get; set; }
+        [JsonIgnore] private DitaFile RootMap { get; set; }
 
         #endregion Properties
 
         #region Public Methods
 
         // Construct a collection from a Dita bookmap in a Dita collection
-        public DitaCollectionJson(DitaCollection collection, DitaBookMap bookMap) {
+        public DitaCollectionJson(DitaCollection collection, DitaFile rootMap) {
             // Store the construction properties
             Collection = collection;
-            BookMap = bookMap;
+            RootMap = rootMap;
 
             // Initialize the properties
             BookTitle = new Dictionary<string, string>();
@@ -46,7 +46,11 @@ namespace DitaDotNet {
             Pages = new List<DitaPageJson>();
 
             // Create the output object
-            ParseBookMap();
+            if (RootMap is DitaBookMap) {
+                ParseBookMap();
+            } else if (RootMap is DitaMap) {
+                ParseMap();
+            }
         }
 
         // Write this collection to a given folder
@@ -56,6 +60,7 @@ namespace DitaDotNet {
                     Formatting = Formatting.Indented
                 };
                 JsonSerializer serializer = JsonSerializer.Create(settings);
+                BookMeta["doc path"] = new DirectoryInfo(output).Name;
                 serializer.Serialize(file, this);
             }
 
@@ -91,9 +96,23 @@ namespace DitaDotNet {
             }
         }
 
+        // Build the internal structure based on a map
+        private void ParseMap() {
+            try {
+                BookTitle.Add("mainbooktitle", RootMap.Title);
+                BookMeta.Add("document title", RootMap.Title);
+
+                // Add the chapters
+                Chapters.AddRange(ParseChaptersFromFile(RootMap));
+            }
+            catch (Exception ex) {
+                Trace.TraceError(ex);
+            }
+        }
+
         // Parse the title from the book map
         private void ParseBookMapTitle() {
-            DitaElement titleElement = BookMap.RootElement.FindOnlyChild("booktitle");
+            DitaElement titleElement = RootMap.RootElement.FindOnlyChild("booktitle");
 
             AddChildDitaElementTextToDictionary(titleElement, "mainbooktitle", BookTitle);
             AddChildDitaElementTextToDictionary(titleElement, "booktitlealt", BookTitle);
@@ -101,7 +120,7 @@ namespace DitaDotNet {
 
         // Parse the book meta date from the book map
         private void ParseBookMapBookMeta() {
-            DitaElement bookMetaElement = BookMap.RootElement.FindOnlyChild("bookmeta");
+            DitaElement bookMetaElement = RootMap.RootElement.FindOnlyChild("bookmeta");
 
             // Version
             DitaElement prodinfoElement = bookMetaElement?.FindOnlyChild("prodinfo");
@@ -131,7 +150,7 @@ namespace DitaDotNet {
 
         // Parse the chapters in the document, recursively
         private void ParseBookMapChapters() {
-            List<DitaElement> chapters = BookMap.RootElement.FindChildren("chapter");
+            List<DitaElement> chapters = RootMap.RootElement.FindChildren("chapter");
 
             foreach (DitaElement chapter in chapters) {
                 // What is the href to the chapter?
@@ -153,21 +172,16 @@ namespace DitaDotNet {
                     // This should never happen
                     throw new Exception($"Found bookmap {linkedFile} nested in bookmap.");
                 case DitaMap map:
-                    return ParseChaptersFromFile(map);
-                case DitaConcept concept:
-                    return ParseChaptersFromFile(concept);
-                case DitaReference reference:
-                    return ParseChaptersFromFile(reference);
-                case DitaTopic topic:
-                    return ParseChaptersFromFile(topic);
-
+                    return ParseChaptersFromMap(map);
+                case DitaTopicAbstract topic:
+                    return ParseChaptersFromTopic(topic);
             }
 
             return null;
         }
 
         // Parse chapter structure from a .ditamap file
-        private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaMap map) {
+        private List<DitaCollectionLinkJson> ParseChaptersFromMap(DitaMap map) {
             Trace.TraceInformation($"Found link to map {map.NewFileName ?? map.FileName}.");
 
             // Find all the topic references
@@ -208,7 +222,7 @@ namespace DitaDotNet {
 
 
         // Parse chapter structure from a dita topic (leaf node)
-        private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaTopic topic) {
+        private List<DitaCollectionLinkJson> ParseChaptersFromTopic(DitaTopicAbstract topic) {
             List<DitaCollectionLinkJson> chapters = new List<DitaCollectionLinkJson>();
 
             try {
@@ -227,31 +241,6 @@ namespace DitaDotNet {
             }
             catch {
                 Trace.TraceError($"Error parsing topic {topic.FileName}");
-            }
-
-            return chapters;
-        }
-
-        // Parse chapter structure from a dita concept (leaf node)
-        private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaConcept concept) {
-            List<DitaCollectionLinkJson> chapters = new List<DitaCollectionLinkJson>();
-
-            try {
-                // Build a page for this topic
-                DitaPageJson topicPage = new DitaPageJson(concept);
-                Pages.Add(topicPage);
-
-                // Add this chapter to the toc for this page
-                DitaCollectionLinkJson chapter = new DitaCollectionLinkJson {
-                    FileName = topicPage.FileName,
-                    Title = topicPage.Title
-                };
-                chapters.Add(chapter);
-
-                Trace.TraceInformation($"Found link to concept {chapter.FileName}.");
-            }
-            catch {
-                Trace.TraceError($"Error parsing concept {concept.FileName}");
             }
 
             return chapters;

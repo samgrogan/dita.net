@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace DitaDotNet {
+namespace DitaDotNet
+{
 
     public class DitaToJsonConverter : DitaConverter {
 
         // Name of the images folder
         private readonly string ImagesFolderName = "images";
 
-        public new bool Convert(string input, string output, bool rename = false, bool deleteExistingOutput = false) {
-            if (base.Convert(input, output, rename)) {
+        public new bool Convert(string input, string output, string rootMapFile, bool rename = false, bool deleteExistingOutput = false) {
+            if (base.Convert(input, output, rootMapFile, rename)) {
 
                 try {
                     // Delete and existing output, if asked
@@ -19,7 +20,7 @@ namespace DitaDotNet {
                     }
 
                     // Write out the json table of contents
-                    DitaCollectionJson collectionJson = new DitaCollectionJson(Collection, BookMap);
+                    DitaCollectionJson collectionJson = new DitaCollectionJson(Collection, RootMap);
                     collectionJson.SerializeToFile(output);
 
                     // Write out the pages json
@@ -34,8 +35,9 @@ namespace DitaDotNet {
                     // Copy the images
                     CopyImages(input, output, collectionJson);
                 }
-                catch {
+                catch (Exception ex) {
                     Trace.TraceError($"Error converting {input} to JSON.");
+                    Trace.TraceError(ex);
                     return false;
                 }
                 return true;

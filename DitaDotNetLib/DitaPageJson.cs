@@ -58,6 +58,9 @@ namespace DitaDotNet {
                 case DitaLanguageReference ditaLanguageRef:
                     bodyElementName = ditaLanguageRef.BodyElementName();
                     break;
+                case DitaOptionReference ditaOptionRef:
+                    bodyElementName = ditaOptionRef.BodyElementName();
+                    break;
             }
 
             DitaElement bodyElement = file.RootElement.FindOnlyChild(bodyElementName);

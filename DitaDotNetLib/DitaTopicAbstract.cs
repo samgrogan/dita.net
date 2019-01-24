@@ -15,13 +15,7 @@ namespace DitaDotNet {
         }
 
         protected new bool Parse(string rootNodePath, string rootNodeType) {
-            if (base.Parse(rootNodePath, rootNodeType)) {
-                // Set the title
-                SetTitleFromXml();
-                return true;
-            }
-
-            return false;
+            return base.Parse(rootNodePath, rootNodeType);
         }
     }
 }
