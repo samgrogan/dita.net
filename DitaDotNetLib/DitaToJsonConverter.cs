@@ -16,6 +16,7 @@ namespace DitaDotNet
                 try {
                     // Delete and existing output, if asked
                     if (deleteExistingOutput) {
+                        DeleteOutputFiles(output);
                         DeleteOutputFiles(Path.Combine(output, ImagesFolderName));
                     }
 

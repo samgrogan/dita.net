@@ -27,6 +27,9 @@ namespace DitaDotNet {
     }
 
     public class DitaFile {
+
+        private static readonly int _maxFileNameLength = 80;
+
         #region Properties
 
         // The Xml Document that holds the raw DITA content
@@ -223,8 +226,8 @@ namespace DitaDotNet {
                     }
 
                     // Make sure the filename isn't too long
-                    if (Path.GetFileNameWithoutExtension(fileName).Length > 100) {
-                        fileName = Path.ChangeExtension(Path.GetFileNameWithoutExtension(fileName).Substring(0, 100), Path.GetExtension(fileName));
+                    if (Path.GetFileNameWithoutExtension(fileName).Length > _maxFileNameLength) {
+                        fileName = Path.ChangeExtension(Path.GetFileNameWithoutExtension(fileName).Substring(0, _maxFileNameLength), Path.GetExtension(fileName));
                     }
                 }
             }
