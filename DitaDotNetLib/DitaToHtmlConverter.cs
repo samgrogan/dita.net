@@ -112,7 +112,7 @@ namespace DitaDotNet {
                         // Create a reference to this section, if this is the title of the section
                         if (CurrentSection != null) {
                             if (string.IsNullOrEmpty(CurrentSection.Title) && !string.IsNullOrEmpty(CurrentSection.Anchor)) {
-                                CurrentSection.Title = element.InnerText;
+                                CurrentSection.Title = element.ToString();
                                 Sections.Add(CurrentSection);
                                 CurrentSection = null;
                             }
