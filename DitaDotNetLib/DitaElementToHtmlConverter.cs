@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 
 namespace DitaDotNet {
-    public class DitaToHtmlConverter : DitaConverter {
+    public class DitaElementToHtmlConverter {
         private class DitaTableColumnSpec {
             public string Name { get; set; }
             public string Width { get; set; }
@@ -21,6 +21,9 @@ namespace DitaDotNet {
 
         #region Properties
 
+        // The collection we are converting
+        private DitaCollection Collection { get; }
+
         // Maintain the states of the current table
 
         private int TableColumnIndex { get; set; }
@@ -32,6 +35,10 @@ namespace DitaDotNet {
         #endregion Properties
 
         #region Public Methods
+
+        public DitaElementToHtmlConverter(DitaCollection collection) {
+            Collection = collection;
+        }
 
         public bool Convert(DitaElement bodyElement, List<DitaPageSectionJson> sections, out string body) {
             StringBuilder bodyStringBuilder = new StringBuilder();
@@ -122,6 +129,8 @@ namespace DitaDotNet {
                     }
 
                     return "h4";
+                case "xref":
+                    return "a";
                 case "#text": return "";
             }
 
@@ -193,6 +202,11 @@ namespace DitaDotNet {
                         }
                     }
 
+                    break;
+                case "xref":
+                    if (key == "href") {
+                        return (key, UrlFromXref(element));
+                    }
                     break;
             }
 
@@ -270,6 +284,57 @@ namespace DitaDotNet {
 
             return "";
         }
+
+        // Returns the relative or absolute url from a Dita XREF for use in an html A tag
+        private string UrlFromXref(DitaElement xrefElement) {
+            // What is the scope
+            string scope = xrefElement.AttributeValueOrDefault("scope", null);
+            string format = xrefElement.AttributeValueOrDefault("format", null);
+            string href = xrefElement.AttributeValueOrDefault("href", null);
+
+            if (scope == "external") {
+                return href;
+            }
+            if (!string.IsNullOrEmpty(href)) {
+                string result = null;
+                if (href[0] == '#') {
+                    // Link to the same page
+                    if (href.Contains('/')) {
+                        string[] anchorSplit = href.Split('/');
+                        if (anchorSplit.Length > 1) {
+                            result = $"#{anchorSplit[1]}";
+                        }
+                    }
+                    else {
+                        result = href.Substring(1);
+                    }
+                }
+                else {
+                    // Split by hash, if any
+                    string[] hashSplit = href.Split('#');
+
+                    // Try to find the topic it is linking to
+                    DitaFile referenceFile = Collection?.GetFileByName(hashSplit[0]);
+                    if (referenceFile != null) {
+                        result = $"%DOCUMENT_ROOT%/{referenceFile.NewFileName}";
+                        if (hashSplit.Length > 1) {
+                            result += $"#{hashSplit[1]}";
+                        }
+                    }
+                    else {
+                        Trace.TraceError($"Xref refers to unknown local file {hashSplit[0]}");
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(result)) {
+                    return result;
+                }
+            }
+
+            Trace.TraceWarning($"Unknown xref scope: {scope}, format: {format}, href: {href}");
+            return "#";
+        }
+
 
         #endregion Private Methods
     }

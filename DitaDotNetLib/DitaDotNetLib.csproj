@@ -60,11 +60,11 @@
     <Compile Include="DitaMap.cs" />
     <Compile Include="DitaPageJson.cs" />
     <Compile Include="DitaSearchJson.cs" />
-    <Compile Include="DitaToHtmlConverter.cs" />
+    <Compile Include="DitaElementToHtmlConverter.cs" />
     <Compile Include="DitaToJsonConverter.cs" />
     <Compile Include="DitaTopic.cs" />
     <Compile Include="DitaTopicAbstract.cs" />
-    <Compile Include="DitaToTextConverter.cs" />
+    <Compile Include="DitaElementToTextConverter.cs" />
     <Compile Include="DitaVerifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Trace.cs" />

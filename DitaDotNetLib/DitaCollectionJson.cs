@@ -227,7 +227,7 @@ namespace DitaDotNet {
 
             try {
                 // Build a page for this topic
-                DitaPageJson topicPage = new DitaPageJson(topic);
+                DitaPageJson topicPage = new DitaPageJson(topic, Collection);
                 Pages.Add(topicPage);
 
                 // Add this chapter to the toc for this page

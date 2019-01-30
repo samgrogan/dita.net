@@ -1,7 +1,7 @@
 ﻿using System.Text;
 
 namespace DitaDotNet {
-    class DitaToTextConverter {
+    class DitaElementToTextConverter {
         public bool Convert(DitaElement bodyElement, out string body) {
             StringBuilder bodyStringBuilder = new StringBuilder();
 

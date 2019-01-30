@@ -86,6 +86,11 @@ namespace DitaDotNet {
             return children?[0];
         }
 
+        // Returns the given attribute value, if it exists, or the default if it doesn't
+        public string AttributeValueOrDefault(string key, string defaultValue) {
+            return Attributes?.ContainsKey(key) ?? false ? Attributes?[key] : defaultValue;
+        }
+
         // Update references
         // Find and hrefs that point to an old file name and replace them with a new reference
         public void UpdateReferences(string oldFileName, string newFileName) {

@@ -29,12 +29,16 @@ namespace DitaDotNet {
         // What sections are included in the page
         public List<DitaPageSectionJson> Sections { get; set; }
 
+        [JsonIgnore] private DitaCollection Collection { get; set; }
+
         #endregion Properties
 
         #region Public Methods
 
         // Construct from a single topic
-        public DitaPageJson(DitaFile file) {
+        public DitaPageJson(DitaFile file, DitaCollection collection) {
+            Collection = collection;
+
             // Get the title of the page
             Title = file.Title;
 
@@ -73,12 +77,12 @@ namespace DitaDotNet {
                 Sections = new List<DitaPageSectionJson>();
 
                 // Convert the body to html
-                DitaToHtmlConverter htmlConverter = new DitaToHtmlConverter();
+                DitaElementToHtmlConverter htmlConverter = new DitaElementToHtmlConverter(collection);
                 htmlConverter.Convert(bodyElement, Sections, out string bodyHtml);
                 BodyHtml = bodyHtml;
 
                 // Convert the body to text
-                DitaToTextConverter textConverter = new DitaToTextConverter();
+                DitaElementToTextConverter textConverter = new DitaElementToTextConverter();
                 textConverter.Convert(bodyElement, out string bodyText);
                 BodyText = bodyText;
             }
