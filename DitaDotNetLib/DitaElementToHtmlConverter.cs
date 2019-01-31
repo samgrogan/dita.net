@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -65,6 +66,14 @@ namespace DitaDotNet {
         #region Private Methods
 
         private string Convert(DitaElement element) {
+            StringBuilder elementStringBuilder = new StringBuilder();
+
+            // Does this element need to be wrapped by another element?
+            DitaElement prependElement = PrependDitaElementIfNeeded(element);
+            if (prependElement != null) {
+                elementStringBuilder.Append(Convert(prependElement));
+            }
+
             // Determine the new html tag and attributes
             string htmlTag = ConvertDitaTagToHtmlTag(element);
             Dictionary<string, string> htmlAttributes = ConvertDitaTagAttributesToHtmlTagAttributes(element);
@@ -72,7 +81,6 @@ namespace DitaDotNet {
 
             // If this is a parent, then add the children
             if (element.IsContainer) {
-                StringBuilder elementStringBuilder = new StringBuilder();
                 elementStringBuilder.Append(HtmlOpeningTag(htmlTag, htmlAttributes));
 
                 foreach (DitaElement childElement in element.Children) {
@@ -80,12 +88,12 @@ namespace DitaDotNet {
                 }
 
                 elementStringBuilder.Append(HtmlClosingTag(htmlTag));
-
-                return elementStringBuilder.ToString();
             }
             else {
-                return $"{HtmlOpeningTag(htmlTag, htmlAttributes)}{element.InnerText}{HtmlClosingTag(htmlTag)}";
+                elementStringBuilder.Append($"{HtmlOpeningTag(htmlTag, htmlAttributes)}{element.InnerText}{HtmlClosingTag(htmlTag)}");
             }
+
+            return elementStringBuilder.ToString();
         }
 
         // Takes a DITA "tag" and returns the corresponding HTML tag
@@ -154,6 +162,8 @@ namespace DitaDotNet {
         // Converts a single dita tag attribute to an html attribute
         private (string newKey, string newValue) ConvertDitaTagAttributeToHtmlTagAttribute(string key, string value, DitaElement element) {
             switch (element.Type) {
+                case "a":
+                    return (key, value);
                 case "colspec":
                     if (key == "colname") {
                         TableColumnSpecs[TableColumnIndex].Name = value;
@@ -207,6 +217,7 @@ namespace DitaDotNet {
                     if (key == "href") {
                         return (key, UrlFromXref(element));
                     }
+
                     break;
             }
 
@@ -295,6 +306,7 @@ namespace DitaDotNet {
             if (scope == "external") {
                 return href;
             }
+
             if (!string.IsNullOrEmpty(href)) {
                 string result = null;
                 if (href[0] == '#') {
@@ -319,7 +331,7 @@ namespace DitaDotNet {
                     // Try to find the topic it is linking to
                     DitaFile referenceFile = Collection?.GetFileByName(hashSplit[0]);
                     if (referenceFile != null) {
-                        result = $"%DOCUMENT_ROOT%/{referenceFile.NewFileName}";
+                        result = $"%DOCUMENT_ROOT%/{Path.GetFileNameWithoutExtension(referenceFile.NewFileName)}";
                         if (hashSplit.Length > 1) {
                             result += $"#{hashSplit[1]}";
                         }
@@ -338,6 +350,19 @@ namespace DitaDotNet {
             return "#";
         }
 
+        // Wraps a dita element in another dita element, if needed to output correct html
+        // For instance, wrap tables, sections, figures, etc in an <a name="..."> for instance
+        private DitaElement PrependDitaElementIfNeeded(DitaElement inputElement) {
+            string id = inputElement.AttributeValueOrDefault("id", null);
+            // If this object has an id, wrap it in an a, name
+            if (!string.IsNullOrEmpty(id)) {
+                DitaElement outputElement = new DitaElement("a", false, null, inputElement.Parent, inputElement.PreviousSibling);
+                outputElement.Attributes.Add("name", id);
+                return outputElement;
+            }
+
+            return null;
+        }
 
         #endregion Private Methods
     }
