@@ -309,6 +309,9 @@ namespace DitaDotNet {
                         result = href.Substring(1);
                     }
                 }
+                else if (href.ToLowerInvariant().StartsWith("http")) {
+                    result = href;
+                }
                 else {
                     // Split by hash, if any
                     string[] hashSplit = href.Split('#');

@@ -205,7 +205,7 @@ namespace DitaDotNet {
 
         // Gets a file in the collection with the given name
         public DitaFile GetFileByName(string fileName) {
-            return Files.FirstOrDefault((file) => (file.FileName == fileName || file.NewFileName == fileName));
+            return Files.FirstOrDefault((file) => (file.FileName == fileName || file.NewFileName == fileName || Path.GetFileNameWithoutExtension(file.FileName) == fileName));
         }
 
         #endregion Public Methods
