@@ -9,6 +9,7 @@ namespace DitaDotNet {
     internal class DitaCollectionLinkJson {
         public string Title { get; set; }
         public string FileName { get; set; }
+        public bool IsEmpty { get; set; }
         public List<DitaCollectionLinkJson> Children { get; set; }
     }
 
@@ -266,7 +267,7 @@ namespace DitaDotNet {
         // Removes blank pages from the output
         private void RemoveBlankPages() {
             // Remove links to blank pages
-            RemoveBlankChapterLinks(Chapters);
+            MarkBlankChapterLinks(Chapters);
 
             // Remove the blank pages
             List<DitaPageJson> removePages = new List<DitaPageJson>();
@@ -281,47 +282,29 @@ namespace DitaDotNet {
         }
 
 
-        private void RemoveBlankChapterLinks(List<DitaCollectionLinkJson> chapters) {
-            List<DitaCollectionLinkJson> removeLinks = new List<DitaCollectionLinkJson>();
-
+        private void MarkBlankChapterLinks(List<DitaCollectionLinkJson> chapters) {
             foreach (DitaCollectionLinkJson link in chapters) {
                 // Is the page empty?
-                if (IsLinkToEmptyPage(link, out DitaPageJson _)) {
-                    // Does the chapter have a non empty child?
-                    DitaCollectionLinkJson nonEmptyChild = FindFirstNonBlankChild(link);
-                    // If there is one, then replace the link
-                    if (nonEmptyChild != null) {
-                        link.FileName = nonEmptyChild.FileName;
-                    }
-                    else {
-                        Trace.TraceInformation($"Removing chapter link to {link.FileName}");
-                        removeLinks.Add(link);
-                    }
-                }
+                link.IsEmpty = IsLinkToEmptyPage(link, out DitaPageJson _);
 
                 // Remove blanks from the children
-                RemoveBlankChapterLinks(link.Children);
-            }
-
-            // Remove the blanks from the original list
-            foreach (DitaCollectionLinkJson removeLink in removeLinks) {
-                chapters.Remove(removeLink);
+                MarkBlankChapterLinks(link.Children);
             }
         }
 
         // Finds the first non-empty child of the given chapter
-        private DitaCollectionLinkJson FindFirstNonBlankChild(DitaCollectionLinkJson link) {
-            if (link?.Children?.Count > 0) {
-                foreach (DitaCollectionLinkJson child in link.Children) {
-                    // Is the page empty?
-                    if (!IsLinkToEmptyPage(child, out _)) {
-                        return child;
-                    }
-                }
-            }
+        //private DitaCollectionLinkJson FindFirstNonBlankChild(DitaCollectionLinkJson link) {
+        //    if (link?.Children?.Count > 0) {
+        //        foreach (DitaCollectionLinkJson child in link.Children) {
+        //            // Is the page empty?
+        //            if (!IsLinkToEmptyPage(child, out _)) {
+        //                return child;
+        //            }
+        //        }
+        //    }
 
-            return null;
-        }
+        //    return null;
+        //}
 
         // Does the given chapter link point to an empty page?
         private bool IsLinkToEmptyPage(DitaCollectionLinkJson link, out DitaPageJson pageJson) {
