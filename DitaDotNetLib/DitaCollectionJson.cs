@@ -9,8 +9,13 @@ namespace DitaDotNet {
     internal class DitaCollectionLinkJson {
         public string Title { get; set; }
         public string FileName { get; set; }
+        public Guid Guid { get; set; }
         public bool IsEmpty { get; set; }
         public List<DitaCollectionLinkJson> Children { get; set; }
+
+        public DitaCollectionLinkJson() {
+            Guid = Guid.NewGuid();
+        }
     }
 
     internal class DitaCollectionJson {
