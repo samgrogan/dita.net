@@ -194,7 +194,7 @@ namespace DitaDotNet {
                     break;
                 case "image":
                     if (key == "href") {
-                        return ("src", $"%IMG_ROOT%/{value}");
+                        return ("src", ImageUrlFromHref(value));
                     }
 
                     break;
@@ -348,6 +348,24 @@ namespace DitaDotNet {
 
             Trace.TraceWarning($"Unknown xref scope: {scope}, format: {format}, href: {href}");
             return "#";
+        }
+
+        // Translates an image url. Rewrite some images types
+        private string ImageUrlFromHref(string inputHref) {
+            string outputHref = inputHref;
+
+            if (!string.IsNullOrEmpty(inputHref)) {
+                // Is this a pdf?
+                if (Path.GetExtension(inputHref) == ".pdf") {
+                    outputHref = Path.ChangeExtension(inputHref, ".png");
+                    if (outputHref.Contains("-high")) {
+                        // Fixes an issue where source png files are converted to pdf - we want to go back to the source pngs
+                        outputHref = outputHref.Replace("-high", "-source");
+                    }
+                }
+            }
+
+            return $"%IMG_ROOT%/{outputHref}";
         }
 
         // Wraps a dita element in another dita element, if needed to output correct html
