@@ -54,7 +54,8 @@ namespace DitaDotNet {
             // Create the output object
             if (RootMap is DitaBookMap) {
                 ParseBookMap();
-            } else if (RootMap is DitaMap) {
+            }
+            else if (RootMap is DitaMap) {
                 ParseMap();
             }
         }
@@ -128,22 +129,11 @@ namespace DitaDotNet {
         private void ParseBookMapBookMeta() {
             DitaElement bookMetaElement = RootMap.RootElement.FindOnlyChild("bookmeta");
 
-            // Version
-            DitaElement prodinfoElement = bookMetaElement?.FindOnlyChild("prodinfo");
-            DitaElement vrmlistElement = prodinfoElement?.FindOnlyChild("vrmlist");
-            DitaElement vrmElement = vrmlistElement?.FindChildren("vrm")?[0];
-            string version = vrmElement?.Attributes?["version"];
-
-            if (string.IsNullOrWhiteSpace(version) || version == "ProductVersionNumber") {
-                DitaElement publisherinformationElement = bookMetaElement?.FindOnlyChild("publisherinformation");
-                DitaElement publishedElement = publisherinformationElement?.FindOnlyChild("published");
-                DitaElement revisionidElement = publishedElement?.FindOnlyChild("revisionid");
-                version = revisionidElement?.InnerText;
-            }
-
-            BookMeta.Add("version", version);
+            ParseBookMapVersion(bookMetaElement);
+            ParseBookMapReleaseDate(bookMetaElement);
 
             // Everything in category
+
             List<DitaElement> categoryData = bookMetaElement?.FindOnlyChild("category")?.Children;
             if (categoryData != null) {
                 foreach (DitaElement data in categoryData) {
@@ -153,6 +143,51 @@ namespace DitaDotNet {
                 }
             }
         }
+
+        // Parse the version of the document
+        private void ParseBookMapVersion(DitaElement bookMetaElement) {
+            string version = string.Empty;
+
+            // Try checking the publisher information section
+            DitaElement publisherInformationElement = bookMetaElement?.FindOnlyChild("publisherinformation");
+            DitaElement publishedElement = publisherInformationElement?.FindOnlyChild("published");
+            DitaElement revisionIdElement = publishedElement?.FindOnlyChild("revisionid");
+            version = revisionIdElement?.ToString();
+
+            // Try checking the prodinfo section
+            if (string.IsNullOrWhiteSpace(version) || version == "ProductVersionNumber") {
+                DitaElement prodinfoElement = bookMetaElement?.FindOnlyChild("prodinfo");
+                DitaElement vrmlistElement = prodinfoElement?.FindOnlyChild("vrmlist");
+                DitaElement vrmElement = vrmlistElement?.FindChildren("vrm")?[0];
+                version = vrmElement?.Attributes?["version"];
+            }
+
+            if (!string.IsNullOrWhiteSpace(version)) {
+                BookMeta.Add("version", version);
+            }
+        }
+
+        // Parse the date of the document
+        private void ParseBookMapReleaseDate(DitaElement bookMetaElement) {
+            DitaElement publisherInformationElement = bookMetaElement?.FindOnlyChild("publisherinformation");
+            DitaElement publishedElement = publisherInformationElement?.FindOnlyChild("published");
+            DitaElement completedElement = publishedElement?.FindOnlyChild("completed");
+            string year = completedElement?.FindOnlyChild("year")?.ToString();
+            string month = completedElement?.FindOnlyChild("month")?.ToString();
+            string day = completedElement?.FindOnlyChild("day")?.ToString();
+
+            if (!string.IsNullOrWhiteSpace(year) && !string.IsNullOrWhiteSpace(month) && !string.IsNullOrWhiteSpace(day)) {
+                try {
+                    // Is this a valid date?
+                    DateTime publishDate = new DateTime(int.Parse(year), int.Parse(month), int.Parse(day));
+                    BookMeta.Add("published date", $"{publishDate.Day}/{publishDate.Month}/{publishDate.Year} 00:00:00");
+                }
+                catch {
+                    //
+                }
+            }
+        }
+
 
         // Parse the chapters in the document, recursively
         private void ParseBookMapChapters() {
