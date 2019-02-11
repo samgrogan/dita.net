@@ -25,7 +25,7 @@ namespace DitaDotNet {
         // Does the given DOCTYPE match this object?
         public new static bool IsMatchingDocType(string docType) {
             if (!string.IsNullOrWhiteSpace(docType)) {
-                return (docType.Contains("map") && docType.Contains("map.dtd") && docType.Contains("-//OASIS//DTD DITA Map//"));
+                return (docType.Contains("map") && docType.Contains("map.dtd") && docType.Contains("//DTD DITA Map//"));
             }
 
             return false;

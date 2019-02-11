@@ -32,7 +32,7 @@ namespace DitaDotNet {
         // Does the given DOCTYPE match this object?
         public new static bool IsMatchingDocType(string docType) {
             if (!string.IsNullOrWhiteSpace(docType)) {
-                return (docType.Contains("concept") && docType.Contains("concept.dtd") && docType.Contains("-//OASIS//DTD DITA Concept//"));
+                return (docType.Contains("!DOCTYPE concept"));
             }
 
             return false;
