@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -7,26 +8,22 @@ using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace DitaDotNet {
-    // Valid types of DITA Files
-    public enum DitaFileType {
-        Unknown = 0,
-
-        [Description("DITA Map")] Map = 100,
-        [Description("DITA Book Map")] BookMap = 101,
-        [Description("DITA Topic")] Topic = 200,
-        [Description("DITA Concept")] Concept = 201,
-        [Description("DITA Reference")] Reference = 202,
-        [Description("DITA Task")] Task = 203,
-
-        [Description("DITA Language Refereence")]
-        LanguageRef = 204,
-
-        [Description("DITA Option Refereence")]
-        OptionRef = 205,
-        [Description("Image")] Image = 300,
-    }
-
     public class DitaFile {
+        // What types of dita files are available
+        public delegate bool IsMatchingDocTypeDelegate(string docType);
+
+        public static Dictionary<Type, IsMatchingDocTypeDelegate> DitaFileTypes = new Dictionary<Type, IsMatchingDocTypeDelegate> {
+            {typeof(DitaBookMap), DitaBookMap.IsMatchingDocType},
+            {typeof(DitaMap), DitaMap.IsMatchingDocType},
+            {typeof(DitaTopic), DitaTopic.IsMatchingDocType},
+            {typeof(DitaConcept), DitaConcept.IsMatchingDocType},
+            {typeof(DitaReference), DitaReference.IsMatchingDocType},
+            {typeof(DitaTask), DitaTask.IsMatchingDocType},
+            {typeof(DitaLanguageReference), DitaLanguageReference.IsMatchingDocType},
+            {typeof(DitaOptionReference), DitaOptionReference.IsMatchingDocType},
+            {typeof(DitaReferableContent), DitaReferableContent.IsMatchingDocType }
+        };
+
 
         private static readonly int _maxFileNameLength = 80;
 
@@ -139,7 +136,7 @@ namespace DitaDotNet {
 
         #region Static Methods
 
-        public static XmlDocument LoadAndCheckType(string filePath, out DitaFileType fileType) {
+        public static XmlDocument LoadAndCheckType(string filePath, out Type fileType) {
             // Try to load the file as an Xml document
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.Load(filePath);
@@ -150,53 +147,53 @@ namespace DitaDotNet {
         }
 
         // Inspect the xml content and see what type of DITA file this is
-        protected static DitaFileType InspectFileType(XmlDocument xmlDocument) {
+        protected static Type InspectFileType(XmlDocument xmlDocument) {
             // Does the document have a DOCTYPE?
             string docType = xmlDocument.DocumentType?.OuterXml;
 
             if (!string.IsNullOrWhiteSpace(docType)) {
                 // Is this a dita book map?
                 if (DitaBookMap.IsMatchingDocType(docType)) {
-                    return DitaFileType.BookMap;
+                    return typeof(DitaBookMap);
                 }
 
                 // Is this a dita map?
                 if (DitaMap.IsMatchingDocType(docType)) {
-                    return DitaFileType.Map;
+                    return typeof(DitaMap);
                 }
 
                 // Is this a dita topic
                 if (DitaTopic.IsMatchingDocType(docType)) {
-                    return DitaFileType.Topic;
+                    return typeof(DitaTopic);
                 }
 
                 // Is this a dita concept
                 if (DitaConcept.IsMatchingDocType(docType)) {
-                    return DitaFileType.Concept;
+                    return typeof(DitaConcept);
                 }
 
                 // Is this a dita reference
                 if (DitaReference.IsMatchingDocType(docType)) {
-                    return DitaFileType.Reference;
+                    return typeof(DitaReference);
                 }
 
                 // Is this a dita task
                 if (DitaTask.IsMatchingDocType(docType)) {
-                    return DitaFileType.Task;
+                    return typeof(DitaTask);
                 }
 
                 // Is this a dita language ref
                 if (DitaLanguageReference.IsMatchingDocType(docType)) {
-                    return DitaFileType.LanguageRef;
+                    return typeof(DitaLanguageReference);
                 }
 
                 // Is this a dita option ref
                 if (DitaOptionReference.IsMatchingDocType(docType)) {
-                    return DitaFileType.OptionRef;
+                    return typeof(DitaOptionReference);
                 }
             }
 
-            return DitaFileType.Unknown;
+            return null;
         }
 
         public static bool IsMatchingDocType(string docType) {

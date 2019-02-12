@@ -64,7 +64,7 @@ namespace DitaDotNet {
                 string extension = Path.GetExtension(filePath)?.ToLower();
                 if (DitaImage.Extensions.Contains(extension)) {
                     DitaImage image = new DitaImage(filePath);
-                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.Image}");
+                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaImage)}");
                     return image;
                 }
             }
@@ -73,48 +73,54 @@ namespace DitaDotNet {
             // Try to load the given file
 
             try {
-                XmlDocument xmlDocument = DitaFile.LoadAndCheckType(filePath, out DitaFileType fileType);
+                XmlDocument xmlDocument = DitaFile.LoadAndCheckType(filePath, out Type fileType);
 
-                switch (fileType) {
-                    case DitaFileType.BookMap:
-                        DitaBookMap ditaBookMap = new DitaBookMap(xmlDocument, filePath);
-                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.BookMap}");
-                        return ditaBookMap;
+                if (fileType == typeof(DitaBookMap)) {
+                    DitaBookMap ditaBookMap = new DitaBookMap(xmlDocument, filePath);
+                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaBookMap)}");
+                    return ditaBookMap;
+                }
 
-                    case DitaFileType.Map:
-                        DitaMap ditaMap = new DitaMap(xmlDocument, filePath);
-                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.Map}");
-                        return ditaMap;
+                if (fileType == typeof(DitaMap)) {
+                    DitaMap ditaMap = new DitaMap(xmlDocument, filePath);
+                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaMap)}");
+                    return ditaMap;
+                }
 
-                    case DitaFileType.Topic:
-                        DitaTopic ditaTopic = new DitaTopic(xmlDocument, filePath);
-                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.Topic}");
-                        return ditaTopic;
+                if (fileType == typeof(DitaTopic)) {
+                    DitaTopic ditaTopic = new DitaTopic(xmlDocument, filePath);
+                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaTopic)}");
+                    return ditaTopic;
+                }
 
-                    case DitaFileType.Concept:
-                        DitaConcept ditaConcept = new DitaConcept(xmlDocument, filePath);
-                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.Concept}");
-                        return ditaConcept;
+                if (fileType == typeof(DitaConcept)) {
+                    DitaConcept ditaConcept = new DitaConcept(xmlDocument, filePath);
+                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaConcept)}");
+                    return ditaConcept;
+                }
 
-                    case DitaFileType.Reference:
-                        DitaReference ditaReference = new DitaReference(xmlDocument, filePath);
-                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.Reference}");
-                        return ditaReference;
+                if (fileType == typeof(DitaReference)) {
+                    DitaReference ditaReference = new DitaReference(xmlDocument, filePath);
+                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaReference)}");
+                    return ditaReference;
+                }
 
-                    case DitaFileType.Task:
-                        DitaTask ditaTask = new DitaTask(xmlDocument, filePath);
-                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.Task}");
-                        return ditaTask;
+                if (fileType == typeof(DitaTask)) {
+                    DitaTask ditaTask = new DitaTask(xmlDocument, filePath);
+                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaTask)}");
+                    return ditaTask;
+                }
 
-                    case DitaFileType.LanguageRef:
-                        DitaLanguageReference ditaLanguageRef = new DitaLanguageReference(xmlDocument, filePath);
-                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.LanguageRef}");
-                        return ditaLanguageRef;
+                if (fileType == typeof(DitaLanguageReference)) {
+                    DitaLanguageReference ditaLanguageRef = new DitaLanguageReference(xmlDocument, filePath);
+                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaLanguageReference)}");
+                    return ditaLanguageRef;
+                }
 
-                    case DitaFileType.OptionRef:
-                        DitaOptionReference ditaOptionRef = new DitaOptionReference(xmlDocument, filePath);
-                        Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {DitaFileType.OptionRef}");
-                        return ditaOptionRef;
+                if (fileType == typeof(DitaOptionReference)) {
+                    DitaOptionReference ditaOptionRef = new DitaOptionReference(xmlDocument, filePath);
+                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaOptionReference)}");
+                    return ditaOptionRef;
                 }
             }
             catch {
