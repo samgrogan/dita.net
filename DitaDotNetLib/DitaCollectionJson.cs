@@ -29,7 +29,7 @@ namespace DitaDotNet {
 
         [JsonIgnore] public List<DitaPageJson> Pages { get; set; }
 
-        [JsonIgnore] public List<DitaImage> Images => Collection?.GetImages();
+        [JsonIgnore] public List<DitaFileImage> Images => Collection?.GetImages();
 
         [JsonIgnore] private DitaCollection Collection { get; set; }
 
@@ -52,10 +52,10 @@ namespace DitaDotNet {
             Pages = new List<DitaPageJson>();
 
             // Create the output object
-            if (RootMap is DitaBookMap) {
+            if (RootMap is DitaFileBookMap) {
                 ParseBookMap();
             }
-            else if (RootMap is DitaMap) {
+            else if (RootMap is DitaFileMap) {
                 ParseMap();
             }
         }
@@ -209,12 +209,12 @@ namespace DitaDotNet {
 
             // What type of file is this?
             switch (linkedFile) {
-                case DitaBookMap bookMap:
+                case DitaFileBookMap bookMap:
                     // This should never happen
                     throw new Exception($"Found bookmap {linkedFile} nested in bookmap.");
-                case DitaMap map:
+                case DitaFileMap map:
                     return ParseChaptersFromMap(map);
-                case DitaTopicAbstract topic:
+                case DitaFileTopicAbstract topic:
                     return ParseChaptersFromTopic(topic);
             }
 
@@ -222,7 +222,7 @@ namespace DitaDotNet {
         }
 
         // Parse chapter structure from a .ditamap file
-        private List<DitaCollectionLinkJson> ParseChaptersFromMap(DitaMap map) {
+        private List<DitaCollectionLinkJson> ParseChaptersFromMap(DitaFileMap map) {
             Trace.TraceInformation($"Found link to map {map.NewFileName ?? map.FileName}.");
 
             // Find all the topic references
@@ -263,7 +263,7 @@ namespace DitaDotNet {
 
 
         // Parse chapter structure from a dita topic (leaf node)
-        private List<DitaCollectionLinkJson> ParseChaptersFromTopic(DitaTopicAbstract topic) {
+        private List<DitaCollectionLinkJson> ParseChaptersFromTopic(DitaFileTopicAbstract topic) {
             List<DitaCollectionLinkJson> chapters = new List<DitaCollectionLinkJson>();
 
             try {

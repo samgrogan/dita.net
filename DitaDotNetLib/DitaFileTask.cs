@@ -2,11 +2,11 @@
 using System.Xml;
 
 namespace DitaDotNet {
-    public class DitaTask : DitaTopicAbstract {
+    public class DitaFileTask : DitaFileTopicAbstract {
         #region Class Methods
 
         // Default constructor
-        public DitaTask(XmlDocument xmlDocument, string filePath) : base(xmlDocument, filePath) {
+        public DitaFileTask(XmlDocument xmlDocument, string filePath) : base(xmlDocument, filePath) {
             // Try to parse the file as a <type>
             if (!Parse()) {
                 throw new Exception($"{FileName} is not parseable as a {this.GetType()}");
@@ -21,7 +21,7 @@ namespace DitaDotNet {
             return false;
         }
 
-        public override string BodyElementName() {
+        public new static string BodyElementName() {
             return "taskbody";
         }
 
@@ -36,6 +36,11 @@ namespace DitaDotNet {
             }
 
             return false;
+        }
+
+        // Creates and returns a new object
+        public new static DitaFileTask Create(XmlDocument xmlDocument, string filePath) {
+            return new DitaFileTask(xmlDocument, filePath);
         }
 
         #endregion Static Methods

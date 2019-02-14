@@ -9,23 +9,52 @@ using System.Xml;
 
 namespace DitaDotNet {
     public class DitaFile {
-        // What types of dita files are available
+        #region Declarations
+
+        // Dictionary of delegates to aid matching and creation of dita file subclasses
         public delegate bool IsMatchingDocTypeDelegate(string docType);
 
-        public static Dictionary<Type, IsMatchingDocTypeDelegate> DitaFileTypes = new Dictionary<Type, IsMatchingDocTypeDelegate> {
-            {typeof(DitaBookMap), DitaBookMap.IsMatchingDocType},
-            {typeof(DitaMap), DitaMap.IsMatchingDocType},
-            {typeof(DitaTopic), DitaTopic.IsMatchingDocType},
-            {typeof(DitaConcept), DitaConcept.IsMatchingDocType},
-            {typeof(DitaReference), DitaReference.IsMatchingDocType},
-            {typeof(DitaTask), DitaTask.IsMatchingDocType},
-            {typeof(DitaLanguageReference), DitaLanguageReference.IsMatchingDocType},
+        public static Dictionary<Type, IsMatchingDocTypeDelegate> DitaFileTypeMatching = new Dictionary<Type, IsMatchingDocTypeDelegate> {
+            {typeof(DitaFileBookMap), DitaFileBookMap.IsMatchingDocType},
+            {typeof(DitaFileMap), DitaFileMap.IsMatchingDocType},
+            {typeof(DitaFileTopic), DitaFileTopic.IsMatchingDocType},
+            {typeof(DitaFileConcept), DitaFileConcept.IsMatchingDocType},
+            {typeof(DitaFileReference), DitaFileReference.IsMatchingDocType},
+            {typeof(DitaFileTask), DitaFileTask.IsMatchingDocType},
+            {typeof(DitaFileLanguageReference), DitaFileLanguageReference.IsMatchingDocType},
             {typeof(DitaOptionReference), DitaOptionReference.IsMatchingDocType},
-            {typeof(DitaReferableContent), DitaReferableContent.IsMatchingDocType }
+            {typeof(DitaFileReferableContent), DitaFileReferableContent.IsMatchingDocType}
         };
 
+        public delegate DitaFile ConstructorDelegate(XmlDocument xmlDocument, string filePath);
+
+        public static Dictionary<Type, ConstructorDelegate> DitaFileTypeCreation = new Dictionary<Type, ConstructorDelegate> {
+            {typeof(DitaFileBookMap), DitaFileBookMap.Create},
+            {typeof(DitaFileMap), DitaFileMap.Create},
+            {typeof(DitaFileTopic), DitaFileTopic.Create},
+            {typeof(DitaFileConcept), DitaFileConcept.Create},
+            {typeof(DitaFileReference), DitaFileReference.Create},
+            {typeof(DitaFileTask), DitaFileTask.Create},
+            {typeof(DitaFileLanguageReference), DitaFileLanguageReference.Create},
+            {typeof(DitaOptionReference), DitaOptionReference.Create},
+            {typeof(DitaFileReferableContent), DitaFileReferableContent.Create}
+        };
+
+        public delegate string BodyElementNameDelegate();
+
+        public static Dictionary<Type, BodyElementNameDelegate> DitaFileBodyElement = new Dictionary<Type, BodyElementNameDelegate> {
+            {typeof(DitaFileTopic), DitaFileTopic.BodyElementName},
+            {typeof(DitaFileConcept), DitaFileConcept.BodyElementName},
+            {typeof(DitaFileReference), DitaFileReference.BodyElementName},
+            {typeof(DitaFileTask), DitaFileTask.BodyElementName},
+            {typeof(DitaFileLanguageReference), DitaFileLanguageReference.BodyElementName},
+            {typeof(DitaOptionReference), DitaOptionReference.BodyElementName},
+            {typeof(DitaFileReferableContent), DitaFileReferableContent.BodyElementName}
+        };
 
         private static readonly int _maxFileNameLength = 80;
+
+        #endregion Declarations
 
         #region Properties
 
@@ -136,6 +165,11 @@ namespace DitaDotNet {
 
         #region Static Methods
 
+        // Creates and returns a new object
+        public static DitaFile Create(XmlDocument xmlDocument, string filePath) {
+            return new DitaFile(xmlDocument, filePath);
+        }
+
         public static XmlDocument LoadAndCheckType(string filePath, out Type fileType) {
             // Try to load the file as an Xml document
             XmlDocument xmlDocument = new XmlDocument();
@@ -152,44 +186,10 @@ namespace DitaDotNet {
             string docType = xmlDocument.DocumentType?.OuterXml;
 
             if (!string.IsNullOrWhiteSpace(docType)) {
-                // Is this a dita book map?
-                if (DitaBookMap.IsMatchingDocType(docType)) {
-                    return typeof(DitaBookMap);
-                }
-
-                // Is this a dita map?
-                if (DitaMap.IsMatchingDocType(docType)) {
-                    return typeof(DitaMap);
-                }
-
-                // Is this a dita topic
-                if (DitaTopic.IsMatchingDocType(docType)) {
-                    return typeof(DitaTopic);
-                }
-
-                // Is this a dita concept
-                if (DitaConcept.IsMatchingDocType(docType)) {
-                    return typeof(DitaConcept);
-                }
-
-                // Is this a dita reference
-                if (DitaReference.IsMatchingDocType(docType)) {
-                    return typeof(DitaReference);
-                }
-
-                // Is this a dita task
-                if (DitaTask.IsMatchingDocType(docType)) {
-                    return typeof(DitaTask);
-                }
-
-                // Is this a dita language ref
-                if (DitaLanguageReference.IsMatchingDocType(docType)) {
-                    return typeof(DitaLanguageReference);
-                }
-
-                // Is this a dita option ref
-                if (DitaOptionReference.IsMatchingDocType(docType)) {
-                    return typeof(DitaOptionReference);
+                foreach (Type keyType in DitaFileTypeMatching.Keys) {
+                    if (DitaFileTypeMatching[keyType](docType)) {
+                        return keyType;
+                    }
                 }
             }
 

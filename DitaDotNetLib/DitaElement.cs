@@ -119,16 +119,37 @@ namespace DitaDotNet {
             if (IsContainer) {
                 StringBuilder concat = new StringBuilder();
                 foreach (DitaElement childElement in Children) {
-                    concat.Append(childElement.ToString());
+                    concat.Append($"{childElement} ");
                 }
-                return concat.ToString();
+                return concat.ToString().Trim();
             }
-            else {
-                return InnerText;
-            }
+            return ExpandInnerText(InnerText);
         }
 
-
         #endregion Class Methods
+
+        #region Private Methods
+
+        // Dynamic string substitution
+        // Some elements have rules for adding additional text
+        private string ExpandInnerText(string inputText) {
+            string outputText = inputText;
+
+            switch (Type) {
+                case "tm":
+                    switch (AttributeValueOrDefault("tmtype", "")) {
+                        case "reg":
+                            return $"{inputText}®";
+                        case "tm":
+                            return $"{inputText}™";
+                    }
+                    break;
+            }
+
+            return outputText;
+        }
+
+        #endregion
+
     }
 }

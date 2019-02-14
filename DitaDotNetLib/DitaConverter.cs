@@ -70,7 +70,7 @@ namespace DitaDotNet {
         private void FindRootMap(string rootMapFile) {
             // If no file name specified, try to find a bookmap
             if (string.IsNullOrEmpty(rootMapFile)) {
-                List<DitaBookMap> bookMaps = Collection.GetBookMaps();
+                List<DitaFileBookMap> bookMaps = Collection.GetBookMaps();
                 if (bookMaps.Count == 1) {
                     RootMap = bookMaps[0];
                     return;
@@ -85,10 +85,10 @@ namespace DitaDotNet {
             }
 
             switch (rootFile) {
-                case DitaBookMap bookMap:
+                case DitaFileBookMap bookMap:
                     RootMap = bookMap;
                     break;
-                case DitaMap map:
+                case DitaFileMap map:
                     RootMap = map;
                     break;
                 default:

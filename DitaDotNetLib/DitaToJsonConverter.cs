@@ -49,7 +49,7 @@ namespace DitaDotNet
 
         // Copies all of the images input to the output folder
         private void CopyImages(string input, string output, DitaCollectionJson collectionJson) {
-            List<DitaImage> images = collectionJson.Images;
+            List<DitaFileImage> images = collectionJson.Images;
 
             // Create the images folder, if needed
             string imagesOutputFolder = Path.Combine(output, ImagesFolderName);
@@ -62,7 +62,7 @@ namespace DitaDotNet
                 Trace.TraceError($"Error trying to create images folder: {imagesOutputFolder}.");
             }
 
-            foreach (DitaImage image in images) {
+            foreach (DitaFileImage image in images) {
                 string imageOutputPath = Path.Combine(imagesOutputFolder, image.FileName);
 
                 try {

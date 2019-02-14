@@ -62,65 +62,22 @@ namespace DitaDotNet {
             // Is this an image?
             if (Path.HasExtension(filePath)) {
                 string extension = Path.GetExtension(filePath)?.ToLower();
-                if (DitaImage.Extensions.Contains(extension)) {
-                    DitaImage image = new DitaImage(filePath);
-                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaImage)}");
+                if (DitaFileImage.Extensions.Contains(extension)) {
+                    DitaFileImage image = new DitaFileImage(filePath);
+                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaFileImage)}");
                     return image;
                 }
             }
 
-            // Try to load as an XML document
             // Try to load the given file
 
             try {
+                // Try to load as an XML document
                 XmlDocument xmlDocument = DitaFile.LoadAndCheckType(filePath, out Type fileType);
 
-                if (fileType == typeof(DitaBookMap)) {
-                    DitaBookMap ditaBookMap = new DitaBookMap(xmlDocument, filePath);
-                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaBookMap)}");
-                    return ditaBookMap;
-                }
-
-                if (fileType == typeof(DitaMap)) {
-                    DitaMap ditaMap = new DitaMap(xmlDocument, filePath);
-                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaMap)}");
-                    return ditaMap;
-                }
-
-                if (fileType == typeof(DitaTopic)) {
-                    DitaTopic ditaTopic = new DitaTopic(xmlDocument, filePath);
-                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaTopic)}");
-                    return ditaTopic;
-                }
-
-                if (fileType == typeof(DitaConcept)) {
-                    DitaConcept ditaConcept = new DitaConcept(xmlDocument, filePath);
-                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaConcept)}");
-                    return ditaConcept;
-                }
-
-                if (fileType == typeof(DitaReference)) {
-                    DitaReference ditaReference = new DitaReference(xmlDocument, filePath);
-                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaReference)}");
-                    return ditaReference;
-                }
-
-                if (fileType == typeof(DitaTask)) {
-                    DitaTask ditaTask = new DitaTask(xmlDocument, filePath);
-                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaTask)}");
-                    return ditaTask;
-                }
-
-                if (fileType == typeof(DitaLanguageReference)) {
-                    DitaLanguageReference ditaLanguageRef = new DitaLanguageReference(xmlDocument, filePath);
-                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaLanguageReference)}");
-                    return ditaLanguageRef;
-                }
-
-                if (fileType == typeof(DitaOptionReference)) {
-                    DitaOptionReference ditaOptionRef = new DitaOptionReference(xmlDocument, filePath);
-                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaOptionReference)}");
-                    return ditaOptionRef;
+                // Create a new object of the correct type
+                if (DitaFile.DitaFileTypeCreation.ContainsKey(fileType)) {
+                    return DitaFile.DitaFileTypeCreation[fileType](xmlDocument, filePath);
                 }
             }
             catch {
@@ -131,11 +88,11 @@ namespace DitaDotNet {
         }
 
         // Returns the list of Dita Book Maps in the collection
-        public List<DitaBookMap> GetBookMaps() {
-            List<DitaBookMap> results = new List<DitaBookMap>();
+        public List<DitaFileBookMap> GetBookMaps() {
+            List<DitaFileBookMap> results = new List<DitaFileBookMap>();
 
             foreach (DitaFile file in Files) {
-                if (file is DitaBookMap ditaBookMap) {
+                if (file is DitaFileBookMap ditaBookMap) {
                     results.Add(ditaBookMap);
                 }
             }
@@ -144,11 +101,11 @@ namespace DitaDotNet {
         }
 
         // Returns the list of Dita Maps in the collection
-        public List<DitaMap> GetMaps() {
-            List<DitaMap> results = new List<DitaMap>();
+        public List<DitaFileMap> GetMaps() {
+            List<DitaFileMap> results = new List<DitaFileMap>();
 
             foreach (DitaFile file in Files) {
-                if (file is DitaMap ditaMap) {
+                if (file is DitaFileMap ditaMap) {
                     results.Add(ditaMap);
                 }
             }
@@ -157,11 +114,11 @@ namespace DitaDotNet {
         }
 
         // Returns a list of the images in the collection
-        public List<DitaImage> GetImages() {
-            List<DitaImage> results = new List<DitaImage>();
+        public List<DitaFileImage> GetImages() {
+            List<DitaFileImage> results = new List<DitaFileImage>();
 
             foreach (DitaFile file in Files) {
-                if (file is DitaImage ditaImage) {
+                if (file is DitaFileImage ditaImage) {
                     results.Add(ditaImage);
                 }
             }
@@ -170,11 +127,11 @@ namespace DitaDotNet {
         }
 
         // Returns a list of the topics in the collection
-        public List<DitaTopicAbstract> GetTopics() {
-            List<DitaTopicAbstract> results = new List<DitaTopicAbstract>();
+        public List<DitaFileTopicAbstract> GetTopics() {
+            List<DitaFileTopicAbstract> results = new List<DitaFileTopicAbstract>();
 
             foreach (DitaFile file in Files) {
-                if (file is DitaTopicAbstract ditaTopic) {
+                if (file is DitaFileTopicAbstract ditaTopic) {
                     results.Add(ditaTopic);
                 }
             }

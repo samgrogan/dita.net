@@ -2,12 +2,11 @@
 using System.Xml;
 
 namespace DitaDotNet {
-    public class DitaMap : DitaFile {
-
+    public class DitaFileConcept : DitaFileTopicAbstract {
         #region Class Methods
 
         // Default constructor
-        public DitaMap(XmlDocument xmlDocument, string filePath) : base(xmlDocument, filePath) {
+        public DitaFileConcept(XmlDocument xmlDocument, string filePath) : base(xmlDocument, filePath) {
             // Try to parse the file as a <type>
             if (!Parse()) {
                 throw new Exception($"{FileName} is not parseable as a {this.GetType()}");
@@ -15,7 +14,15 @@ namespace DitaDotNet {
         }
 
         public new bool Parse() {
-            return Parse("//map", "Map");
+            if (Parse("//concept", "Concept")) {
+                return true;
+            }
+
+            return false;
+        }
+
+        public new static string BodyElementName() {
+            return "conbody";
         }
 
         #endregion Class Methods
@@ -25,10 +32,15 @@ namespace DitaDotNet {
         // Does the given DOCTYPE match this object?
         public new static bool IsMatchingDocType(string docType) {
             if (!string.IsNullOrWhiteSpace(docType)) {
-                return (docType.Contains("map") && docType.Contains("map.dtd") && docType.Contains("//DTD DITA Map//"));
+                return (docType.Contains("!DOCTYPE concept"));
             }
 
             return false;
+        }
+
+        // Creates and returns a new object
+        public new static DitaFileConcept Create(XmlDocument xmlDocument, string filePath) {
+            return new DitaFileConcept(xmlDocument, filePath);
         }
 
         #endregion Static Methods

@@ -2,11 +2,11 @@
 using System.Xml;
 
 namespace DitaDotNet {
-    public class DitaReference : DitaTopicAbstract {
+    public class DitaFileTopic : DitaFileTopicAbstract {
         #region Class Methods
 
         // Default constructor
-        public DitaReference(XmlDocument xmlDocument, string filePath) : base(xmlDocument, filePath) {
+        public DitaFileTopic(XmlDocument xmlDocument, string filePath) : base(xmlDocument, filePath) {
             // Try to parse the file as a <type>
             if (!Parse()) {
                 throw new Exception($"{FileName} is not parseable as a {this.GetType()}");
@@ -14,15 +14,11 @@ namespace DitaDotNet {
         }
 
         public new bool Parse() {
-            if (Parse("//reference", "Reference")) {
-                return true;
-            }
-
-            return false;
+            return Parse("//topic", "Topic");
         }
 
-        public override string BodyElementName() {
-            return "refbody";
+        public new static string BodyElementName() {
+            return "body";
         }
 
         #endregion Class Methods
@@ -32,10 +28,15 @@ namespace DitaDotNet {
         // Does the given DOCTYPE match this object?
         public new static bool IsMatchingDocType(string docType) {
             if (!string.IsNullOrWhiteSpace(docType)) {
-                return (docType.Contains("!DOCTYPE reference"));
+                return (docType.Contains("!DOCTYPE topic"));
             }
 
             return false;
+        }
+
+        // Creates and returns a new object
+        public new static DitaFileTopic Create(XmlDocument xmlDocument, string filePath) {
+            return new DitaFileTopic(xmlDocument, filePath);
         }
 
         #endregion Static Methods

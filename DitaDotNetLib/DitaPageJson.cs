@@ -50,44 +50,32 @@ namespace DitaDotNet {
 
             // Find the body element
             string bodyElementName = null;
-            switch (file) {
-                case DitaConcept ditaConcept:
-                    bodyElementName = ditaConcept.BodyElementName();
-                    break;
-                case DitaReference ditaReference:
-                    bodyElementName = ditaReference.BodyElementName();
-                    break;
-                case DitaTask ditaTask:
-                    bodyElementName = ditaTask.BodyElementName();
-                    break;
-                case DitaTopic ditaTopic:
-                    bodyElementName = ditaTopic.BodyElementName();
-                    break;
-                case DitaLanguageReference ditaLanguageRef:
-                    bodyElementName = ditaLanguageRef.BodyElementName();
-                    break;
-                case DitaOptionReference ditaOptionRef:
-                    bodyElementName = ditaOptionRef.BodyElementName();
-                    break;
+            if (DitaFile.DitaFileBodyElement.ContainsKey(file.GetType())) {
+                bodyElementName = DitaFile.DitaFileBodyElement[file.GetType()]();
             }
 
-            DitaElement bodyElement = file.RootElement.FindOnlyChild(bodyElementName);
+            if (!string.IsNullOrEmpty(bodyElementName)) {
+                DitaElement bodyElement = file.RootElement.FindOnlyChild(bodyElementName);
 
-            if (bodyElement != null) {
-                Sections = new List<DitaPageSectionJson>();
+                if (bodyElement != null) {
+                    Sections = new List<DitaPageSectionJson>();
 
-                // Convert the body to html
-                DitaElementToHtmlConverter htmlConverter = new DitaElementToHtmlConverter(collection);
-                htmlConverter.Convert(bodyElement, Sections, out string bodyHtml);
-                BodyHtml = bodyHtml;
+                    // Convert the body to html
+                    DitaElementToHtmlConverter htmlConverter = new DitaElementToHtmlConverter(collection);
+                    htmlConverter.Convert(bodyElement, Sections, out string bodyHtml);
+                    BodyHtml = bodyHtml;
 
-                // Convert the body to text
-                DitaElementToTextConverter textConverter = new DitaElementToTextConverter();
-                textConverter.Convert(bodyElement, out string bodyText);
-                BodyText = bodyText;
+                    // Convert the body to text
+                    DitaElementToTextConverter textConverter = new DitaElementToTextConverter();
+                    textConverter.Convert(bodyElement, out string bodyText);
+                    BodyText = bodyText;
+                }
+                else {
+                    Trace.TraceWarning($"Body element not found in {FileName} ({file.FileName}.");
+                }
             }
             else {
-                Trace.TraceWarning($"Body element not found in {FileName} ({file.FileName}.");
+                Trace.TraceWarning($"No body element identified in {FileName} ({file.FileName}.");
             }
 
             IsEmpty = string.IsNullOrEmpty(BodyText) || string.IsNullOrEmpty(Title);

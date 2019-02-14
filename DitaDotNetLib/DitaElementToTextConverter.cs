@@ -12,7 +12,7 @@ namespace DitaDotNet {
                     }
                 }
                 else {
-                    bodyStringBuilder.Append(bodyElement.InnerText);
+                    bodyStringBuilder.Append(bodyElement);
                 }
             }
 
@@ -32,7 +32,7 @@ namespace DitaDotNet {
                 return elementStringBuilder.ToString();
             }
             else {
-                return $"{element.InnerText}";
+                return $"{element}";
             }
         }
     }

@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using System.Xml;
 
 namespace DitaDotNet {
-    public abstract class DitaTopicAbstract : DitaFile {
-        protected DitaTopicAbstract(XmlDocument xmlDocument, string filePath) : base(xmlDocument, filePath) {
+    public abstract class DitaFileTopicAbstract : DitaFile {
+        protected DitaFileTopicAbstract(XmlDocument xmlDocument, string filePath) : base(xmlDocument, filePath) {
         }
 
-        public virtual string BodyElementName() {
+        public static string BodyElementName() {
             throw new NotImplementedException();
         }
 

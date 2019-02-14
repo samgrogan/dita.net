@@ -2,11 +2,11 @@
 using System.Xml;
 
 namespace DitaDotNet {
-    public class DitaReferableContent : DitaTopicAbstract {
+    public class DitaFileLanguageReference : DitaFileTopicAbstract {
         #region Class Methods
 
         // Default constructor
-        public DitaReferableContent(XmlDocument xmlDocument, string filePath) : base(xmlDocument, filePath) {
+        public DitaFileLanguageReference(XmlDocument xmlDocument, string filePath) : base(xmlDocument, filePath) {
             // Try to parse the file as a <type>
             if (!Parse()) {
                 throw new Exception($"{FileName} is not parseable as a {this.GetType()}");
@@ -14,15 +14,15 @@ namespace DitaDotNet {
         }
 
         public new bool Parse() {
-            if (Parse("//referable-content", "referable-content")) {
+            if (Parse("//LanguageRef", "LanguageRef")) {
                 return true;
             }
 
             return false;
         }
 
-        public override string BodyElementName() {
-            return "referable-content";
+        public new static string BodyElementName() {
+            return "LanguageBody";
         }
 
         #endregion Class Methods
@@ -32,10 +32,15 @@ namespace DitaDotNet {
         // Does the given DOCTYPE match this object?
         public new static bool IsMatchingDocType(string docType) {
             if (!string.IsNullOrWhiteSpace(docType)) {
-                return (docType.Contains("!DOCTYPE referable-content"));
+                return (docType.Contains("LanguageRef") && docType.Contains("languageref.dtd") && docType.Contains("//DTD DITA Language Reference//"));
             }
 
             return false;
+        }
+
+        // Creates and returns a new object
+        public new static DitaFileLanguageReference Create(XmlDocument xmlDocument, string filePath) {
+            return new DitaFileLanguageReference(xmlDocument, filePath);
         }
 
         #endregion Static Methods
