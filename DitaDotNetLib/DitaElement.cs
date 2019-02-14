@@ -50,20 +50,23 @@ namespace DitaDotNet {
 
         // Returns a list of all the elements of a given type. Only returns elements on the same level
         public List<DitaElement> FindChildren(string type) {
-            return FindChildren(type, this);
+            return FindChildren(new []{type}, this);
         }
 
-        protected List<DitaElement> FindChildren(string type, DitaElement parentElement) {
-            List<DitaElement> result = null;
+        public List<DitaElement> FindChildren(string[] types) {
+            return FindChildren(types, this);
+        }
 
+        protected List<DitaElement> FindChildren(string[] types, DitaElement parentElement) {
+            List<DitaElement> result = null;
             if (IsContainer) {
                 // Are any of our direct children of this type?
-                result = parentElement?.Children?.Where(e => e.Type == type).ToList();
+                result = parentElement?.Children?.Where(e => types.Contains(e.Type)).ToList();
 
                 if (result?.Count == 0) {
                     // Try finding children of children
                     foreach (DitaElement childElement in parentElement.Children) {
-                        result = FindChildren(type, childElement);
+                        result = FindChildren(types, childElement);
                         if (result?.Count != 0) {
                             break;
                         }
@@ -78,7 +81,6 @@ namespace DitaDotNet {
         // If more than 1 is found, throws an exception
         public DitaElement FindOnlyChild(string type) {
             List<DitaElement> children = FindChildren(type);
-
             if (children?.Count > 1) {
                 throw new Exception($"Expected at most one child of type {type} but found {children.Count}");
             }
@@ -86,17 +88,16 @@ namespace DitaDotNet {
             return children?[0];
         }
 
-        // Returns the given attribute value, if it exists, or the default if it doesn't
+// Returns the given attribute value, if it exists, or the default if it doesn't
         public string AttributeValueOrDefault(string key, string defaultValue) {
             return Attributes?.ContainsKey(key) ?? false ? Attributes?[key] : defaultValue;
         }
 
-        // Update references
-        // Find and hrefs that point to an old file name and replace them with a new reference
+// Update references
+// Find and hrefs that point to an old file name and replace them with a new reference
         public void UpdateReferences(string oldFileName, string newFileName) {
             if (oldFileName != newFileName && !string.IsNullOrWhiteSpace(newFileName)) {
-
-                // Are there any href attributes?
+// Are there any href attributes?
                 if (Attributes.ContainsKey("href")) {
                     string href = Attributes["href"];
                     if (href == oldFileName) {
@@ -105,7 +106,7 @@ namespace DitaDotNet {
                     }
                 }
 
-                // Update our children
+// Update our children
                 if (IsContainer) {
                     foreach (DitaElement element in Children) {
                         element.UpdateReferences(oldFileName, newFileName);
@@ -114,15 +115,17 @@ namespace DitaDotNet {
             }
         }
 
-        // Collapses the element to a string
+// Collapses the element to a string
         public override string ToString() {
             if (IsContainer) {
                 StringBuilder concat = new StringBuilder();
                 foreach (DitaElement childElement in Children) {
                     concat.Append($"{childElement} ");
                 }
+
                 return concat.ToString().Trim();
             }
+
             return ExpandInnerText(InnerText);
         }
 
@@ -130,11 +133,10 @@ namespace DitaDotNet {
 
         #region Private Methods
 
-        // Dynamic string substitution
-        // Some elements have rules for adding additional text
+// Dynamic string substitution
+// Some elements have rules for adding additional text
         private string ExpandInnerText(string inputText) {
             string outputText = inputText;
-
             switch (Type) {
                 case "tm":
                     switch (AttributeValueOrDefault("tmtype", "")) {
@@ -143,6 +145,7 @@ namespace DitaDotNet {
                         case "tm":
                             return $"{inputText}™";
                     }
+
                     break;
             }
 
@@ -150,6 +153,5 @@ namespace DitaDotNet {
         }
 
         #endregion
-
     }
 }

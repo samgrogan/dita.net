@@ -71,11 +71,11 @@ namespace DitaDotNet {
                     BodyText = bodyText;
                 }
                 else {
-                    Trace.TraceWarning($"Body element not found in {FileName} ({file.FileName}.");
+                    Trace.TraceWarning($"Body element not found in {FileName} ({file.FileName}).");
                 }
             }
             else {
-                Trace.TraceWarning($"No body element identified in {FileName} ({file.FileName}.");
+                Trace.TraceWarning($"No body element identified in {FileName} ({file.FileName}).");
             }
 
             IsEmpty = string.IsNullOrEmpty(BodyText) || string.IsNullOrEmpty(Title);

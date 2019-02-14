@@ -19,7 +19,9 @@ namespace DitaDotNet {
     }
 
     internal class DitaCollectionJson {
-        private const string CollectionFileName = "collection.json";
+        private readonly string CollectionFileName = "collection.json";
+
+        private readonly string[] RefElements = new[] {"topicref", "mapref"};
 
         #region Properties
 
@@ -226,34 +228,39 @@ namespace DitaDotNet {
             Trace.TraceInformation($"Found link to map {map.NewFileName ?? map.FileName}.");
 
             // Find all the topic references
-            List<DitaCollectionLinkJson> chapters = ParseTopicRefs(map.RootElement.FindChildren("topicref"));
+            List<DitaCollectionLinkJson> chapters = ParseRefs(map.RootElement.FindChildren(RefElements));
 
             return chapters;
         }
 
-        private List<DitaCollectionLinkJson> ParseTopicRefs(List<DitaElement> topicRefElements) {
+        private List<DitaCollectionLinkJson> ParseRefs(List<DitaElement> topicRefElements) {
             List<DitaCollectionLinkJson> chapters = new List<DitaCollectionLinkJson>();
             if (topicRefElements?.Count > 0) {
                 foreach (DitaElement topicRefElement in topicRefElements) {
                     // Try to find the linked file
-                    string topicRefHref = topicRefElement.Attributes["href"];
+                    string topicRefHref = topicRefElement.AttributeValueOrDefault("href", "");
 
-                    // Add references from the linked files
-                    DitaFile linkedFile = Collection.GetFileByName(topicRefHref);
+                    if (!string.IsNullOrWhiteSpace(topicRefHref)) {
+                        // Add references from the linked files
+                        DitaFile linkedFile = Collection.GetFileByName(topicRefHref);
 
-                    List<DitaCollectionLinkJson> newChapters = ParseChaptersFromFile(linkedFile);
+                        List<DitaCollectionLinkJson> newChapters = ParseChaptersFromFile(linkedFile);
 
-                    if (newChapters != null && newChapters.Count > 0) {
-                        // Are there child chapters?
-                        List<DitaCollectionLinkJson> childChapters = ParseTopicRefs(topicRefElement.FindChildren("topicref"));
+                        if (newChapters != null && newChapters.Count > 0) {
+                            // Are there child chapters?
+                            List<DitaCollectionLinkJson> childChapters = ParseRefs(topicRefElement.FindChildren(RefElements));
 
-                        if (newChapters.Count > 1 && childChapters.Count > 0) {
-                            // This should never happen
-                            throw new Exception("Found multiple children in a map and topic refs.");
+                            if (newChapters.Count > 1 && childChapters.Count > 0) {
+                                // This should never happen
+                                throw new Exception("Found multiple children in a map and topic refs.");
+                            }
+
+                            newChapters[0].Children = childChapters;
+                            chapters.AddRange(newChapters);
                         }
-
-                        newChapters[0].Children = childChapters;
-                        chapters.AddRange(newChapters);
+                    }
+                    else {
+                        Trace.TraceWarning($"Reference with missing href: {topicRefElement}");
                     }
                 }
             }
@@ -331,20 +338,6 @@ namespace DitaDotNet {
                 MarkBlankChapterLinks(link.Children);
             }
         }
-
-        // Finds the first non-empty child of the given chapter
-        //private DitaCollectionLinkJson FindFirstNonBlankChild(DitaCollectionLinkJson link) {
-        //    if (link?.Children?.Count > 0) {
-        //        foreach (DitaCollectionLinkJson child in link.Children) {
-        //            // Is the page empty?
-        //            if (!IsLinkToEmptyPage(child, out _)) {
-        //                return child;
-        //            }
-        //        }
-        //    }
-
-        //    return null;
-        //}
 
         // Does the given chapter link point to an empty page?
         private bool IsLinkToEmptyPage(DitaCollectionLinkJson link, out DitaPageJson pageJson) {
