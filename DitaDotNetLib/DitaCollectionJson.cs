@@ -15,6 +15,7 @@ namespace DitaDotNet {
 
         public DitaCollectionLinkJson() {
             Guid = Guid.NewGuid();
+            Children = new List<DitaCollectionLinkJson>();
         }
     }
 
@@ -255,7 +256,10 @@ namespace DitaDotNet {
                                 throw new Exception("Found multiple children in a map and topic refs.");
                             }
 
-                            newChapters[0].Children = childChapters;
+                            if (childChapters != null && childChapters.Count > 0) {
+                                newChapters[0]?.Children?.AddRange(childChapters);
+                            }
+
                             chapters.AddRange(newChapters);
                         }
                     }
@@ -330,12 +334,14 @@ namespace DitaDotNet {
 
 
         private void MarkBlankChapterLinks(List<DitaCollectionLinkJson> chapters) {
-            foreach (DitaCollectionLinkJson link in chapters) {
-                // Is the page empty?
-                link.IsEmpty = IsLinkToEmptyPage(link, out DitaPageJson _);
+            if (chapters != null) {
+                foreach (DitaCollectionLinkJson link in chapters) {
+                    // Is the page empty?
+                    link.IsEmpty = IsLinkToEmptyPage(link, out DitaPageJson _);
 
-                // Remove blanks from the children
-                MarkBlankChapterLinks(link.Children);
+                    // Remove blanks from the children
+                    MarkBlankChapterLinks(link.Children);
+                }
             }
         }
 

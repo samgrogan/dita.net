@@ -235,6 +235,11 @@ namespace DitaDotNet {
             return fileName;
         }
 
+        // Replace pseudo-symbols with the correct character
+        public static string FixSpecialCharacters(string input) {
+            return input?.Replace("(R)", "®").Replace("(r)", "®").Replace("(TM)", "™").Replace("(tm)", "™").Replace("(Tm)", "™").Replace("(tM)", "™");
+        }
+
         #endregion Class Methods
     }
 }

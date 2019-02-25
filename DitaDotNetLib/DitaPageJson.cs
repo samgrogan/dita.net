@@ -40,7 +40,7 @@ namespace DitaDotNet {
             Collection = collection;
 
             // Get the title of the page
-            Title = file.Title;
+            Title = DitaFile.FixSpecialCharacters(file.Title);
 
             // Create the file name
             FileName = file.NewFileName ?? file.FileName;
