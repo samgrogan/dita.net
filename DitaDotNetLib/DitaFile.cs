@@ -203,7 +203,7 @@ namespace DitaDotNet {
         // Converts a title to a file name
         public static string TitleToFileName(string title, string extension) {
             string fileName = null;
-            char[] illegalCharacters = {'/', '\\', '?', '%', '*', ':', '|', '\"', '<', '>', ' ', ',', '_', '\n', '\r', '\t', '#', '+', '.'};
+            char[] illegalCharacters = {'/', '\\', '?', '%', '*', ':', '|', '\"', '<', '>', ' ', ',', '_', '\n', '\r', '\t', '#', '+', '.', '—', '–'};
 
             try {
                 if (!string.IsNullOrWhiteSpace(title)) {

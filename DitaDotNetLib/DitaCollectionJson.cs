@@ -207,7 +207,7 @@ namespace DitaDotNet {
         }
 
         // Parse chapter structure from a dita file
-        private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaFile linkedFile) {
+        private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaFile linkedFile, string navTitle = null) {
             Trace.TraceInformation($"Converting {linkedFile}");
 
             // What type of file is this?
@@ -218,7 +218,7 @@ namespace DitaDotNet {
                 case DitaFileMap map:
                     return ParseChaptersFromMap(map);
                 case DitaFileTopicAbstract topic:
-                    return ParseChaptersFromTopic(topic);
+                    return ParseChaptersFromTopic(topic, navTitle);
             }
 
             return null;
@@ -240,12 +240,13 @@ namespace DitaDotNet {
                 foreach (DitaElement topicRefElement in topicRefElements) {
                     // Try to find the linked file
                     string topicRefHref = topicRefElement.AttributeValueOrDefault("href", "");
+                    string topicRefNavTitle = topicRefElement.AttributeValueOrDefault("navtitle", "");
 
                     if (!string.IsNullOrWhiteSpace(topicRefHref)) {
                         // Add references from the linked files
                         DitaFile linkedFile = Collection.GetFileByName(topicRefHref);
 
-                        List<DitaCollectionLinkJson> newChapters = ParseChaptersFromFile(linkedFile);
+                        List<DitaCollectionLinkJson> newChapters = ParseChaptersFromFile(linkedFile, topicRefNavTitle);
 
                         if (newChapters != null && newChapters.Count > 0) {
                             // Are there child chapters?
@@ -274,7 +275,7 @@ namespace DitaDotNet {
 
 
         // Parse chapter structure from a dita topic (leaf node)
-        private List<DitaCollectionLinkJson> ParseChaptersFromTopic(DitaFileTopicAbstract topic) {
+        private List<DitaCollectionLinkJson> ParseChaptersFromTopic(DitaFileTopicAbstract topic, string navTitle = null) {
             List<DitaCollectionLinkJson> chapters = new List<DitaCollectionLinkJson>();
 
             try {
@@ -285,7 +286,7 @@ namespace DitaDotNet {
                 // Add this chapter to the toc for this page
                 DitaCollectionLinkJson chapter = new DitaCollectionLinkJson {
                     FileName = topicPage.FileName,
-                    Title = topicPage.Title
+                    Title = navTitle ?? topicPage.Title
                 };
                 chapters.Add(chapter);
 
