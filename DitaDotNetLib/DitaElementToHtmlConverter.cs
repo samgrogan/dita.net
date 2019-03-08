@@ -107,7 +107,7 @@ namespace DitaDotNet {
                     return "";
                 case "entry":
                     TableRowColumnIndex++;
-                    if (element.Parent?.Parent?.Type == "thead") {
+                    if (element.Parent?.Parent?.Type == "thead" || element.AttributeValueOrDefault("class","") == "th") {
                         return "th";
                     }
 
