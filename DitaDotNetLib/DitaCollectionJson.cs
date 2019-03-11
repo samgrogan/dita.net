@@ -109,8 +109,15 @@ namespace DitaDotNet {
         // Build the internal structure based on a map
         private void ParseMap() {
             try {
+                // Read the title
                 BookTitle.Add("mainbooktitle", RootMap.Title);
-                BookMeta.Add("document title", RootMap.Title);
+
+                // Read the matadata
+                ParseMapMeta();
+
+                if (!BookMeta.ContainsKey("document title")) {
+                    BookMeta.Add("document title", RootMap.Title);
+                }
 
                 // Add the chapters
                 Chapters.AddRange(ParseChaptersFromFile(RootMap));
@@ -128,7 +135,7 @@ namespace DitaDotNet {
             AddChildDitaElementTextToDictionary(titleElement, "booktitlealt", BookTitle);
         }
 
-        // Parse the book meta date from the book map
+        // Parse the book meta data from the book map
         private void ParseBookMapBookMeta() {
             DitaElement bookMetaElement = RootMap.RootElement.FindOnlyChild("bookmeta");
 
@@ -147,15 +154,29 @@ namespace DitaDotNet {
             }
         }
 
+        // Parse the  meta date from the map
+        private void ParseMapMeta() {
+            DitaElement bookMetaElement = RootMap.RootElement.FindOnlyChild("topicmeta");
+
+            // Everything in category
+
+            List<DitaElement> categoryData = bookMetaElement?.FindOnlyChild("category")?.Children;
+            if (categoryData != null) {
+                foreach (DitaElement data in categoryData) {
+                    if (data?.Attributes["name"] != null) {
+                        BookMeta.Add(data?.Attributes["name"], data?.Attributes["value"]);
+                    }
+                }
+            }
+        }
+
         // Parse the version of the document
         private void ParseBookMapVersion(DitaElement bookMetaElement) {
-            string version = string.Empty;
-
             // Try checking the publisher information section
             DitaElement publisherInformationElement = bookMetaElement?.FindOnlyChild("publisherinformation");
             DitaElement publishedElement = publisherInformationElement?.FindOnlyChild("published");
             DitaElement revisionIdElement = publishedElement?.FindOnlyChild("revisionid");
-            version = revisionIdElement?.ToString();
+            string version = revisionIdElement?.ToString();
 
             // Try checking the prodinfo section
             if (string.IsNullOrWhiteSpace(version) || version == "ProductVersionNumber") {
@@ -242,9 +263,17 @@ namespace DitaDotNet {
                     string topicRefHref = topicRefElement.AttributeValueOrDefault("href", "");
                     string topicRefNavTitle = topicRefElement.AttributeValueOrDefault("navtitle", "");
 
+                    // If there is no navtitle, check the topicmeta
+                    if (string.IsNullOrWhiteSpace(topicRefNavTitle)) {
+                        topicRefNavTitle = topicRefElement?.FindOnlyChild("topicmeta")?.FindOnlyChild("navtitle")?.ToString();
+                    }
+
                     if (!string.IsNullOrWhiteSpace(topicRefHref)) {
                         // Add references from the linked files
                         DitaFile linkedFile = Collection.GetFileByName(topicRefHref);
+                        if (string.IsNullOrWhiteSpace(linkedFile.Title)) {
+                            linkedFile.Title = topicRefNavTitle;
+                        }
 
                         List<DitaCollectionLinkJson> newChapters = ParseChaptersFromFile(linkedFile, topicRefNavTitle);
 
