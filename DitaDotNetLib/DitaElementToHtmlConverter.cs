@@ -107,7 +107,7 @@ namespace DitaDotNet {
                     return "";
                 case "entry":
                     TableRowColumnIndex++;
-                    if (element.Parent?.Parent?.Type == "thead" || element.AttributeValueOrDefault("class","") == "th") {
+                    if (element.Parent?.Parent?.Type == "thead" || element.AttributeValueOrDefault("class", "") == "th") {
                         return "th";
                     }
 
@@ -358,9 +358,22 @@ namespace DitaDotNet {
                 // Is this a pdf?
                 if (Path.GetExtension(inputHref) == ".pdf") {
                     outputHref = Path.ChangeExtension(inputHref, ".png");
-                    if (outputHref.Contains("-high")) {
-                        // Fixes an issue where source png files are converted to pdf - we want to go back to the source pngs
-                        outputHref = outputHref.Replace("-high", "-source");
+
+                    // Does file exist
+                    if (Collection.GetFileByName(outputHref) == null) {
+                        // Try replacing -high with -source
+                        if (outputHref.Contains("-high")) {
+                            // Fixes an issue where source png files are converted to pdf - we want to go back to the source pngs
+                            outputHref = outputHref.Replace("-high", "-source");
+                        }
+
+                        if (Collection.GetFileByName(outputHref) == null) {
+                            // Try replacing -source with -low
+                            if (outputHref.Contains("-source")) {
+                                // Fixes an issue where source png files are converted to pdf - we want to go back to the source pngs
+                                outputHref = outputHref.Replace("-source", "-low");
+                            }
+                        }
                     }
                 }
             }
