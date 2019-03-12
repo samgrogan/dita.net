@@ -28,11 +28,11 @@ namespace DitaDotNet {
         // Maintain the states of the current table
 
         private int TableColumnIndex { get; set; }
-        private DitaTableColumnSpec[] TableColumnSpecs { get; set; }
+        private DitaTableColumnSpec[] _tableColumnSpecs;
         private int TableRowColumnIndex { get; set; }
         private List<DitaPageSectionJson> Sections { get; set; }
         private DitaPageSectionJson CurrentSection { get; set; }
-
+        private string FileName { get; set; }
         #endregion Properties
 
         #region Public Methods
@@ -41,9 +41,10 @@ namespace DitaDotNet {
             Collection = collection;
         }
 
-        public bool Convert(DitaElement bodyElement, List<DitaPageSectionJson> sections, out string body) {
+        public bool Convert(DitaElement bodyElement, List<DitaPageSectionJson> sections, string fileName, out string body) {
             StringBuilder bodyStringBuilder = new StringBuilder();
             Sections = sections;
+            FileName = fileName;
 
             if (bodyElement != null) {
                 if (bodyElement.IsContainer) {
@@ -102,14 +103,10 @@ namespace DitaDotNet {
                 case "b": return "strong";
                 case "colspec":
                     TableColumnIndex++;
-                    if (TableColumnSpecs != null && TableColumnIndex < (TableColumnSpecs?.Length ?? 0)) {
-                        TableColumnSpecs[TableColumnIndex] = new DitaTableColumnSpec {
-                            Number = (TableColumnIndex + 1)
-                        };
-                    }
-                    else {
-                        Trace.TraceError($"colspec mismatch in {element}");
-                    }
+                    FixUpTableColumnSpecs();
+                    _tableColumnSpecs[TableColumnIndex] = new DitaTableColumnSpec {
+                        Number = (TableColumnIndex + 1)
+                    };
 
                     return "";
                 case "entry":
@@ -126,11 +123,11 @@ namespace DitaDotNet {
                     return "tr";
                 case "table":
                     TableColumnIndex = -1;
-                    TableColumnSpecs = null;
+                    _tableColumnSpecs = null;
                     break;
                 case "tgroup":
                     TableColumnIndex = -1;
-                    TableColumnSpecs = null;
+                    _tableColumnSpecs = null;
                     return "";
                 case "title":
                     if (element.Parent?.Type == "section") {
@@ -176,31 +173,19 @@ namespace DitaDotNet {
                     return (key, value);
                 case "colspec":
                     if (key == "colname") {
-                        if (TableColumnSpecs != null && TableColumnIndex < (TableColumnSpecs?.Length ?? 0)) {
-                            TableColumnSpecs[TableColumnIndex].Name = value;
-                        }
-                        else {
-                            Trace.TraceError($"colname mismatch in {element}");
-                        }
+                        FixUpTableColumnSpecs();
+                        _tableColumnSpecs[TableColumnIndex].Name = value;
                     }
 
                     if (key == "colwidth") {
-                        if (TableColumnSpecs != null && TableColumnIndex < (TableColumnSpecs?.Length ?? 0)) {
-                            TableColumnSpecs[TableColumnIndex].Width = value;
-                        }
-                        else {
-                            Trace.TraceError($"colwidth mismatch in {element}");
-                        }
+                        FixUpTableColumnSpecs();
+                        _tableColumnSpecs[TableColumnIndex].Width = value;
                     }
 
                     if (key == "colnum") {
                         if (int.TryParse(value, out int colnum)) {
-                            if (TableColumnSpecs != null && TableColumnIndex < (TableColumnSpecs?.Length ?? 0)) {
-                                TableColumnSpecs[TableColumnIndex].Number = colnum;
-                            }
-                            else {
-                                Trace.TraceError($"colnum mismatch in {element}");
-                            }
+                            FixUpTableColumnSpecs();
+                            _tableColumnSpecs[TableColumnIndex].Number = colnum;
                         }
                     }
 
@@ -233,7 +218,7 @@ namespace DitaDotNet {
                 case "tgroup":
                     if (key == "cols") {
                         if (int.TryParse(value, out int columns)) {
-                            TableColumnSpecs = new DitaTableColumnSpec[columns];
+                            _tableColumnSpecs = new DitaTableColumnSpec[columns];
                         }
                     }
 
@@ -271,7 +256,7 @@ namespace DitaDotNet {
                     if (element.Attributes.ContainsKey("colname")) {
                         string colname = element.Attributes["colname"];
                         if (!htmlAttributes.ContainsKey("width")) {
-                            string widthAsPercent = TableColumnSpecs?.FirstOrDefault(o => o?.Name == colname)?.WidthAsPercent();
+                            string widthAsPercent = _tableColumnSpecs?.FirstOrDefault(o => o?.Name == colname)?.WidthAsPercent();
                             if (!string.IsNullOrEmpty(widthAsPercent)) {
                                 htmlAttributes.Add("width", widthAsPercent);
                             }
@@ -281,8 +266,8 @@ namespace DitaDotNet {
                     // If there is a colspan defined, add it to the entry
                     if (element.Attributes.ContainsKey("namest") && element.Attributes.ContainsKey("nameend")) {
                         // Build the colspan
-                        int startColumn = TableColumnSpecs?.FirstOrDefault(o => o.Name == element.Attributes["namest"])?.Number ?? -1;
-                        int endColumn = TableColumnSpecs?.FirstOrDefault(o => o.Name == element.Attributes["nameend"])?.Number ?? -1;
+                        int startColumn = _tableColumnSpecs?.FirstOrDefault(o => o.Name == element.Attributes["namest"])?.Number ?? -1;
+                        int endColumn = _tableColumnSpecs?.FirstOrDefault(o => o.Name == element.Attributes["nameend"])?.Number ?? -1;
 
                         if (startColumn >= 0 && endColumn >= 0) {
                             if (!htmlAttributes.ContainsKey("colspan")) {
@@ -418,6 +403,21 @@ namespace DitaDotNet {
             }
 
             return null;
+        }
+
+        // Does any fix up needed for the TableColumnSpecs due to markup errors
+        private void FixUpTableColumnSpecs() {
+            if (_tableColumnSpecs == null) {
+                if (TableColumnIndex >= 0) {
+                    _tableColumnSpecs = new DitaTableColumnSpec[TableColumnIndex+1];
+                }
+            }
+            else {
+                if (TableColumnIndex >= _tableColumnSpecs.Length) {
+                    Array.Resize(ref _tableColumnSpecs, TableColumnIndex + 1);
+                    Trace.TraceWarning($"Resized table column specs in {FileName}");
+                }
+            }
         }
 
         #endregion Private Methods

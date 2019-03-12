@@ -62,7 +62,7 @@ namespace DitaDotNet {
 
                     // Convert the body to html
                     DitaElementToHtmlConverter htmlConverter = new DitaElementToHtmlConverter(collection);
-                    htmlConverter.Convert(bodyElement, Sections, out string bodyHtml);
+                    htmlConverter.Convert(bodyElement, Sections, file.FileName, out string bodyHtml);
                     BodyHtml = bodyHtml;
 
                     // Convert the body to text
