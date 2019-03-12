@@ -30,13 +30,17 @@ namespace DitaDotNet {
         public Dictionary<string, string> BookMeta { get; set; }
         public List<DitaCollectionLinkJson> Chapters { get; set; }
 
-        [JsonIgnore] public List<DitaPageJson> Pages { get; set; }
+        [JsonIgnore]
+        public List<DitaPageJson> Pages { get; set; }
 
-        [JsonIgnore] public List<DitaFileImage> Images => Collection?.GetImages();
+        [JsonIgnore]
+        public List<DitaFileImage> Images => Collection?.GetImages();
 
-        [JsonIgnore] private DitaCollection Collection { get; set; }
+        [JsonIgnore]
+        private DitaCollection Collection { get; set; }
 
-        [JsonIgnore] private DitaFile RootMap { get; set; }
+        [JsonIgnore]
+        private DitaFile RootMap { get; set; }
 
         #endregion Properties
 
@@ -159,14 +163,18 @@ namespace DitaDotNet {
             DitaElement bookMetaElement = RootMap.RootElement.FindOnlyChild("topicmeta");
 
             // Everything in category
-
-            List<DitaElement> categoryData = bookMetaElement?.FindOnlyChild("category")?.Children;
-            if (categoryData != null) {
-                foreach (DitaElement data in categoryData) {
-                    if (data?.Attributes["name"] != null) {
-                        BookMeta.Add(data?.Attributes["name"], data?.Attributes["value"]);
+            try {
+                List<DitaElement> categoryData = bookMetaElement?.FindOnlyChild("category")?.Children;
+                if (categoryData != null) {
+                    foreach (DitaElement data in categoryData) {
+                        if (data?.Attributes["name"] != null) {
+                            BookMeta.Add(data?.Attributes["name"], data?.Attributes["value"]);
+                        }
                     }
                 }
+            }
+            catch (Exception ex) {
+                Trace.TraceError(ex);
             }
         }
 
@@ -261,6 +269,7 @@ namespace DitaDotNet {
                 foreach (DitaElement topicRefElement in topicRefElements) {
                     // Try to find the linked file
                     string topicRefHref = topicRefElement.AttributeValueOrDefault("href", "");
+                    string topicRefKeyRef = topicRefElement.AttributeValueOrDefault("keyref", "");
                     string topicRefNavTitle = topicRefElement.AttributeValueOrDefault("navtitle", "");
 
                     // If there is no navtitle, check the topicmeta
@@ -268,13 +277,21 @@ namespace DitaDotNet {
                         topicRefNavTitle = topicRefElement?.FindOnlyChild("topicmeta")?.FindOnlyChild("navtitle")?.ToString();
                     }
 
+                    DitaFile linkedFile = null;
                     if (!string.IsNullOrWhiteSpace(topicRefHref)) {
-                        // Add references from the linked files
-                        DitaFile linkedFile = Collection.GetFileByName(topicRefHref);
+                        linkedFile = Collection.GetFileByName(topicRefHref);
+                    }
+                    // If no href, try to find by keyref
+                    if (linkedFile == null && !string.IsNullOrWhiteSpace(topicRefKeyRef)) {
+                        linkedFile = Collection.GetFileByKey(topicRefKeyRef);
+                    }
+
+                    if (linkedFile != null) {
                         if (string.IsNullOrWhiteSpace(linkedFile.Title)) {
                             linkedFile.Title = topicRefNavTitle;
                         }
 
+                        // Add references from the linked files
                         List<DitaCollectionLinkJson> newChapters = ParseChaptersFromFile(linkedFile, topicRefNavTitle);
 
                         if (newChapters != null && newChapters.Count > 0) {
@@ -294,7 +311,7 @@ namespace DitaDotNet {
                         }
                     }
                     else {
-                        Trace.TraceWarning($"Reference with missing href: {topicRefElement}");
+                        Trace.TraceWarning($"Reference with missing href/keyref: {topicRefElement}");
                     }
                 }
             }
@@ -321,7 +338,7 @@ namespace DitaDotNet {
 
                 Trace.TraceInformation($"Found link to topic {chapter.FileName}.");
             }
-            catch {
+            catch (Exception ex) {
                 Trace.TraceError($"Error parsing topic {topic.FileName}");
             }
 

@@ -50,7 +50,7 @@ namespace DitaDotNet {
 
         // Returns a list of all the elements of a given type. Only returns elements on the same level
         public List<DitaElement> FindChildren(string type) {
-            return FindChildren(new []{type}, this);
+            return FindChildren(new[] {type}, this);
         }
 
         public List<DitaElement> FindChildren(string[] types) {
@@ -88,16 +88,16 @@ namespace DitaDotNet {
             return children?[0];
         }
 
-// Returns the given attribute value, if it exists, or the default if it doesn't
+        // Returns the given attribute value, if it exists, or the default if it doesn't
         public string AttributeValueOrDefault(string key, string defaultValue) {
             return Attributes?.ContainsKey(key) ?? false ? Attributes?[key] : defaultValue;
         }
 
-// Update references
-// Find and hrefs that point to an old file name and replace them with a new reference
+        // Update references
+        // Find and hrefs that point to an old file name and replace them with a new reference
         public void UpdateReferences(string oldFileName, string newFileName) {
             if (oldFileName != newFileName && !string.IsNullOrWhiteSpace(newFileName)) {
-// Are there any href attributes?
+                // Are there any href attributes?
                 if (Attributes.ContainsKey("href")) {
                     string href = Attributes["href"];
                     if (href == oldFileName) {
@@ -106,7 +106,7 @@ namespace DitaDotNet {
                     }
                 }
 
-// Update our children
+                // Update our children
                 if (IsContainer) {
                     foreach (DitaElement element in Children) {
                         element.UpdateReferences(oldFileName, newFileName);
@@ -115,7 +115,7 @@ namespace DitaDotNet {
             }
         }
 
-// Collapses the element to a string
+        // Collapses the element to a string
         public override string ToString() {
             if (IsContainer) {
                 StringBuilder concat = new StringBuilder();
@@ -126,15 +126,20 @@ namespace DitaDotNet {
                 return concat.ToString().Trim();
             }
 
-            return ExpandInnerText(InnerText);
+            string expanded = ExpandInnerText(InnerText);
+            if (!string.IsNullOrEmpty(expanded)) {
+                return expanded;
+            }
+
+            return $"<{Type}>";
         }
 
         #endregion Class Methods
 
         #region Private Methods
 
-// Dynamic string substitution
-// Some elements have rules for adding additional text
+        // Dynamic string substitution
+        // Some elements have rules for adding additional text
         private string ExpandInnerText(string inputText) {
             string outputText = inputText;
             switch (Type) {

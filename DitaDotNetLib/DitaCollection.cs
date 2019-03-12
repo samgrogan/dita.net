@@ -171,6 +171,21 @@ namespace DitaDotNet {
             return Files.FirstOrDefault((file) => (file.FileName == fileName || file.NewFileName == fileName || Path.GetFileNameWithoutExtension(file.FileName) == fileName));
         }
 
+        // Tries to find a reference to a key with the given name
+        public DitaFile GetFileByKey(string keys) {
+            foreach (DitaFile file in Files) {
+                if (file.KeyDefs.ContainsKey(keys)) {
+                    DitaKeyDef keyDef = file.KeyDefs[keys];
+                    if (!string.IsNullOrWhiteSpace(keyDef.Href)) {
+                        return GetFileByName(keyDef.Href);
+                    }
+                }
+            }
+
+            Trace.TraceWarning($"No keydef found for {keys}");
+            return null;
+        }
+
         #endregion Public Methods
 
         #region Private Methods

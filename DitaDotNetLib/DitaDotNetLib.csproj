@@ -49,6 +49,7 @@
     <Compile Include="DitaFileOptionRef.cs" />
     <Compile Include="DitaFileReferableContent.cs" />
     <Compile Include="DitaFileLanguageReference.cs" />
+    <Compile Include="DitaKeyDef.cs" />
     <Compile Include="DitaPageSectionJson.cs" />
     <Compile Include="DitaFileTask.cs" />
     <Compile Include="DitaFileReference.cs" />

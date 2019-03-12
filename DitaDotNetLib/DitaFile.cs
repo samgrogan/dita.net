@@ -76,6 +76,9 @@ namespace DitaDotNet {
         // The title of the file
         public string Title { get; set; }
 
+        // Does this file define key references
+        public Dictionary<string, DitaKeyDef> KeyDefs { get; set; }
+
         #endregion Properties
 
         #region Class Methods
@@ -88,20 +91,19 @@ namespace DitaDotNet {
             NewFileName = null;
             RootElement = null;
             Title = null;
+            KeyDefs = new Dictionary<string, DitaKeyDef>();
         }
 
         // Constructor for just a path
-        public DitaFile(string filePath) {
+        public DitaFile(string filePath) : this() {
             FilePath = filePath;
             FileName = Path.GetFileName(filePath);
         }
 
         // Constructor with an XmlDocument and its path
-        public DitaFile(XmlDocument xmlDocument, string filePath) {
+        public DitaFile(XmlDocument xmlDocument, string filePath) : this(filePath) {
             // Store the raw xml and path
             XmlDocument = xmlDocument;
-            FilePath = filePath;
-            FileName = Path.GetFileName(filePath);
             Title = FileName;
         }
 
@@ -129,6 +131,8 @@ namespace DitaDotNet {
                 RootElement = converter.Convert(queryNodes[0]);
 
                 SetTitleFromXml();
+
+                ParseKeyDefs();
 
                 return true;
             }
@@ -159,6 +163,28 @@ namespace DitaDotNet {
 
         public override string ToString() {
             return NewFileName ?? FileName;
+        }
+
+        // If there are any keys defined in this file, store them in a dictionary for easy use
+        public void ParseKeyDefs() {
+            List<DitaElement> keyDefElements = RootElement.FindChildren("keydef");
+            if (keyDefElements != null) {
+                foreach (DitaElement keyDefElement in keyDefElements) {
+                    DitaKeyDef keyDef = new DitaKeyDef {
+                        Format = keyDefElement.AttributeValueOrDefault("format", ""), 
+                        Href = keyDefElement.AttributeValueOrDefault("href", ""),
+                        Keys = keyDefElement.AttributeValueOrDefault("keys", ""),
+                        Scope = keyDefElement.AttributeValueOrDefault("scope", "")
+                    };
+
+                    if (!KeyDefs.ContainsKey(keyDef.Keys)) {
+                        KeyDefs.Add(keyDef.Keys, keyDef);
+                    }
+                    else {
+                        Trace.TraceWarning($"Duplicate keyref {keyDef.Keys}");
+                    }
+                }
+            }
         }
 
         #endregion Class Methods
@@ -240,6 +266,6 @@ namespace DitaDotNet {
             return input?.Replace("(R)", "®").Replace("(r)", "®").Replace("(TM)", "™").Replace("(tm)", "™").Replace("(Tm)", "™").Replace("(tM)", "™");
         }
 
-        #endregion Class Methods
+        #endregion Static Methods
     }
 }

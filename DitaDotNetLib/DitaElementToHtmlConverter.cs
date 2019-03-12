@@ -102,8 +102,15 @@ namespace DitaDotNet {
                 case "b": return "strong";
                 case "colspec":
                     TableColumnIndex++;
-                    TableColumnSpecs[TableColumnIndex] = new DitaTableColumnSpec();
-                    TableColumnSpecs[TableColumnIndex].Number = (TableColumnIndex + 1);
+                    if (TableColumnSpecs != null && TableColumnIndex < (TableColumnSpecs?.Length ?? 0)) {
+                        TableColumnSpecs[TableColumnIndex] = new DitaTableColumnSpec {
+                            Number = (TableColumnIndex + 1)
+                        };
+                    }
+                    else {
+                        Trace.TraceError($"colspec mismatch in {element}");
+                    }
+
                     return "";
                 case "entry":
                     TableRowColumnIndex++;
@@ -121,7 +128,10 @@ namespace DitaDotNet {
                     TableColumnIndex = -1;
                     TableColumnSpecs = null;
                     break;
-                case "tgroup": return "";
+                case "tgroup":
+                    TableColumnIndex = -1;
+                    TableColumnSpecs = null;
+                    return "";
                 case "title":
                     if (element.Parent?.Type == "section") {
                         // Create a reference to this section, if this is the title of the section
@@ -166,16 +176,31 @@ namespace DitaDotNet {
                     return (key, value);
                 case "colspec":
                     if (key == "colname") {
-                        TableColumnSpecs[TableColumnIndex].Name = value;
+                        if (TableColumnSpecs != null && TableColumnIndex < (TableColumnSpecs?.Length ?? 0)) {
+                            TableColumnSpecs[TableColumnIndex].Name = value;
+                        }
+                        else {
+                            Trace.TraceError($"colname mismatch in {element}");
+                        }
                     }
 
                     if (key == "colwidth") {
-                        TableColumnSpecs[TableColumnIndex].Width = value;
+                        if (TableColumnSpecs != null && TableColumnIndex < (TableColumnSpecs?.Length ?? 0)) {
+                            TableColumnSpecs[TableColumnIndex].Width = value;
+                        }
+                        else {
+                            Trace.TraceError($"colwidth mismatch in {element}");
+                        }
                     }
 
                     if (key == "colnum") {
                         if (int.TryParse(value, out int colnum)) {
-                            TableColumnSpecs[TableColumnIndex].Number = colnum;
+                            if (TableColumnSpecs != null && TableColumnIndex < (TableColumnSpecs?.Length ?? 0)) {
+                                TableColumnSpecs[TableColumnIndex].Number = colnum;
+                            }
+                            else {
+                                Trace.TraceError($"colnum mismatch in {element}");
+                            }
                         }
                     }
 
