@@ -11,14 +11,14 @@ namespace DitaDotNet {
         public string Type { get; private set; }
 
         // What attributes does this element have
-        public Dictionary<string, string> Attributes { get; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Attributes { get; private set; } = new Dictionary<string, string>();
 
         // Is this element a container for other elements?
-        public bool IsContainer { get; } = false;
+        public bool IsContainer { get; private set; } = false;
 
         // The children of this elements
         // Only available if this is a container
-        public List<DitaElement> Children { get; } = null;
+        public List<DitaElement> Children { get; private set; } = null;
 
         // The parent of this element
         public DitaElement Parent { get; set; }
@@ -28,7 +28,7 @@ namespace DitaDotNet {
 
         // The inner text of the element
         // Only available if this is *not* a container
-        public string InnerText { get; } = null;
+        public string InnerText { get; private set; } = null;
 
         #endregion Properties
 
@@ -132,6 +132,20 @@ namespace DitaDotNet {
             }
 
             return $"<{Type}>";
+        }
+
+        // Replaces the values in this element with those copied from another element
+        public void Copy(DitaElement sourceElement) {
+            Type = sourceElement.Type;
+            Attributes = sourceElement.Attributes;
+            IsContainer = sourceElement.IsContainer;
+            Children = sourceElement.Children;
+            InnerText = sourceElement.InnerText;
+        }
+
+        // Set the inner text
+        public void SetInnerText(string innerText) {
+            InnerText = ExpandInnerText(innerText);
         }
 
         #endregion Class Methods

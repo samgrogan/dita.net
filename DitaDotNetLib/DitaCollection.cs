@@ -24,67 +24,11 @@ namespace DitaDotNet {
 
         #region Public Methods
 
-        public DitaCollection() {
+        public DitaCollection(string input) {
             Files = new List<DitaFile>();
-        }
-
-        // Loads all of the DITA files and supports from the given directory
-        public void LoadDirectory(string input) {
-            // Get a list of all the files in the directory
-            string[] files = Directory.GetFiles(input);
-            if (files.Length > 0) {
-                Trace.TraceInformation($"Checking {files.Length} files...");
-
-                foreach (string file in files) {
-                    try {
-                        DitaFile ditaFile = LoadFile(file);
-                        Files.Add(ditaFile);
-                    }
-                    catch {
-                        Trace.TraceWarning($"Unable to load file {file}");
-                    }
-                }
-
-                Trace.TraceInformation($"Found {FileCount} valid DITA files.");
-                Trace.TraceInformation($"- {GetBookMaps().Count} bookmaps.");
-                Trace.TraceInformation($"- {GetMaps().Count} maps.");
-                Trace.TraceInformation($"- {GetTopics().Count} topics.");
-                Trace.TraceInformation($"- {GetImages().Count} images.");
-            }
-            else {
-                Trace.TraceWarning($"No files found in directory {input}");
-            }
-        }
-
-        // Load a single file
-        public DitaFile LoadFile(string filePath) {
-            // Look for known extensions
-            // Is this an image?
-            if (Path.HasExtension(filePath)) {
-                string extension = Path.GetExtension(filePath)?.ToLower();
-                if (DitaFileImage.Extensions.Contains(extension)) {
-                    DitaFileImage image = new DitaFileImage(filePath);
-                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaFileImage)}");
-                    return image;
-                }
-            }
-
-            // Try to load the given file
-
-            try {
-                // Try to load as an XML document
-                XmlDocument xmlDocument = DitaFile.LoadAndCheckType(filePath, out Type fileType);
-
-                // Create a new object of the correct type
-                if (DitaFile.DitaFileTypeCreation.ContainsKey(fileType)) {
-                    return DitaFile.DitaFileTypeCreation[fileType](xmlDocument, filePath);
-                }
-            }
-            catch {
-                Trace.TraceWarning($"Unable to load {filePath} as XML.");
-            }
-
-            throw new Exception($"{filePath} is an unknown file type.");
+            LoadDirectory(input);
+            ResolveConRefs();
+            ResolveKeywords();
         }
 
         // Returns the list of Dita Book Maps in the collection
@@ -163,7 +107,7 @@ namespace DitaDotNet {
             }
 
             // Update references from old to new file names
-            UpdateReferences();
+            UpdateRenamedFileReferences();
         }
 
         // Gets a file in the collection with the given name
@@ -186,12 +130,83 @@ namespace DitaDotNet {
             return null;
         }
 
+        // Tries to find a keyref from a given key
+        public DitaKeyDef GetKeyDefByKey(string keys) {
+            foreach (DitaFile file in Files) {
+                if (file.KeyDefs.ContainsKey(keys)) {
+                    return file.KeyDefs[keys];
+                }
+            }
+
+            Trace.TraceWarning($"No keydef found for {keys}");
+            return null;
+        }
+
         #endregion Public Methods
 
         #region Private Methods
 
+        // Loads all of the DITA files and supports from the given directory
+        private void LoadDirectory(string input) {
+            // Get a list of all the files in the directory
+            string[] files = Directory.GetFiles(input);
+            if (files.Length > 0) {
+                Trace.TraceInformation($"Checking {files.Length} files...");
+
+                foreach (string file in files) {
+                    try {
+                        DitaFile ditaFile = LoadFile(file);
+                        Files.Add(ditaFile);
+                    }
+                    catch {
+                        Trace.TraceWarning($"Unable to load file {file}");
+                    }
+                }
+
+                Trace.TraceInformation($"Found {FileCount} valid DITA files.");
+                Trace.TraceInformation($"- {GetBookMaps().Count} bookmaps.");
+                Trace.TraceInformation($"- {GetMaps().Count} maps.");
+                Trace.TraceInformation($"- {GetTopics().Count} topics.");
+                Trace.TraceInformation($"- {GetImages().Count} images.");
+            }
+            else {
+                Trace.TraceWarning($"No files found in directory {input}");
+            }
+        }
+
+        // Load a single file
+        private DitaFile LoadFile(string filePath) {
+            // Look for known extensions
+            // Is this an image?
+            if (Path.HasExtension(filePath)) {
+                string extension = Path.GetExtension(filePath)?.ToLower();
+                if (DitaFileImage.Extensions.Contains(extension)) {
+                    DitaFileImage image = new DitaFileImage(filePath);
+                    Trace.TraceInformation($"{Path.GetFileName(filePath)} is a {typeof(DitaFileImage)}");
+                    return image;
+                }
+            }
+
+            // Try to load the given file
+
+            try {
+                // Try to load as an XML document
+                XmlDocument xmlDocument = DitaFile.LoadAndCheckType(filePath, out Type fileType);
+
+                // Create a new object of the correct type
+                if (DitaFile.DitaFileTypeCreation.ContainsKey(fileType)) {
+                    return DitaFile.DitaFileTypeCreation[fileType](xmlDocument, filePath);
+                }
+            }
+            catch (Exception ex) {
+                Trace.TraceWarning($"Unable to load {filePath} as XML.");
+            }
+
+            throw new Exception($"{filePath} is an unknown file type.");
+        }
+
         // Update all references in the collection from old file name to new file name
-        private void UpdateReferences() {
+        private void UpdateRenamedFileReferences() {
             // Loop through each file and update references if the file has changed
             Parallel.ForEach(Files, (fileRenamed) => {
                 if (fileRenamed.FileName != fileRenamed.NewFileName && !string.IsNullOrWhiteSpace(fileRenamed.NewFileName)) {
@@ -199,6 +214,20 @@ namespace DitaDotNet {
                     Parallel.ForEach(Files, (file) => { file.RootElement?.UpdateReferences(fileRenamed.FileName, fileRenamed.NewFileName); });
                 }
             });
+        }
+
+        // Resolve conrefs by copying content to the appropriate places
+        private void ResolveConRefs() {
+            foreach (DitaFile file in Files) {
+                file.ResolveConRefs(this);
+            }
+        }
+
+        // Resolve keywords references
+        private void ResolveKeywords() {
+            foreach (DitaFile file in Files) {
+                file.ResolveKeywords(this);
+            }
         }
 
         #endregion

@@ -12,6 +12,8 @@ namespace DitaDotNet {
         public string Format { get; set; }
         public string Keys { get; set; }
         public string Scope { get; set; }
+        public string ProcessingRole { get; set; }
+        public string Keywords { get; set; }
 
         #endregion Properties
     }

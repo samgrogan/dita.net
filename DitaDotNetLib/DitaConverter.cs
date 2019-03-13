@@ -17,8 +17,7 @@ namespace DitaDotNet {
                 VerifyOutputPath(output);
 
                 // Try to load all of the input files
-                Collection = new DitaCollection();
-                Collection.LoadDirectory(input);
+                Collection = new DitaCollection(input);
 
                 // Find the rootmap
                 FindRootMap(rootMapFile);

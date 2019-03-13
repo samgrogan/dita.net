@@ -18,8 +18,7 @@ namespace DitaDotNet {
 
             try {
                 // Try to load all of the input files
-                DitaCollection collection = new DitaCollection();
-                collection.LoadDirectory(input);
+                DitaCollection collection = new DitaCollection(input);
 
                 return true;
             }

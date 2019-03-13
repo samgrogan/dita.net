@@ -77,7 +77,10 @@ namespace DitaDotNet {
         public string Title { get; set; }
 
         // Does this file define key references
-        public Dictionary<string, DitaKeyDef> KeyDefs { get; set; }
+        public Dictionary<string, DitaKeyDef> KeyDefs { get; }
+
+        // An index of elements in the document, by id
+        public Dictionary<string, DitaElement> ElementsById { get; }
 
         #endregion Properties
 
@@ -92,6 +95,7 @@ namespace DitaDotNet {
             RootElement = null;
             Title = null;
             KeyDefs = new Dictionary<string, DitaKeyDef>();
+            ElementsById = new Dictionary<string, DitaElement>();
         }
 
         // Constructor for just a path
@@ -134,6 +138,8 @@ namespace DitaDotNet {
 
                 ParseKeyDefs();
 
+                ParseElementIds(RootElement);
+
                 return true;
             }
             catch (Exception ex) {
@@ -165,16 +171,32 @@ namespace DitaDotNet {
             return NewFileName ?? FileName;
         }
 
+        // Updates content references (conrefs) in this file
+        public void ResolveConRefs(DitaCollection collection) {
+            ResolveConRefs(RootElement, collection);
+        }
+
+        // Resolve keyword references
+        public void ResolveKeywords(DitaCollection collection) {
+            ResolveKeywords(RootElement, collection);
+        }
+
+        #endregion Public Class Methods
+
+        #region Private Class Methods
+
         // If there are any keys defined in this file, store them in a dictionary for easy use
-        public void ParseKeyDefs() {
+        private void ParseKeyDefs() {
             List<DitaElement> keyDefElements = RootElement.FindChildren("keydef");
             if (keyDefElements != null) {
                 foreach (DitaElement keyDefElement in keyDefElements) {
                     DitaKeyDef keyDef = new DitaKeyDef {
-                        Format = keyDefElement.AttributeValueOrDefault("format", ""), 
+                        Format = keyDefElement.AttributeValueOrDefault("format", ""),
                         Href = keyDefElement.AttributeValueOrDefault("href", ""),
                         Keys = keyDefElement.AttributeValueOrDefault("keys", ""),
-                        Scope = keyDefElement.AttributeValueOrDefault("scope", "")
+                        Scope = keyDefElement.AttributeValueOrDefault("scope", ""),
+                        ProcessingRole = keyDefElement.AttributeValueOrDefault("processing-role", ""),
+                        Keywords = keyDefElement.ToString()
                     };
 
                     if (!KeyDefs.ContainsKey(keyDef.Keys)) {
@@ -187,7 +209,108 @@ namespace DitaDotNet {
             }
         }
 
-        #endregion Class Methods
+        // Build a dictionary of elements in the document, by id
+        private void ParseElementIds(DitaElement parentElement) {
+            if (parentElement != null) {
+                // Does this element have an id?
+                string id = parentElement.AttributeValueOrDefault("id", string.Empty);
+                if (!string.IsNullOrEmpty(id)) {
+                    if (!ElementsById.ContainsKey(id)) {
+                        ElementsById.Add(id, parentElement);
+                    }
+                    else {
+                        Trace.TraceWarning($"Duplicate element id {id} found in {FileName}.");
+                    }
+                }
+
+                // Parse the children
+                if (parentElement.Children != null) {
+                    foreach (DitaElement childElement in parentElement.Children) {
+                        ParseElementIds(childElement);
+                    }
+                }
+            }
+        }
+
+        // Resolves conrefs in this file
+        private void ResolveConRefs(DitaElement parentElement, DitaCollection collection) {
+            if (parentElement != null) {
+                bool updated = false;
+
+                // Does this element have a conref?
+                string conref = parentElement.AttributeValueOrDefault("conref", String.Empty);
+                if (!string.IsNullOrEmpty(conref)) {
+                    // We expect the conref to be in the form of filename.xml#fileid/elementid
+                    Regex conRefRegex = new Regex("^(.*)#(.*)/(.*)$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+                    MatchCollection conRefMatchCollection = conRefRegex.Matches(conref);
+                    if (conRefMatchCollection?.Count > 0 && (conRefMatchCollection[0].Groups.Count == 4)) {
+                        // Extract the components of the conref
+                        string refFileName = conRefMatchCollection[0].Groups[1].Value;
+                        string refFileId = conRefMatchCollection[0].Groups[2].Value;
+                        string refElementId = conRefMatchCollection[0].Groups[3].Value;
+
+                        if (Path.GetFileNameWithoutExtension(refFileName) != refFileId) {
+                            Trace.TraceWarning($"conref file name '{refFileName}' is not equal to file id '{refFileId}'.");
+                        }
+
+                        // Try to find the file that this conref refers to
+                        DitaFile refFile = collection.GetFileByName(refFileName);
+                        if (refFile != null) {
+                            // Does the references element exist in this file
+                            if (refFile.ElementsById.ContainsKey(refElementId)) {
+                                DitaElement refElement = refFile.ElementsById[refElementId];
+                                // Copy the refernce element
+                                parentElement.Copy(refElement);
+                                updated = true;
+                            }
+                            else {
+                                Trace.TraceWarning($"Element '{refElementId}' not found in file '{refFileName}'.");
+                            }
+                        }
+                        else {
+                            Trace.TraceWarning($"Can't find file '{refFileName}' referenced in file '{FileName}'.");
+                        }
+                    }
+                    else {
+                        Trace.TraceWarning($"conref {conref} not in expected format.");
+                    }
+                }
+
+                // Update child references
+                if (!updated && parentElement.Children != null) {
+                    foreach (DitaElement childElement in parentElement.Children) {
+                        ResolveConRefs(childElement, collection);
+                    }
+                }
+            }
+        }
+
+        private void ResolveKeywords(DitaElement parentElement, DitaCollection collection) {
+            if (parentElement != null) {
+                if (parentElement.Type == "keyword") {
+                    string keyref = parentElement.AttributeValueOrDefault("keyref", String.Empty);
+                    if (!string.IsNullOrWhiteSpace(keyref)) {
+                        // Try to find the referred to file
+                        DitaKeyDef keyDef = collection.GetKeyDefByKey(keyref);
+                        if (keyDef != null) {
+                            if (!string.IsNullOrWhiteSpace(keyDef.Keywords)) {
+                                parentElement.SetInnerText(keyDef.Keywords);
+                            }
+                        }
+                    }
+                }
+                else {
+                    // Check the child elements
+                    if (parentElement.Children != null) {
+                        foreach (DitaElement childElement in parentElement.Children) {
+                            ResolveKeywords(childElement, collection);
+                        }
+                    }
+                }
+            }
+        }
+
+        #endregion Private Class Methods
 
         #region Static Methods
 

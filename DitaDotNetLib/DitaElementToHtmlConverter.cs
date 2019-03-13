@@ -119,6 +119,7 @@ namespace DitaDotNet {
                     return "td";
                 case "fig": return "figure";
                 case "image": return "img";
+                case "keyword": return "";
                 case "row":
                     TableRowColumnIndex = -1;
                     return "tr";
