@@ -33,6 +33,7 @@ namespace DitaDotNet {
         private List<DitaPageSectionJson> Sections { get; set; }
         private DitaPageSectionJson CurrentSection { get; set; }
         private string FileName { get; set; }
+
         #endregion Properties
 
         #region Public Methods
@@ -386,6 +387,11 @@ namespace DitaDotNet {
                         }
                     }
                 }
+
+                // Rename .image to .svg
+                if (Path.GetExtension(inputHref) == ".image") {
+                    outputHref = Path.ChangeExtension(inputHref, ".svg");
+                }
             }
 
             return $"%IMG_ROOT%/{outputHref}";
@@ -409,7 +415,7 @@ namespace DitaDotNet {
         private void FixUpTableColumnSpecs() {
             if (_tableColumnSpecs == null) {
                 if (TableColumnIndex >= 0) {
-                    _tableColumnSpecs = new DitaTableColumnSpec[TableColumnIndex+1];
+                    _tableColumnSpecs = new DitaTableColumnSpec[TableColumnIndex + 1];
                 }
             }
             else {
