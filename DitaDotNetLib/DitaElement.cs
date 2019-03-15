@@ -131,7 +131,7 @@ namespace DitaDotNet {
                 return expanded;
             }
 
-            return $"<{Type}>";
+            return string.Empty;
         }
 
         // Replaces the values in this element with those copied from another element
@@ -167,6 +167,9 @@ namespace DitaDotNet {
 
                     break;
             }
+
+            // Replace < >
+            outputText = outputText.Replace("<", "&lt;").Replace(">", "&gt;");
 
             return outputText;
         }

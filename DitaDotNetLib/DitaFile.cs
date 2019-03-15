@@ -352,15 +352,15 @@ namespace DitaDotNet {
         // Converts a title to a file name
         public static string TitleToFileName(string title, string extension) {
             string fileName = null;
-            char[] illegalCharacters = {'/', '\\', '?', '%', '*', ':', '|', '\"', '<', '>', ' ', ',', '_', '\n', '\r', '\t', '#', '+', '.', '—', '–', '&', '='};
+            string[] illegalCharacters = {"&lt;", "&gt;", "/", "\\", "?", "%", "*", ":", "|", "\"", "<", ">", " ", ",", ";", "_", "\n", "\r", "\t", "#", "+", ".", "—", "–", "&", "=" , "{", "}", "[", "]"};
 
             try {
                 if (!string.IsNullOrWhiteSpace(title)) {
                     fileName = Encoding.ASCII.GetString(Encoding.ASCII.GetBytes(title.ToLower().Trim()));
 
                     // Replace special characters and spaces with _
-                    foreach (char illegalChar in illegalCharacters) {
-                        fileName = fileName.Replace(illegalChar, '-');
+                    foreach (string illegalChar in illegalCharacters) {
+                        fileName = fileName.Replace(illegalChar, "-");
                     }
 
                     // Replace multiple _ characters with a single _

@@ -270,17 +270,18 @@ namespace DitaDotNet {
                     // Try to find the linked file
                     string topicRefHref = topicRefElement.AttributeValueOrDefault("href", "");
                     string topicRefKeyRef = topicRefElement.AttributeValueOrDefault("keyref", "");
-                    string topicRefNavTitle = topicRefElement.AttributeValueOrDefault("navtitle", "");
+                    string topicRefNavTitle = topicRefElement?.FindOnlyChild("topicmeta")?.FindOnlyChild("navtitle")?.ToString();
 
                     // If there is no navtitle, check the topicmeta
                     if (string.IsNullOrWhiteSpace(topicRefNavTitle)) {
-                        topicRefNavTitle = topicRefElement?.FindOnlyChild("topicmeta")?.FindOnlyChild("navtitle")?.ToString();
+                        topicRefNavTitle = topicRefElement.AttributeValueOrDefault("navtitle", "");
                     }
 
                     DitaFile linkedFile = null;
                     if (!string.IsNullOrWhiteSpace(topicRefHref)) {
                         linkedFile = Collection.GetFileByName(topicRefHref);
                     }
+
                     // If no href, try to find by keyref
                     if (linkedFile == null && !string.IsNullOrWhiteSpace(topicRefKeyRef)) {
                         linkedFile = Collection.GetFileByKey(topicRefKeyRef);
