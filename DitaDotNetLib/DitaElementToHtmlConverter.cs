@@ -118,7 +118,13 @@ namespace DitaDotNet {
 
                     return "td";
                 case "fig": return "figure";
-                case "image": return "img";
+                case "image":
+                    // Is this referring to an SVG or other type of image?
+                    if (IsImageElementSvg(element)) {
+                        return "object";
+                    }
+
+                    return "img";
                 case "keyword": return "";
                 case "row":
                     TableRowColumnIndex = -1;
@@ -206,6 +212,10 @@ namespace DitaDotNet {
                     break;
                 case "image":
                     if (key == "href") {
+                        if (IsImageElementSvg(element)) {
+                            return ("data", ImageUrlFromHref(value));
+                        }
+
                         return ("src", ImageUrlFromHref(value));
                     }
 
@@ -240,9 +250,11 @@ namespace DitaDotNet {
         private void AddHtmlTagAttributes(Dictionary<string, string> htmlAttributes, DitaElement element) {
             switch (element.Type) {
                 case "image":
-                    // All images should be full column width
-                    if (!htmlAttributes.ContainsKey("width")) {
-                        htmlAttributes.Add("width", "100%");
+                    if (IsImageElementSvg(element)) {
+                        // Add the type of embedded svg
+                        if (!htmlAttributes.ContainsKey("type")) {
+                            htmlAttributes.Add("type", "image/svg+xml");
+                        }
                     }
 
                     break;
@@ -425,6 +437,22 @@ namespace DitaDotNet {
                     Trace.TraceWarning($"Resized table column specs in {FileName}");
                 }
             }
+        }
+
+        // Does a given image element refer to SVG?
+        private bool IsImageElementSvg(DitaElement imageElement) {
+            if (imageElement != null) {
+                if (imageElement.Type == "image") {
+                    string extension = Path.GetExtension(imageElement.AttributeValueOrDefault("href", ""));
+
+                    if ((extension?.Equals(".svg", StringComparison.OrdinalIgnoreCase) ?? false) ||
+                        (extension?.Equals(".image", StringComparison.OrdinalIgnoreCase) ?? false)) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         #endregion Private Methods
