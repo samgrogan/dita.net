@@ -174,11 +174,13 @@ namespace DitaDotNet {
         // Updates content references (conrefs) in this file
         public void ResolveConRefs(DitaCollection collection) {
             ResolveConRefs(RootElement, collection);
+            SetTitleFromXml();
         }
 
         // Resolve keyword references
         public void ResolveKeywords(DitaCollection collection) {
             ResolveKeywords(RootElement, collection);
+            SetTitleFromXml();
         }
 
         #endregion Public Class Methods

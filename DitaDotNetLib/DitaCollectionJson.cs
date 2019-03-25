@@ -96,11 +96,13 @@ namespace DitaDotNet {
                 ParseBookMapBookMeta();
 
                 // Read the front matter
+                // IGNORE
 
                 // Read the chapters
                 ParseBookMapChapters();
 
                 // Read the back matter
+                // IGNORE
 
                 // Removes any blank topics and replaces them with links to their first populate child
                 RemoveBlankPages();
@@ -116,7 +118,7 @@ namespace DitaDotNet {
                 // Read the title
                 BookTitle.Add("mainbooktitle", RootMap.Title);
 
-                // Read the matadata
+                // Read the metadata
                 ParseMapMeta();
 
                 if (!BookMeta.ContainsKey("document title")) {
@@ -147,28 +149,25 @@ namespace DitaDotNet {
             ParseBookMapReleaseDate(bookMetaElement);
 
             // Everything in category
-
-            List<DitaElement> categoryData = bookMetaElement?.FindOnlyChild("category")?.Children;
-            if (categoryData != null) {
-                foreach (DitaElement data in categoryData) {
-                    if (data?.Attributes["name"] != null) {
-                        BookMeta.Add(data?.Attributes["name"], data?.Attributes["value"]);
-                    }
-                }
-            }
+            ParseMetaCategories(bookMetaElement);
         }
 
         // Parse the  meta date from the map
         private void ParseMapMeta() {
             DitaElement bookMetaElement = RootMap.RootElement.FindOnlyChild("topicmeta");
+            ParseMetaCategories(bookMetaElement);
+        }
 
-            // Everything in category
+        // Parse the metadata from the given element?
+        private void ParseMetaCategories(DitaElement parentElement) {
             try {
-                List<DitaElement> categoryData = bookMetaElement?.FindOnlyChild("category")?.Children;
-                if (categoryData != null) {
-                    foreach (DitaElement data in categoryData) {
-                        if (data?.Attributes["name"] != null) {
-                            BookMeta.Add(data?.Attributes["name"], data?.Attributes["value"]);
+                List<DitaElement> categoriesData = parentElement?.FindChildren("category");
+                if (categoriesData != null) {
+                    foreach (DitaElement categoryData in categoriesData) {
+                        foreach (DitaElement data in categoryData.Children) {
+                            if (data?.Attributes.ContainsKey("name") ?? false) {
+                                BookMeta.Add(data?.Attributes["name"], data?.Attributes["value"]);
+                            }
                         }
                     }
                 }
@@ -290,6 +289,8 @@ namespace DitaDotNet {
                     if (linkedFile != null) {
                         if (string.IsNullOrWhiteSpace(linkedFile.Title)) {
                             linkedFile.Title = topicRefNavTitle;
+                        } else if (string.IsNullOrWhiteSpace(topicRefNavTitle)) {
+                            topicRefNavTitle = linkedFile.Title;
                         }
 
                         // Add references from the linked files

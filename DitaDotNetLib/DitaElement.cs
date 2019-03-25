@@ -120,7 +120,7 @@ namespace DitaDotNet {
             if (IsContainer) {
                 StringBuilder concat = new StringBuilder();
                 foreach (DitaElement childElement in Children) {
-                    concat.Append($"{childElement} ");
+                    concat.Append($"{childElement.ToString().Trim()} ");
                 }
 
                 return concat.ToString().Trim();
@@ -170,6 +170,10 @@ namespace DitaDotNet {
 
             // Replace < >
             outputText = outputText.Replace("<", "&lt;").Replace(">", "&gt;");
+            // Replace multiple spaces with 1 space
+            while (outputText.Contains("  ")) {
+                outputText = outputText.Replace("  ", " ");
+            }
 
             return outputText;
         }
