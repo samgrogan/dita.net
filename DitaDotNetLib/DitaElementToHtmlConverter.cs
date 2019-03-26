@@ -10,14 +10,6 @@ namespace DitaDotNet {
             public string Name { get; set; }
             public string Width { get; set; }
             public int Number { get; set; }
-
-            public string WidthAsPercent() {
-                if (Width?.Length > 1 && (Width?.Contains("*") ?? false)) {
-                    return Width.Replace("*", "%");
-                }
-
-                return null;
-            }
         }
 
         #region Properties
@@ -270,7 +262,7 @@ namespace DitaDotNet {
                     if (element.Attributes.ContainsKey("colname")) {
                         string colname = element.Attributes["colname"];
                         if (!htmlAttributes.ContainsKey("width")) {
-                            string widthAsPercent = _tableColumnSpecs?.FirstOrDefault(o => o?.Name == colname)?.WidthAsPercent();
+                            string widthAsPercent = ColumnWidthAsPercent(colname);
                             if (!string.IsNullOrEmpty(widthAsPercent)) {
                                 htmlAttributes.Add("width", widthAsPercent);
                             }
@@ -453,6 +445,33 @@ namespace DitaDotNet {
             }
 
             return false;
+        }
+
+        // Returns the width of a given column, as a percent
+        private string ColumnWidthAsPercent(string colname) {
+            // Get the total width of all the columns
+            double total = 0.0;
+            double columnValue = 1.0;
+            foreach (DitaTableColumnSpec columnSpec in _tableColumnSpecs) {
+                double value = 1.0;
+                if (!string.IsNullOrWhiteSpace(columnSpec.Width)) {
+                    double.TryParse(columnSpec.Width.Replace("*", "").Replace("%", ""), out value);
+                }
+
+                value = Math.Max(value, 1.0);
+
+                if (columnSpec.Name == colname) {
+                    columnValue = value;
+                }
+
+                total += value;
+            }
+
+            if (total.Equals(0.0) || columnValue.Equals(0.0)) {
+                return "";
+            }
+
+            return $"{(columnValue / total * 100.0)}%";
         }
 
         #endregion Private Methods

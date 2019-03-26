@@ -2,17 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace DitaDotNet
-{
-
+namespace DitaDotNet {
     public class DitaToJsonConverter : DitaConverter {
-
         // Name of the images folder
         private readonly string ImagesFolderName = "images";
 
         public new bool Convert(string input, string output, string rootMapFile, bool rename = false, bool deleteExistingOutput = false) {
             if (base.Convert(input, output, rootMapFile, rename)) {
-
                 try {
                     // Delete and existing output, if asked
                     if (deleteExistingOutput) {
@@ -41,6 +37,7 @@ namespace DitaDotNet
                     Trace.TraceError(ex);
                     return false;
                 }
+
                 return true;
             }
 
@@ -71,6 +68,7 @@ namespace DitaDotNet
                 catch {
                     Trace.TraceError($"Error trying to copy {image.FilePath} to {imageOutputPath}");
                 }
+
                 Trace.TraceInformation($"Copied {image.FilePath} to {imageOutputPath}");
             }
         }
