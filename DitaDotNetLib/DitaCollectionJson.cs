@@ -127,6 +127,9 @@ namespace DitaDotNet {
 
                 // Add the chapters
                 Chapters.AddRange(ParseChaptersFromFile(RootMap));
+
+                // Removes any blank topics and replaces them with links to their first populate child
+                RemoveBlankPages();
             }
             catch (Exception ex) {
                 Trace.TraceError(ex);
