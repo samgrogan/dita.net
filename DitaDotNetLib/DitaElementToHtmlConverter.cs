@@ -121,6 +121,10 @@ namespace DitaDotNet {
                 case "row":
                     TableRowColumnIndex = -1;
                     return "tr";
+                case "steps":
+                    return "ol";
+                case "step":
+                    return "li";
                 case "table":
                     TableColumnIndex = -1;
                     _tableColumnSpecs = null;
@@ -229,7 +233,14 @@ namespace DitaDotNet {
                     break;
                 case "xref":
                     if (key == "href") {
-                        return (key, UrlFromXref(element));
+                        string url = UrlFromXref(element, out string title);
+
+                        // If we encounter an empty xref, we want to try to generate link text, based on what it links too
+                        if (string.IsNullOrWhiteSpace(element.ToString())) {
+                            element.SetInnerText(title);
+                        }
+
+                        return (key, url);
                     }
 
                     break;
@@ -313,11 +324,13 @@ namespace DitaDotNet {
         }
 
         // Returns the relative or absolute url from a Dita XREF for use in an html A tag
-        private string UrlFromXref(DitaElement xrefElement) {
+        private string UrlFromXref(DitaElement xrefElement, out string title) {
             // What is the scope
             string scope = xrefElement.AttributeValueOrDefault("scope", null);
             string format = xrefElement.AttributeValueOrDefault("format", null);
             string href = xrefElement.AttributeValueOrDefault("href", null);
+
+            title = null;
 
             if (scope == "external") {
                 return href;
@@ -351,6 +364,8 @@ namespace DitaDotNet {
                         if (hashSplit.Length > 1) {
                             result += $"#{hashSplit[1]}";
                         }
+
+                        title = referenceFile.Title;
                     }
                     else {
                         Trace.TraceError($"Xref refers to unknown local file {hashSplit[0]}");
