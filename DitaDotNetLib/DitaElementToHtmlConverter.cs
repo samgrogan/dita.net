@@ -270,13 +270,11 @@ namespace DitaDotNet {
                     break;
                 case "entry":
                     // If there is a width defined, add it to the entry
-                    if (element.Attributes.ContainsKey("colname")) {
-                        string colname = element.Attributes["colname"];
-                        if (!htmlAttributes.ContainsKey("width")) {
-                            string widthAsPercent = ColumnWidthAsPercent(colname);
-                            if (!string.IsNullOrEmpty(widthAsPercent)) {
-                                htmlAttributes.Add("width", widthAsPercent);
-                            }
+                    string colname = element.Attributes.ContainsKey("colname") ? element.Attributes["colname"] : null;
+                    if (!htmlAttributes.ContainsKey("width")) {
+                        string widthAsPercent = ColumnWidthAsPercent(colname, TableRowColumnIndex);
+                        if (!string.IsNullOrEmpty(widthAsPercent)) {
+                            htmlAttributes.Add("width", widthAsPercent);
                         }
                     }
 
@@ -463,26 +461,33 @@ namespace DitaDotNet {
         }
 
         // Returns the width of a given column, as a percent
-        private string ColumnWidthAsPercent(string colname) {
+        private string ColumnWidthAsPercent(string colname, int currentColumn) {
             // Get the total width of all the columns
             double total = 0.0;
             double columnValue = 1.0;
-            foreach (DitaTableColumnSpec columnSpec in _tableColumnSpecs) {
+            for (int column = 0; column < _tableColumnSpecs.Length; column++ ) {
+                DitaTableColumnSpec columnSpec = _tableColumnSpecs[column];
                 double value = 1.0;
                 if (!string.IsNullOrWhiteSpace(columnSpec.Width)) {
-                    double.TryParse(columnSpec.Width.Replace("*", "").Replace("%", ""), out value);
+                    // We only want numbers or a decimal point, so get rid of everything else
+                    string input = new string(columnSpec.Width.ToCharArray().TakeWhile(c => (Char.IsDigit(c) || c == '.')).ToArray());
+                    if (!string.IsNullOrWhiteSpace(input)) {
+                        if (!double.TryParse(input, out value)) {
+                            Trace.TraceWarning($"Unable to parse table column width: {input}.");
+                        }
+                    }
                 }
 
                 value = Math.Max(value, 1.0);
 
-                if (columnSpec.Name == colname) {
+                if (columnSpec.Name == colname || currentColumn == column) {
                     columnValue = value;
                 }
 
                 total += value;
             }
 
-            if (total.Equals(0.0) || columnValue.Equals(0.0)) {
+            if (total.Equals(0.0)) {
                 return "";
             }
 
