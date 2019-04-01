@@ -17,7 +17,13 @@ namespace DitaDotNet {
             if (Parse("//bookmap", "Map")) {
                 return true;
             }
+
             return false;
+        }
+
+        public override void SetTitleFromXml() {
+            // Bookmaps don't have titles
+            return;
         }
 
         #endregion

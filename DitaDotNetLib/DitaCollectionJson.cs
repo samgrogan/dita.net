@@ -344,7 +344,7 @@ namespace DitaDotNet {
                 Trace.TraceInformation($"Found link to topic {chapter.FileName}.");
             }
             catch (Exception ex) {
-                Trace.TraceError($"Error parsing topic {topic.FileName}");
+                Trace.TraceError($"Error parsing topic {topic.FileName} - {ex}");
             }
 
             return chapters;
@@ -376,7 +376,7 @@ namespace DitaDotNet {
             List<DitaPageJson> removePages = new List<DitaPageJson>();
             foreach (DitaPageJson page in Pages) {
                 if (page.IsEmpty) {
-                    Trace.TraceWarning($"Removing empty page {page.FileName}");
+                    Trace.TraceWarning($"Removing empty page {page.FileName} ({page.OriginalFileName})");
                     removePages.Add(page);
                 }
             }

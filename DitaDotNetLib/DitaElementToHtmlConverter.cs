@@ -468,7 +468,7 @@ namespace DitaDotNet {
             for (int column = 0; column < _tableColumnSpecs.Length; column++ ) {
                 DitaTableColumnSpec columnSpec = _tableColumnSpecs[column];
                 double value = 1.0;
-                if (!string.IsNullOrWhiteSpace(columnSpec.Width)) {
+                if (!string.IsNullOrWhiteSpace(columnSpec?.Width)) {
                     // We only want numbers or a decimal point, so get rid of everything else
                     string input = new string(columnSpec.Width.ToCharArray().TakeWhile(c => (Char.IsDigit(c) || c == '.')).ToArray());
                     if (!string.IsNullOrWhiteSpace(input)) {
@@ -480,7 +480,7 @@ namespace DitaDotNet {
 
                 value = Math.Max(value, 1.0);
 
-                if (columnSpec.Name == colname || currentColumn == column) {
+                if (columnSpec?.Name == colname || currentColumn == column) {
                     columnValue = value;
                 }
 

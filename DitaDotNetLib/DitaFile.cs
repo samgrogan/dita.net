@@ -151,7 +151,7 @@ namespace DitaDotNet {
         }
 
         // Try to determine the title of the contents in this file by finding the title element
-        public void SetTitleFromXml() {
+        public virtual void SetTitleFromXml() {
             // Try to find the title node
             try {
                 List<DitaElement> titleElements = RootElement?.FindChildren("title");

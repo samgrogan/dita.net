@@ -156,23 +156,26 @@ namespace DitaDotNet {
         // Some elements have rules for adding additional text
         private string ExpandInnerText(string inputText) {
             string outputText = inputText;
-            switch (Type) {
-                case "tm":
-                    switch (AttributeValueOrDefault("tmtype", "")) {
-                        case "reg":
-                            return $"{inputText}®";
-                        case "tm":
-                            return $"{inputText}™";
-                    }
 
-                    break;
-            }
+            if (!string.IsNullOrWhiteSpace(outputText)) {
+                switch (Type) {
+                    case "tm":
+                        switch (AttributeValueOrDefault("tmtype", "")) {
+                            case "reg":
+                                return $"{inputText}®";
+                            case "tm":
+                                return $"{inputText}™";
+                        }
 
-            // Replace < >
-            outputText = outputText.Replace("<", "&lt;").Replace(">", "&gt;");
-            // Replace multiple spaces with 1 space
-            while (outputText.Contains("  ")) {
-                outputText = outputText.Replace("  ", " ");
+                        break;
+                }
+
+                // Replace < >
+                outputText = outputText.Replace("<", "&lt;").Replace(">", "&gt;");
+                // Replace multiple spaces with 1 space
+                while (outputText.Contains("  ")) {
+                    outputText = outputText.Replace("  ", " ");
+                }
             }
 
             return outputText;
