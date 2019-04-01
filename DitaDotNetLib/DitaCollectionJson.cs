@@ -101,6 +101,9 @@ namespace DitaDotNet {
                 // Read the chapters
                 ParseBookMapChapters();
 
+                // Read any appendix
+                ParseBookMapAppendex();
+
                 // Read the back matter
                 // IGNORE
 
@@ -237,6 +240,20 @@ namespace DitaDotNet {
             }
         }
 
+        // Parse any appendix referenced in the book map
+        private void ParseBookMapAppendex() {
+            List<DitaElement> appendix = RootMap.RootElement.FindChildren("appendix");
+
+            foreach (DitaElement chapter in appendix) {
+                // What is the href to the chapter?
+                string chapterHref = chapter.Attributes?["href"];
+
+                // Try to find this file
+                DitaFile linkedFile = Collection.GetFileByName(chapterHref);
+                Chapters.AddRange(ParseChaptersFromFile(linkedFile));
+            }
+        }
+
         // Parse chapter structure from a dita file
         private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaFile linkedFile, string navTitle = null) {
             Trace.TraceInformation($"Converting {linkedFile}");
@@ -292,7 +309,8 @@ namespace DitaDotNet {
                     if (linkedFile != null) {
                         if (string.IsNullOrWhiteSpace(linkedFile.Title)) {
                             linkedFile.Title = topicRefNavTitle;
-                        } else if (string.IsNullOrWhiteSpace(topicRefNavTitle)) {
+                        }
+                        else if (string.IsNullOrWhiteSpace(topicRefNavTitle)) {
                             topicRefNavTitle = linkedFile.Title;
                         }
 
