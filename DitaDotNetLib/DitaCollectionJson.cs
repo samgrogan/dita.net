@@ -102,7 +102,7 @@ namespace DitaDotNet {
                 ParseBookMapChapters();
 
                 // Read any appendix
-                ParseBookMapAppendex();
+                ParseBookMapAppendix();
 
                 // Read the back matter
                 // IGNORE
@@ -241,16 +241,17 @@ namespace DitaDotNet {
         }
 
         // Parse any appendix referenced in the book map
-        private void ParseBookMapAppendex() {
+        private void ParseBookMapAppendix() {
             List<DitaElement> appendix = RootMap.RootElement.FindChildren("appendix");
+            if (appendix != null) {
+                foreach (DitaElement chapter in appendix) {
+                    // What is the href to the chapter?
+                    string chapterHref = chapter.Attributes?["href"];
 
-            foreach (DitaElement chapter in appendix) {
-                // What is the href to the chapter?
-                string chapterHref = chapter.Attributes?["href"];
-
-                // Try to find this file
-                DitaFile linkedFile = Collection.GetFileByName(chapterHref);
-                Chapters.AddRange(ParseChaptersFromFile(linkedFile));
+                    // Try to find this file
+                    DitaFile linkedFile = Collection.GetFileByName(chapterHref);
+                    Chapters.AddRange(ParseChaptersFromFile(linkedFile));
+                }
             }
         }
 
