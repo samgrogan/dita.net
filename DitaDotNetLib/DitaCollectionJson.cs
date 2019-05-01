@@ -11,6 +11,7 @@ namespace DitaDotNet {
         public string FileName { get; set; }
         public Guid Guid { get; set; }
         public bool IsEmpty { get; set; }
+        public bool IsExternal { get; set; }
         public List<DitaCollectionLinkJson> Children { get; set; }
 
         public DitaCollectionLinkJson() {
@@ -22,7 +23,7 @@ namespace DitaDotNet {
     internal class DitaCollectionJson {
         private readonly string CollectionFileName = "collection.json";
 
-        private readonly string[] RefElements = new[] {"topicref", "mapref"};
+        private readonly string[] _refElements = {"topicref", "mapref"};
 
         #region Properties
 
@@ -278,7 +279,7 @@ namespace DitaDotNet {
             Trace.TraceInformation($"Found link to map {map.NewFileName ?? map.FileName}.");
 
             // Find all the topic references
-            List<DitaCollectionLinkJson> chapters = ParseRefs(map.RootElement.FindChildren(RefElements));
+            List<DitaCollectionLinkJson> chapters = ParseRefs(map.RootElement.FindChildren(_refElements));
 
             return chapters;
         }
@@ -297,45 +298,57 @@ namespace DitaDotNet {
                         topicRefNavTitle = topicRefElement.AttributeValueOrDefault("navtitle", "");
                     }
 
-                    DitaFile linkedFile = null;
-                    if (!string.IsNullOrWhiteSpace(topicRefHref)) {
-                        linkedFile = Collection.GetFileByName(topicRefHref);
-                    }
-
-                    // If no href, try to find by keyref
-                    if (linkedFile == null && !string.IsNullOrWhiteSpace(topicRefKeyRef)) {
-                        linkedFile = Collection.GetFileByKey(topicRefKeyRef);
-                    }
-
-                    if (linkedFile != null) {
-                        if (string.IsNullOrWhiteSpace(linkedFile.Title)) {
-                            linkedFile.Title = topicRefNavTitle;
-                        }
-                        else if (string.IsNullOrWhiteSpace(topicRefNavTitle)) {
-                            topicRefNavTitle = linkedFile.Title;
-                        }
-
-                        // Add references from the linked files
-                        List<DitaCollectionLinkJson> newChapters = ParseChaptersFromFile(linkedFile, topicRefNavTitle);
-
-                        if (newChapters != null && newChapters.Count > 0) {
-                            // Are there child chapters?
-                            List<DitaCollectionLinkJson> childChapters = ParseRefs(topicRefElement.FindChildren(RefElements));
-
-                            if (newChapters.Count > 1 && childChapters.Count > 0) {
-                                // This should never happen
-                                throw new Exception("Found multiple children in a map and topic refs.");
-                            }
-
-                            if (childChapters != null && childChapters.Count > 0) {
-                                newChapters[0]?.Children?.AddRange(childChapters);
-                            }
-
-                            chapters.AddRange(newChapters);
-                        }
+                    // Is this an external link?
+                    if (topicRefElement.AttributeValueOrDefault("scope", "") == "external") {
+                        DitaCollectionLinkJson externalLink = new DitaCollectionLinkJson {
+                            FileName = topicRefHref,
+                            Title = topicRefNavTitle,
+                            IsExternal = true
+                        };
+                        chapters.Add(externalLink);
                     }
                     else {
-                        Trace.TraceWarning($"Reference with missing href/keyref: {topicRefElement}");
+                        // Local scope
+                        DitaFile linkedFile = null;
+                        if (!string.IsNullOrWhiteSpace(topicRefHref)) {
+                            linkedFile = Collection.GetFileByName(topicRefHref);
+                        }
+
+                        // If no href, try to find by keyref
+                        if (linkedFile == null && !string.IsNullOrWhiteSpace(topicRefKeyRef)) {
+                            linkedFile = Collection.GetFileByKey(topicRefKeyRef);
+                        }
+
+                        if (linkedFile != null) {
+                            if (string.IsNullOrWhiteSpace(linkedFile.Title)) {
+                                linkedFile.Title = topicRefNavTitle;
+                            }
+                            else if (string.IsNullOrWhiteSpace(topicRefNavTitle)) {
+                                topicRefNavTitle = linkedFile.Title;
+                            }
+
+                            // Add references from the linked files
+                            List<DitaCollectionLinkJson> newChapters = ParseChaptersFromFile(linkedFile, topicRefNavTitle);
+
+                            if (newChapters != null && newChapters.Count > 0) {
+                                // Are there child chapters?
+                                List<DitaCollectionLinkJson> childChapters = ParseRefs(topicRefElement.FindChildren(_refElements));
+
+                                if (newChapters.Count > 1 && childChapters.Count > 0) {
+                                    // This should never happen
+                                    throw new Exception("Found multiple children in a map and topic refs.");
+                                }
+
+                                if (childChapters != null && childChapters.Count > 0) {
+                                    newChapters[0]?.Children?.AddRange(childChapters);
+                                }
+
+                                chapters.AddRange(newChapters);
+                            }
+                        }
+                        else {
+                            Trace.TraceWarning($"Reference with missing href/keyref: {topicRefElement}");
+                        }
                     }
                 }
             }
