@@ -375,7 +375,7 @@ namespace DitaDotNet {
                 }
             }
 
-            Trace.TraceWarning($"Unknown xref scope: {scope}, format: {format}, href: {href}");
+            Trace.TraceWarning($"Unknown xref, scope={scope}, format={format}, href={href}");
             return "#";
         }
 
@@ -384,6 +384,11 @@ namespace DitaDotNet {
             string outputHref = inputHref;
 
             if (!string.IsNullOrEmpty(inputHref)) {
+                // Is this file in the collection?
+                if (Collection.GetFileByName(outputHref) == null) {
+                    Trace.TraceWarning($"Missing image file {inputHref} in {FileName}");
+                }
+
                 // Is this a pdf?
                 if (Path.GetExtension(inputHref) == ".pdf") {
                     outputHref = Path.ChangeExtension(inputHref, ".png");
