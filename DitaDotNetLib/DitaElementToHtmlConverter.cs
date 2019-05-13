@@ -366,16 +366,19 @@ namespace DitaDotNet {
                         title = referenceFile.Title;
                     }
                     else {
-                        Trace.TraceError($"Xref refers to unknown local file {hashSplit[0]}");
+                        Trace.TraceError($"Xref refers to unknown local file {hashSplit[0]} in {FileName}");
                     }
                 }
 
                 if (!string.IsNullOrEmpty(result)) {
                     return result;
                 }
+                else {
+                    return "#";
+                }
             }
 
-            Trace.TraceWarning($"Unknown xref, scope={scope}, format={format}, href={href}");
+            Trace.TraceWarning($"Unknown xref scope={scope}, format={format}, href={href} in {FileName}");
             return "#";
         }
 
