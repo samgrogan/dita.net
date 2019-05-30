@@ -354,7 +354,7 @@ namespace DitaDotNet {
         // Converts a title to a file name
         public static string TitleToFileName(string title, string extension) {
             string fileName = null;
-            string[] illegalCharacters = {"&lt;", "&gt;", "/", "\\", "?", "%", "*", ":", "|", "\"", "<", ">", " ", ",", ";", "_", "\n", "\r", "\t", "#", "+", ".", "—", "–", "&", "=" , "{", "}", "[", "]"};
+            string[] illegalCharacters = {"&lt;", "&gt;", "/", "\\", "?", "%", "*", ":", "|", "\"", "<", ">", " ", ",", ";", "_", "\n", "\r", "\t", "#", "+", ".", "—", "–", "&", "=" , "{", "}", "[", "]", "(", ")"};
 
             try {
                 if (!string.IsNullOrWhiteSpace(title)) {
