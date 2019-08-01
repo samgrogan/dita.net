@@ -173,7 +173,14 @@ namespace DitaDotNet {
                     foreach (DitaElement categoryData in categoriesData) {
                         foreach (DitaElement data in categoryData.Children) {
                             if (data?.Attributes.ContainsKey("name") ?? false) {
-                                BookMeta.Add(data?.Attributes["name"], data?.Attributes["value"]);
+                                if (BookMeta.ContainsKey(data?.Attributes["name"]))
+                                {
+                                    Trace.TraceWarning($"BookMeta already contains a value for {data?.Attributes["name"]}");
+                                }
+                                else
+                                {
+                                    BookMeta.Add(data?.Attributes["name"], data?.Attributes["value"]);
+                                }
                             }
                         }
                     }
