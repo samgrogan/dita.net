@@ -85,7 +85,11 @@ namespace DitaDotNet {
                 throw new Exception($"Expected at most one child of type {type} but found {children.Count}");
             }
 
-            return children?[0];
+            if (children?.Count > 0)
+            {
+                return children?[0];
+            }
+            return null;
         }
 
         // Returns the given attribute value, if it exists, or the default if it doesn't
