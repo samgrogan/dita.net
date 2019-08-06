@@ -244,7 +244,13 @@ namespace DitaDotNet {
 
                 // Try to find this file
                 DitaFile linkedFile = Collection.GetFileByName(chapterHref);
-                Chapters.AddRange(ParseChaptersFromFile(linkedFile));
+                List<DitaCollectionLinkJson> children = ParseChaptersFromFile(linkedFile);
+                Chapters.AddRange(children);
+
+                if (linkedFile is DitaFileTopicAbstract && children.Count > 0)
+                {
+                    children[0].Children.AddRange(ParseRefs(chapter.FindChildren(_refElements)));
+                }
             }
         }
 
