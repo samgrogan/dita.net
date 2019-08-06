@@ -195,7 +195,7 @@ namespace DitaDotNet {
         private void ParseBookMapVersion(DitaElement bookMetaElement) {
             // Try checking the publisher information section
             DitaElement publisherInformationElement = bookMetaElement?.FindOnlyChild("publisherinformation");
-            DitaElement publishedElement = publisherInformationElement?.FindOnlyChild("published");
+            DitaElement publishedElement = publisherInformationElement?.FindChildren("published")?.Last();
             DitaElement revisionIdElement = publishedElement?.FindOnlyChild("revisionid");
             string version = revisionIdElement?.ToString();
 
@@ -215,7 +215,7 @@ namespace DitaDotNet {
         // Parse the date of the document
         private void ParseBookMapReleaseDate(DitaElement bookMetaElement) {
             DitaElement publisherInformationElement = bookMetaElement?.FindOnlyChild("publisherinformation");
-            DitaElement publishedElement = publisherInformationElement?.FindOnlyChild("published");
+            DitaElement publishedElement = publisherInformationElement?.FindChildren("published")?.Last();
             DitaElement completedElement = publishedElement?.FindOnlyChild("completed");
             string year = completedElement?.FindOnlyChild("year")?.ToString();
             string month = completedElement?.FindOnlyChild("month")?.ToString();
