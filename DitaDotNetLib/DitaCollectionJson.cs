@@ -5,8 +5,10 @@ using System.Linq;
 using Newtonsoft.Json;
 using Trace = DitaDotNet.Trace;
 
-namespace DitaDotNet {
-    internal class DitaCollectionLinkJson {
+namespace DitaDotNet
+{
+    internal class DitaCollectionLinkJson
+    {
         public string Title { get; set; }
         public string FileName { get; set; }
         public Guid Guid { get; set; }
@@ -14,16 +16,20 @@ namespace DitaDotNet {
         public bool IsExternal { get; set; }
         public List<DitaCollectionLinkJson> Children { get; set; }
 
-        public DitaCollectionLinkJson() {
+        public DitaCollectionLinkJson()
+        {
             Guid = Guid.NewGuid();
             Children = new List<DitaCollectionLinkJson>();
         }
     }
 
-    internal class DitaCollectionJson {
+    internal class DitaCollectionJson
+    {
         private readonly string CollectionFileName = "collection.json";
 
-        private readonly string[] _refElements = {"topicref", "mapref"};
+        private readonly string[] _chapterElements = { "chapter", "appendices", "appendix" };
+
+        private readonly string[] _refElements = { "topicref", "mapref", "appendix" };
 
         #region Properties
 
@@ -48,7 +54,8 @@ namespace DitaDotNet {
         #region Public Methods
 
         // Construct a collection from a Dita bookmap in a Dita collection
-        public DitaCollectionJson(DitaCollection collection, DitaFile rootMap) {
+        public DitaCollectionJson(DitaCollection collection, DitaFile rootMap)
+        {
             // Store the construction properties
             Collection = collection;
             RootMap = rootMap;
@@ -60,18 +67,23 @@ namespace DitaDotNet {
             Pages = new List<DitaPageJson>();
 
             // Create the output object
-            if (RootMap is DitaFileBookMap) {
+            if (RootMap is DitaFileBookMap)
+            {
                 ParseBookMap();
             }
-            else if (RootMap is DitaFileMap) {
+            else if (RootMap is DitaFileMap)
+            {
                 ParseMap();
             }
         }
 
         // Write this collection to a given folder
-        public void SerializeToFile(string output) {
-            using (StreamWriter file = File.CreateText(Path.Combine(output, CollectionFileName))) {
-                JsonSerializerSettings settings = new JsonSerializerSettings {
+        public void SerializeToFile(string output)
+        {
+            using (StreamWriter file = File.CreateText(Path.Combine(output, CollectionFileName)))
+            {
+                JsonSerializerSettings settings = new JsonSerializerSettings
+                {
                     Formatting = Formatting.Indented
                 };
                 JsonSerializer serializer = JsonSerializer.Create(settings);
@@ -87,9 +99,11 @@ namespace DitaDotNet {
         #region Private Methods
 
         // Build the internal structure based on the bookmap
-        private void ParseBookMap() {
+        private void ParseBookMap()
+        {
             // Find the booktitle element
-            try {
+            try
+            {
                 // Read the title
                 ParseBookMapTitle();
 
@@ -102,30 +116,31 @@ namespace DitaDotNet {
                 // Read the chapters
                 ParseBookMapChapters();
 
-                // Read any appendix
-                ParseBookMapAppendix();
-
                 // Read the back matter
                 // IGNORE
 
                 // Removes any blank topics and replaces them with links to their first populate child
                 RemoveBlankPages();
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Trace.TraceError(ex);
             }
         }
 
         // Build the internal structure based on a map
-        private void ParseMap() {
-            try {
+        private void ParseMap()
+        {
+            try
+            {
                 // Read the title
                 BookTitle.Add("mainbooktitle", RootMap.Title);
 
                 // Read the metadata
                 ParseMapMeta();
 
-                if (!BookMeta.ContainsKey("document title")) {
+                if (!BookMeta.ContainsKey("document title"))
+                {
                     BookMeta.Add("document title", RootMap.Title);
                 }
 
@@ -135,13 +150,15 @@ namespace DitaDotNet {
                 // Removes any blank topics and replaces them with links to their first populate child
                 RemoveBlankPages();
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Trace.TraceError(ex);
             }
         }
 
         // Parse the title from the book map
-        private void ParseBookMapTitle() {
+        private void ParseBookMapTitle()
+        {
             DitaElement titleElement = RootMap.RootElement.FindOnlyChild("booktitle");
 
             AddChildDitaElementTextToDictionary(titleElement, "mainbooktitle", BookTitle);
@@ -149,7 +166,8 @@ namespace DitaDotNet {
         }
 
         // Parse the book meta data from the book map
-        private void ParseBookMapBookMeta() {
+        private void ParseBookMapBookMeta()
+        {
             DitaElement bookMetaElement = RootMap.RootElement.FindOnlyChild("bookmeta");
 
             ParseBookMapVersion(bookMetaElement);
@@ -160,19 +178,26 @@ namespace DitaDotNet {
         }
 
         // Parse the  meta date from the map
-        private void ParseMapMeta() {
+        private void ParseMapMeta()
+        {
             DitaElement bookMetaElement = RootMap.RootElement.FindOnlyChild("topicmeta");
             ParseMetaCategories(bookMetaElement);
         }
 
         // Parse the metadata from the given element?
-        private void ParseMetaCategories(DitaElement parentElement) {
-            try {
+        private void ParseMetaCategories(DitaElement parentElement)
+        {
+            try
+            {
                 List<DitaElement> categoriesData = parentElement?.FindChildren("category");
-                if (categoriesData != null) {
-                    foreach (DitaElement categoryData in categoriesData) {
-                        foreach (DitaElement data in categoryData.Children) {
-                            if (data?.Attributes.ContainsKey("name") ?? false) {
+                if (categoriesData != null)
+                {
+                    foreach (DitaElement categoryData in categoriesData)
+                    {
+                        foreach (DitaElement data in categoryData.Children)
+                        {
+                            if (data?.Attributes.ContainsKey("name") ?? false)
+                            {
                                 if (BookMeta.ContainsKey(data?.Attributes["name"]))
                                 {
                                     Trace.TraceWarning($"BookMeta already contains a value for {data?.Attributes["name"]}");
@@ -186,13 +211,15 @@ namespace DitaDotNet {
                     }
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Trace.TraceError(ex);
             }
         }
 
         // Parse the version of the document
-        private void ParseBookMapVersion(DitaElement bookMetaElement) {
+        private void ParseBookMapVersion(DitaElement bookMetaElement)
+        {
             // Try checking the publisher information section
             DitaElement publisherInformationElement = bookMetaElement?.FindOnlyChild("publisherinformation");
             DitaElement publishedElement = publisherInformationElement?.FindChildren("published")?.Last();
@@ -200,20 +227,23 @@ namespace DitaDotNet {
             string version = revisionIdElement?.ToString();
 
             // Try checking the prodinfo section
-            if (string.IsNullOrWhiteSpace(version) || version == "ProductVersionNumber") {
+            if (string.IsNullOrWhiteSpace(version) || version == "ProductVersionNumber")
+            {
                 DitaElement prodinfoElement = bookMetaElement?.FindOnlyChild("prodinfo");
                 DitaElement vrmlistElement = prodinfoElement?.FindOnlyChild("vrmlist");
                 DitaElement vrmElement = vrmlistElement?.FindChildren("vrm")?[0];
                 version = vrmElement?.Attributes?["version"];
             }
 
-            if (!string.IsNullOrWhiteSpace(version)) {
+            if (!string.IsNullOrWhiteSpace(version))
+            {
                 BookMeta.Add("version", version);
             }
         }
 
         // Parse the date of the document
-        private void ParseBookMapReleaseDate(DitaElement bookMetaElement) {
+        private void ParseBookMapReleaseDate(DitaElement bookMetaElement)
+        {
             DitaElement publisherInformationElement = bookMetaElement?.FindOnlyChild("publisherinformation");
             DitaElement publishedElement = publisherInformationElement?.FindChildren("published")?.Last();
             DitaElement completedElement = publishedElement?.FindOnlyChild("completed");
@@ -221,13 +251,16 @@ namespace DitaDotNet {
             string month = completedElement?.FindOnlyChild("month")?.ToString();
             string day = completedElement?.FindOnlyChild("day")?.ToString();
 
-            if (!string.IsNullOrWhiteSpace(year) && !string.IsNullOrWhiteSpace(month) && !string.IsNullOrWhiteSpace(day)) {
-                try {
+            if (!string.IsNullOrWhiteSpace(year) && !string.IsNullOrWhiteSpace(month) && !string.IsNullOrWhiteSpace(day))
+            {
+                try
+                {
                     // Is this a valid date?
                     DateTime publishDate = new DateTime(int.Parse(year), int.Parse(month), int.Parse(day));
                     BookMeta.Add("published date", $"{publishDate.Day}/{publishDate.Month}/{publishDate.Year} 00:00:00");
                 }
-                catch {
+                catch
+                {
                     //
                 }
             }
@@ -235,10 +268,12 @@ namespace DitaDotNet {
 
 
         // Parse the chapters in the document, recursively
-        private void ParseBookMapChapters() {
-            List<DitaElement> chapters = RootMap.RootElement.FindChildren("chapter");
+        private void ParseBookMapChapters()
+        {
+            List<DitaElement> chapters = RootMap.RootElement.FindChildren(_chapterElements);
 
-            foreach (DitaElement chapter in chapters) {
+            foreach (DitaElement chapter in chapters)
+            {
                 // What is the href to the chapter?
                 string chapterHref = chapter.Attributes?["href"];
 
@@ -251,30 +286,22 @@ namespace DitaDotNet {
                 {
                     children[0].Children.AddRange(ParseRefs(chapter.FindChildren(_refElements)));
                 }
-            }
-        }
 
-        // Parse any appendix referenced in the book map
-        private void ParseBookMapAppendix() {
-            List<DitaElement> appendix = RootMap.RootElement.FindChildren("appendix");
-            if (appendix != null) {
-                foreach (DitaElement chapter in appendix) {
-                    // What is the href to the chapter?
-                    string chapterHref = chapter.Attributes?["href"];
+                //if (chapter.Type == "appendices" && children.Count > 0)
+                //{
 
-                    // Try to find this file
-                    DitaFile linkedFile = Collection.GetFileByName(chapterHref);
-                    Chapters.AddRange(ParseChaptersFromFile(linkedFile));
-                }
+                //}
             }
         }
 
         // Parse chapter structure from a dita file
-        private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaFile linkedFile, string navTitle = null) {
+        private List<DitaCollectionLinkJson> ParseChaptersFromFile(DitaFile linkedFile, string navTitle = null)
+        {
             Trace.TraceInformation($"Converting {linkedFile}");
 
             // What type of file is this?
-            switch (linkedFile) {
+            switch (linkedFile)
+            {
                 case DitaFileBookMap bookMap:
                     // This should never happen
                     throw new Exception($"Found bookmap {linkedFile} nested in bookmap.");
@@ -288,7 +315,8 @@ namespace DitaDotNet {
         }
 
         // Parse chapter structure from a .ditamap file
-        private List<DitaCollectionLinkJson> ParseChaptersFromMap(DitaFileMap map) {
+        private List<DitaCollectionLinkJson> ParseChaptersFromMap(DitaFileMap map)
+        {
             Trace.TraceInformation($"Found link to map {map.NewFileName ?? map.FileName}.");
 
             // Find all the topic references
@@ -297,69 +325,85 @@ namespace DitaDotNet {
             return chapters;
         }
 
-        private List<DitaCollectionLinkJson> ParseRefs(List<DitaElement> topicRefElements) {
+        private List<DitaCollectionLinkJson> ParseRefs(List<DitaElement> topicRefElements)
+        {
             List<DitaCollectionLinkJson> chapters = new List<DitaCollectionLinkJson>();
-            if (topicRefElements?.Count > 0) {
-                foreach (DitaElement topicRefElement in topicRefElements) {
+            if (topicRefElements?.Count > 0)
+            {
+                foreach (DitaElement topicRefElement in topicRefElements)
+                {
                     // Try to find the linked file
                     string topicRefHref = topicRefElement.AttributeValueOrDefault("href", "");
                     string topicRefKeyRef = topicRefElement.AttributeValueOrDefault("keyref", "");
                     string topicRefNavTitle = topicRefElement?.FindOnlyChild("topicmeta")?.FindOnlyChild("navtitle")?.ToString();
 
                     // If there is no navtitle, check the topicmeta
-                    if (string.IsNullOrWhiteSpace(topicRefNavTitle)) {
+                    if (string.IsNullOrWhiteSpace(topicRefNavTitle))
+                    {
                         topicRefNavTitle = topicRefElement.AttributeValueOrDefault("navtitle", "");
                     }
 
                     // Is this an external link?
-                    if (topicRefElement.AttributeValueOrDefault("scope", "") == "external") {
-                        DitaCollectionLinkJson externalLink = new DitaCollectionLinkJson {
+                    if (topicRefElement.AttributeValueOrDefault("scope", "") == "external")
+                    {
+                        DitaCollectionLinkJson externalLink = new DitaCollectionLinkJson
+                        {
                             FileName = topicRefHref,
                             Title = topicRefNavTitle,
                             IsExternal = true
                         };
                         chapters.Add(externalLink);
                     }
-                    else {
+                    else
+                    {
                         // Local scope
                         DitaFile linkedFile = null;
-                        if (!string.IsNullOrWhiteSpace(topicRefHref)) {
+                        if (!string.IsNullOrWhiteSpace(topicRefHref))
+                        {
                             linkedFile = Collection.GetFileByName(topicRefHref);
                         }
 
                         // If no href, try to find by keyref
-                        if (linkedFile == null && !string.IsNullOrWhiteSpace(topicRefKeyRef)) {
+                        if (linkedFile == null && !string.IsNullOrWhiteSpace(topicRefKeyRef))
+                        {
                             linkedFile = Collection.GetFileByKey(topicRefKeyRef);
                         }
 
-                        if (linkedFile != null) {
-                            if (string.IsNullOrWhiteSpace(linkedFile.Title)) {
+                        if (linkedFile != null)
+                        {
+                            if (string.IsNullOrWhiteSpace(linkedFile.Title))
+                            {
                                 linkedFile.Title = topicRefNavTitle;
                             }
-                            else if (string.IsNullOrWhiteSpace(topicRefNavTitle)) {
+                            else if (string.IsNullOrWhiteSpace(topicRefNavTitle))
+                            {
                                 topicRefNavTitle = linkedFile.Title;
                             }
 
                             // Add references from the linked files
                             List<DitaCollectionLinkJson> newChapters = ParseChaptersFromFile(linkedFile, topicRefNavTitle);
 
-                            if (newChapters != null && newChapters.Count > 0) {
+                            if (newChapters != null && newChapters.Count > 0)
+                            {
                                 // Are there child chapters?
                                 List<DitaCollectionLinkJson> childChapters = ParseRefs(topicRefElement.FindChildren(_refElements));
 
-                                if (newChapters.Count > 1 && childChapters.Count > 0) {
+                                if (newChapters.Count > 1 && childChapters.Count > 0)
+                                {
                                     // This should never happen
                                     throw new Exception("Found multiple children in a map and topic refs.");
                                 }
 
-                                if (childChapters != null && childChapters.Count > 0) {
+                                if (childChapters != null && childChapters.Count > 0)
+                                {
                                     newChapters[0]?.Children?.AddRange(childChapters);
                                 }
 
                                 chapters.AddRange(newChapters);
                             }
                         }
-                        else {
+                        else
+                        {
                             Trace.TraceWarning($"Reference with missing href/keyref: {topicRefElement}");
                         }
                     }
@@ -371,16 +415,19 @@ namespace DitaDotNet {
 
 
         // Parse chapter structure from a dita topic (leaf node)
-        private List<DitaCollectionLinkJson> ParseChaptersFromTopic(DitaFileTopicAbstract topic, string navTitle = null) {
+        private List<DitaCollectionLinkJson> ParseChaptersFromTopic(DitaFileTopicAbstract topic, string navTitle = null)
+        {
             List<DitaCollectionLinkJson> chapters = new List<DitaCollectionLinkJson>();
 
-            try {
+            try
+            {
                 // Build a page for this topic
                 DitaPageJson topicPage = new DitaPageJson(topic, Collection);
                 Pages.Add(topicPage);
 
                 // Add this chapter to the toc for this page
-                DitaCollectionLinkJson chapter = new DitaCollectionLinkJson {
+                DitaCollectionLinkJson chapter = new DitaCollectionLinkJson
+                {
                     FileName = topicPage.FileName,
                     Title = navTitle ?? topicPage.Title
                 };
@@ -388,7 +435,8 @@ namespace DitaDotNet {
 
                 Trace.TraceInformation($"Found link to topic {chapter.FileName}.");
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Trace.TraceError($"Error parsing topic {topic.FileName} - {ex}");
             }
 
@@ -397,12 +445,15 @@ namespace DitaDotNet {
 
         // Tries to add the text of the given element to the dictionary
         private bool AddChildDitaElementTextToDictionary(DitaElement parentElement, string type,
-            Dictionary<string, string> dictionary) {
+            Dictionary<string, string> dictionary)
+        {
             // Try to find the child elements that match the type
             List<DitaElement> childElements = parentElement.FindChildren(type);
 
-            if (childElements?.Count > 0) {
-                foreach (DitaElement childElement in childElements) {
+            if (childElements?.Count > 0)
+            {
+                foreach (DitaElement childElement in childElements)
+                {
                     dictionary.Add(type, childElement.InnerText);
                 }
 
@@ -413,14 +464,17 @@ namespace DitaDotNet {
         }
 
         // Removes blank pages from the output
-        private void RemoveBlankPages() {
+        private void RemoveBlankPages()
+        {
             // Remove links to blank pages
             MarkBlankChapterLinks(Chapters);
 
             // Remove the blank pages
             List<DitaPageJson> removePages = new List<DitaPageJson>();
-            foreach (DitaPageJson page in Pages) {
-                if (page.IsEmpty) {
+            foreach (DitaPageJson page in Pages)
+            {
+                if (page.IsEmpty)
+                {
                     Trace.TraceWarning($"Removing empty page {page.FileName} ({page.OriginalFileName})");
                     removePages.Add(page);
                 }
@@ -430,9 +484,12 @@ namespace DitaDotNet {
         }
 
 
-        private void MarkBlankChapterLinks(List<DitaCollectionLinkJson> chapters) {
-            if (chapters != null) {
-                foreach (DitaCollectionLinkJson link in chapters) {
+        private void MarkBlankChapterLinks(List<DitaCollectionLinkJson> chapters)
+        {
+            if (chapters != null)
+            {
+                foreach (DitaCollectionLinkJson link in chapters)
+                {
                     // Is the page empty?
                     link.IsEmpty = IsLinkToEmptyPage(link, out DitaPageJson _);
 
@@ -443,7 +500,8 @@ namespace DitaDotNet {
         }
 
         // Does the given chapter link point to an empty page?
-        private bool IsLinkToEmptyPage(DitaCollectionLinkJson link, out DitaPageJson pageJson) {
+        private bool IsLinkToEmptyPage(DitaCollectionLinkJson link, out DitaPageJson pageJson)
+        {
             pageJson = Pages.FirstOrDefault(o => o.FileName == link.FileName);
             // Is the page empty?
             return (pageJson?.IsEmpty ?? false);

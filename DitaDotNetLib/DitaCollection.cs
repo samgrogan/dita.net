@@ -199,7 +199,7 @@ namespace DitaDotNet {
                 }
             }
             catch (Exception ex) {
-                Trace.TraceWarning($"Unable to load {filePath} as XML.");
+                Trace.TraceWarning($"Unable to load {filePath} as XML: {ex}");
             }
 
             throw new Exception($"{filePath} is an unknown file type.");
